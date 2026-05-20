@@ -1,0 +1,9 @@
+POST http://localhost:1999/api/auth/register
+Content-Type: application/json
+
+{
+    "email": "anastasia00@gmail.com",
+    "password": "anastasia147",
+    "username": "anastasia",
+    "role": "admin"
+}
