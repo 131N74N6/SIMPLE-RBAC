@@ -1,10 +1,15 @@
 import { Router } from "express";
-import { changeUserData, deleteUser } from "../controllers/user.controller";
+import { changeUserData, deleteAllUsers, deleteUser, getAllUsers, getUser } from "../controllers/user.controller";
 import { checkRole, verifyToken } from "../middleware/auth.middleware";
 
 const userRouters = Router();
 
-userRouters.put('/change/:user_id', verifyToken, checkRole('admin'), changeUserData);
-userRouters.delete('/remove/:user_id', verifyToken, checkRole('admin'), deleteUser);
+userRouters.delete('/admin-only/rm/:user_id', verifyToken, checkRole('admin'), deleteUser);
+userRouters.delete('/admin-only/rm-all', verifyToken, checkRole('admin'), deleteAllUsers);
+
+userRouters.get('/admin-only/show', verifyToken, checkRole('admin'), getAllUsers);
+userRouters.get('/user-only/show/:user_id', verifyToken, checkRole('user'), getUser);
+
+userRouters.put('/admin-only/change/:user_id', verifyToken, checkRole('admin'), changeUserData);
 
 export default userRouters;

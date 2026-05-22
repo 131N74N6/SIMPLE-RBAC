@@ -5,11 +5,12 @@ import { User } from '../models/user.model';
 
 export async function register(req: Request, res: Response) {
     try {
-        const { email, password, username } = req.body;
-        if (!email && !password && !username) return res.status(400).json({ message: "Please provide email, username and password" });
+        const { email, password, role, username } = req.body;
+        if (!email && !password && !username && !role) return res.status(400).json({ message: "Please provide email, username, role and password" });
         if (!email) return res.status(400).json({ message: "Please provide email" });
         if (!password) return res.status(400).json({ message: "Please provide password" });
         if (!username) return res.status(400).json({ message: "Please provide username" });
+        if (!role) return res.status(400).json({ message: "Please provide role" });
 
         const existingUser = await User.findOne({ username });
         if (existingUser) return res.status(409).json({ message: "User already exists" });
@@ -19,7 +20,7 @@ export async function register(req: Request, res: Response) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const createDate = new Date().toISOString();
-        const newUser = new User({ created_at: createDate, email, password: hashedPassword, username });
+        const newUser = new User({ created_at: createDate, email, password: hashedPassword, role, username });
         await newUser.save();
 
         res.status(200).json({ message: "User created successfully" });

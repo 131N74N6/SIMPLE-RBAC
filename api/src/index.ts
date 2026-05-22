@@ -10,8 +10,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 import express from "express";
 import cors from "cors";
-import { db } from "./database/mongodb";
-import authRouter from "./routers/auth.router";
+import db from "./database/mongodb";
+import authRouters from "./routers/auth.router";
 import userRouters from "./routers/user.router";
 
 const app = express();
@@ -21,7 +21,7 @@ app.use(cors({
     credentials: true,
     origin: ['http://localhost:1999', 'http://localhost:5173']
 }));
-app.use('/api/auth', authRouter);
+app.use('/api/auth', authRouters);
 app.use('/api/users', userRouters);
 
 if (process.env.NODE_ENV !== 'production') {
