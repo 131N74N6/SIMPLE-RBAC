@@ -39,12 +39,18 @@ export async function deleteUser(req: Request, res: Response) {
 
 export async function getAllUsers(req: Request, res: Response) {
     try {
+        const searched = req.query.search as string | undefined;
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 16;
         const skip = (page - 1) * limit;
-        const users = await User.find().skip(skip).limit(limit);
-        
-        res.status(200).json(users);
+
+        if (searched === undefined || searched.trim() === "") {
+            const users = await User.find().skip(skip).limit(limit);
+            res.status(200).json(users);
+        } else {
+            const users = await User.find({ username: { $regex: new RegExp(searched, 'i') } }).skip(skip).limit(limit);
+            res.status(200).json(users);
+        }
     } catch (error: any) {
         res.status(500).json({ message: error.message });
     }

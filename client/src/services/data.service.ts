@@ -116,40 +116,24 @@ export default function DataServices() {
                 return allPages.length + 1;
             },
             queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
-                if (props.searched === undefined) {
-                    const request1 = await fetch(`${props.api_url}?page=${pageParam}&limit=${props.limit}`, {
-                        headers: {
-                            'Authorization': `Bearer ${currentUserToken!}`,
-                            'Content-Type': 'application/json'
-                        },
-                        method: 'GET'
-                    });
+                const baseUrl = `${props.api_url}?page=${pageParam}&limit=${props.limit}`;
+                const finalUrl = props.searched ? `${baseUrl}&search=${props.searched.trim()}` : baseUrl;
 
-                    const response = await request1.json();
+                const request = await fetch(finalUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUserToken!}`,
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'GET'
+                });
 
-                    if (!request1.ok) {
-                        throw new Error(response.message);
-                    } else {
-                        setDataError(null);
-                        return response;
-                    }
+                const response = await request.json();
+
+                if (!request.ok) {
+                    throw new Error(response.message);
                 } else {
-                    const request2 = await fetch(`${props.api_url}?search=${props.searched}&page=${pageParam}&limit=${props.limit}`, {
-                        headers: {
-                            'Authorization': `Bearer ${currentUserToken!}`,
-                            'Content-Type': 'application/json'
-                        },
-                        method: 'GET'
-                    });
-                    
-                    const response = await request2.json();
-
-                    if (!request2.ok) {
-                        throw new Error(response.message);
-                    } else {
-                        setDataError(null);
-                        return response;
-                    }
+                    setDataError(null);
+                    return response;
                 }
             },
             queryKey: props.query_key,

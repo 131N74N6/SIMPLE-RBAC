@@ -2,18 +2,24 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AddUserIntrf, UserItemIntrf } from "../models/user-model";
 import DataServices from "./data.service";
 import { useState } from "react";
+import useDebounce from "../hooks/useDebounce";
 
 export default function UserServices() {
     const queryClient = useQueryClient();
     const { addData, dataError, deleteData, editData, infiniteScroll, setDataError } = DataServices();
+
+    const [searchedUser, setSearchedUser] = useState<string>('');
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
     const [newUser, setNewUser] = useState({ username: "", email: "", password: "", role: "" });
 
+    const deboundedSearchUser = useDebounce<string>(searchedUser, 3000);
+
     const { error, flatennedData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = infiniteScroll<UserItemIntrf>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin-only/show`,
-        limit: 10,
+        limit: 16,
+        searched: deboundedSearchUser,
         stale_time: 1800000,
-        query_key: ['all-users']
+        query_key: deboundedSearchUser ? [`all-users-${deboundedSearchUser}`] : ['all-users']
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,6 +44,7 @@ export default function UserServices() {
         onError: () => {},
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-users'] });
+            queryClient.invalidateQueries({ queryKey: [`all-users-${deboundedSearchUser}`] });
             setNewUser({ username: "", email: "", password: "", role: "" });
         },
         onSettled: () => setIsProcessing(false)
@@ -57,6 +64,7 @@ export default function UserServices() {
         onError: () => {},
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-users'] });
+            queryClient.invalidateQueries({ queryKey: [`all-users-${deboundedSearchUser}`] });
             setNewUser({ username: "", email: "", password: "", role: "" });
         },
         onSettled: () => setIsProcessing(false)
@@ -70,6 +78,7 @@ export default function UserServices() {
         onError: () => {},
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-users'] });
+            queryClient.invalidateQueries({ queryKey: [`all-users-${deboundedSearchUser}`] });
         },
         onSettled: () => setIsProcessing(false)
     });
@@ -82,9 +91,10 @@ export default function UserServices() {
         onError: () => {},
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-users'] });
+            queryClient.invalidateQueries({ queryKey: [`all-users-${deboundedSearchUser}`] });
         },
         onSettled: () => setIsProcessing(false)
     });
 
-    return { addUserMt, changeUserDataMt, dataError, deleteAllUsersMt, deleteUserMt, handleInputChange, isProcessing, newUser, paginatedUsersData, setDataError };
+    return { addUserMt, changeUserDataMt, dataError, deleteAllUsersMt, deleteUserMt, handleInputChange, isProcessing, newUser, paginatedUsersData, searchedUser, setDataError, setSearchedUser };
 }
