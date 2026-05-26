@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AddUserIntrf, UserItemIntrf } from "../models/user-model";
+import type { AddUserIntrf, EditUserIntrf, UserItemIntrf } from "../models/user-model";
 import DataServices from "./data.service";
 import { useState } from "react";
 import useDebounce from "../hooks/useDebounce";
@@ -10,9 +10,22 @@ export default function UserServices() {
 
     const [searchedUser, setSearchedUser] = useState<string>('');
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
-    const [newUser, setNewUser] = useState({ username: "", email: "", password: "", role: "" });
+    const [newUser, setNewUser] = useState<AddUserIntrf>({ username: "", email: "", password: "", role: "" });
+    const [editUser, setEditUser] = useState<EditUserIntrf>({ created_at: '', email: '', role: '', username: '' });
+    const [selectedId, setSelectedId] = useState<string | null>(null);
 
-    const deboundedSearchUser = useDebounce<string>(searchedUser, 3000);
+    const deboundedSearchUser = useDebounce<string>(searchedUser, 500);
+
+    function isoToLocalDateTime(isoString: string): string {
+        const date = new Date(isoString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
 
     const { error, flatennedData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = infiniteScroll<UserItemIntrf>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin-only/show`,
@@ -21,12 +34,16 @@ export default function UserServices() {
         stale_time: 1800000,
         query_key: deboundedSearchUser ? [`all-users-${deboundedSearchUser}`] : ['all-users']
     });
+    
+    const paginatedUsersData = { error, flatennedData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNewUser(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    function handleSelectedId(id: string) {
+        setSelectedId(prev => prev === id ? null : id);
     }
 
-    const paginatedUsersData = { error, flatennedData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading }
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setNewUser(prev => ({ ...prev, [event.target.name]: event.target.value }));
+    }
 
     const addUserMt = useMutation({
         onMutate: () => setIsProcessing(true),
@@ -56,8 +73,10 @@ export default function UserServices() {
             await editData<UserItemIntrf>({
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin-only/change/${id}`,
                 data: {
-                    username: newUser.username.trim(),
-                    role: newUser.role.trim()
+                    created_at: new Date(editUser.created_at!).toISOString(),
+                    email: editUser.email?.trim(),
+                    username: editUser.username?.trim(),
+                    role: editUser.role?.trim()
                 }
             });
         },
@@ -65,9 +84,10 @@ export default function UserServices() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-users'] });
             queryClient.invalidateQueries({ queryKey: [`all-users-${deboundedSearchUser}`] });
-            setNewUser({ username: "", email: "", password: "", role: "" });
         },
-        onSettled: () => setIsProcessing(false)
+        onSettled: () => {
+            setIsProcessing(false);
+        }
     });
 
     const deleteAllUsersMt = useMutation({
@@ -96,5 +116,9 @@ export default function UserServices() {
         onSettled: () => setIsProcessing(false)
     });
 
-    return { addUserMt, changeUserDataMt, dataError, deleteAllUsersMt, deleteUserMt, handleInputChange, isProcessing, newUser, paginatedUsersData, searchedUser, setDataError, setSearchedUser };
+    return { 
+        addUserMt, changeUserDataMt, dataError, deleteAllUsersMt, deleteUserMt, editUser, handleInputChange, handleSelectedId,
+        isoToLocalDateTime, isProcessing, newUser, paginatedUsersData, searchedUser, selectedId, setSelectedId, setDataError, 
+        setEditUser, setNewUser, setSearchedUser 
+    };
 }

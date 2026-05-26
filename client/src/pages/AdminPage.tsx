@@ -4,7 +4,7 @@ import AdminUserList from '../components/AdminUserList';
 import UserServices from '../services/user.service';
 
 export default function AdminPage() {
-    const { deleteAllUsersMt, deleteUserMt, paginatedUsersData, searchedUser, setSearchedUser } = UserServices();
+    const { deleteAllUsersMt, deleteUserMt, paginatedUsersData, searchedUser, handleSelectedId, isProcessing, selectedId, setSearchedUser } = UserServices();
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10">
@@ -20,8 +20,9 @@ export default function AdminPage() {
                     />
                     <button
                         type='button'
+                        disabled={isProcessing}
                         onClick={() => deleteAllUsersMt.mutate()}
-                        className='shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] w-[10%] cursor-pointer font-medium p-1.5 text-base border border-black outline-0 font-mono text-black'
+                        className='shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] w-[10%] cursor-pointer disabled:cursor-not-allowed font-medium p-1.5 text-base border border-black outline-0 font-mono text-black'
                     >
                         <div className='flex justify-center'><Trash2/></div>
                     </button>
@@ -30,11 +31,13 @@ export default function AdminPage() {
                     fetch_next_page={paginatedUsersData.fetchNextPage}
                     has_next_page={paginatedUsersData.hasNextPage}
                     is_fetching_next_page={paginatedUsersData.isFetchingNextPage}
-                    users={paginatedUsersData.flatennedData}
                     on_delete={deleteUserMt}
+                    on_select={handleSelectedId}
+                    selected_id={selectedId}
+                    users={paginatedUsersData.flatennedData}
                 />
             </div>
-            {AdminNavbar()}
+            {AdminNavbar(isProcessing)}
         </section>
     );
 }

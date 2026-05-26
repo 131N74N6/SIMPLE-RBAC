@@ -18,8 +18,8 @@ export default function AddUser() {
     }
 
     return (
-        <div className="flex md:flex-row flex-col h-screen relative z-10">
-            <form className="flex flex-col gap-2.5 h-full md:w-3/4 w-full bg-white p-2.5" onSubmit={handleSubmit}>
+        <div className="flex md:flex-row flex-col h-screen relative z-10 font-mono">
+            <form className="flex flex-col gap-3 h-full md:w-3/4 w-full bg-white p-2.5" onSubmit={handleSubmit}>
                 <label htmlFor="Username">Username</label>
                 <input 
                     type="text" 
@@ -28,7 +28,7 @@ export default function AddUser() {
                     name="username"
                     value={newUser.username}
                     onChange={handleInputChange}
-                    className="border-gray-500 p-2.5 text-lg text-black font-medium outline-0 border"
+                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <label htmlFor="Email">Email</label>
                 <input 
@@ -38,7 +38,7 @@ export default function AddUser() {
                     name="email"
                     value={newUser.email}
                     onChange={handleInputChange}
-                    className="border-gray-500 p-2.5 text-lg text-black font-medium outline-0 border"
+                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <label htmlFor="Password">Password</label>
                 <input 
@@ -48,7 +48,7 @@ export default function AddUser() {
                     name="password"
                     value={newUser.password}
                     onChange={handleInputChange}
-                    className="border-gray-500 p-2.5 text-lg text-black font-medium outline-0 border"
+                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <label htmlFor="Role">Role</label>
                 <input 
@@ -58,20 +58,20 @@ export default function AddUser() {
                     name="role"
                     value={newUser.role}
                     onChange={handleInputChange}
-                    className="border-gray-500 p-2.5 text-lg text-black font-medium outline-0 border"
+                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <div>
                     <button 
                         type="submit"
                         disabled={isProcessing}
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-medium font-mono py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                         Add User
                     </button>
                 </div>
                 {dataError && <p className="text-red-500 mt-2">{dataError}</p>}
             </form>
-            {AdminNavbar()}
+            {AdminNavbar(isProcessing)}
         </div>
     )
 }

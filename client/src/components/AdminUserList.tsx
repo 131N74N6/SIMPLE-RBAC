@@ -15,7 +15,18 @@ export default function AdminUserList(props: UserListIntrf) {
         <div className="flex flex-col gap-4 overflow-y-auto px-2.5 pt-2.5">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {props.users.map((user) => (
-                    <AdminUserItem key={`user-${user._id}`} {...user}/>
+                    <AdminUserItem 
+                        _id={user._id}
+                        created_at={user.created_at}
+                        email={user.email}
+                        is_selected={user._id === props.selected_id}
+                        key={`user-${user._id}`}
+                        on_delete={props.on_delete}
+                        on_select={props.on_select}
+                        password={user.password}
+                        role={user.role}
+                        username={user.username}
+                    />
                 ))}
             </div>
             <div className="flex justify-center">
