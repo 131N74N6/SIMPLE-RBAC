@@ -17,14 +17,22 @@ export default function AdminUserList(props: UserListIntrf) {
                 {props.users.map((user) => (
                     <AdminUserItem 
                         _id={user._id}
+                        change_user_data={props.change_user_data}
                         created_at={user.created_at}
+                        current_user_id={props.current_user_id}
+                        data_error={props.data_error}
+                        edit_user={props.edit_user}
                         email={user.email}
+                        is_processing={props.is_processing}
+                        iso_to_local={props.iso_to_local}
                         is_selected={user._id === props.selected_id}
                         key={`user-${user._id}`}
                         on_delete={props.on_delete}
                         on_select={props.on_select}
                         password={user.password}
                         role={user.role}
+                        set_data_error={props.set_data_error}
+                        set_edit_user={props.set_edit_user}
                         username={user.username}
                     />
                 ))}

@@ -9,7 +9,7 @@ type ProtectIntrf = {
 }
 
 export default function ProtectedRoute(props: ProtectIntrf) {
-    const { currentRole, currentUserId, userLoading } = AuthServices();
+    const { currentRole, currentUserId, currentUserName, userLoading } = AuthServices();
 
     if (userLoading) {
         return (
@@ -19,11 +19,15 @@ export default function ProtectedRoute(props: ProtectIntrf) {
         );
     }
 
+    if (!currentUserId || !currentUserName) {
+        return <Navigate to={'/sign-in'} replace />;
+    }
+
     if (props.required_roles && !props.required_roles.includes(currentRole!)) {
         return <Navigate to={'/unauthorized'}/>;
     }
 
     return (
-        <>{currentUserId ? <>{props.children}</> : <Navigate to={'/sign-in'}/>}</>
+        <>{props.children}</>
     )
 }

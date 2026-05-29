@@ -3,10 +3,11 @@ import AuthServices from "../services/auth.service";
 
 export default function AdminNavbar(is_processing: boolean) {
     const navigate = useNavigate();
-    const { quit } = AuthServices();
+    const { currentUserName, quit } = AuthServices();
 
     return (
         <nav className="p-2.5 flex md:flex-col gap-2.5 md:w-1/4 w-full flex-row font-mono bg-blue-800 text-white font-medium">
+            <div className="p-1.5 md:flex hidden">Hello, {currentUserName}</div>
             <button 
                 type="button"
                 disabled={is_processing}

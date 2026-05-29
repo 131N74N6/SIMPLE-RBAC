@@ -1,36 +1,33 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
-interface AuthRequest extends Request {
+export interface AuthRequest extends Request {
     user?: {
         role: string;
-        token: string;
         user_id: string;
+        username: string;
     } 
 }
 
 interface CustomJwtPayload extends JwtPayload {
     role: string;
-    token: string;
     user_id: string;
+    username: string;
 }
 
 export function verifyToken(req: AuthRequest, res: Response, next: NextFunction) {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-
+    const token = req.cookies?.token;
     if (!token) return res.status(401).json({ message: 'Access token is missing' });
 
-    jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_key', (error, decoded) => {
-
+    jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_key', (error: any, decoded: any) => {
         if (error) return res.status(403).json({ message: 'Invalid access token' });
 
         const payload = decoded as CustomJwtPayload;
 
         req.user = {
             role: payload.role,
-            token: payload.token,
-            user_id: payload.user_id
+            user_id: payload.user_id,
+            username: payload.username
         }
         
         next();

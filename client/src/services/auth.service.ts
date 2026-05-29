@@ -1,49 +1,49 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { SignInIntrf, UserInfoIntrf } from "../models/user-model";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function AuthServices() {
-    const [user, setUser] = useState<UserInfoIntrf | null>(null);
-    const [userLoading, setUserLoading] = useState<boolean>(true);
-    const [userError, setUserError] = useState<string | null>(null);
-
-    const currentUserId = user && user.user_id;
-    const currentUserToken = user && user.token;
-    const currentRole = user && user.role;
-
     const navigate = useNavigate();
-
-    useEffect(() => {
-        function initAuth() {
+    const queryClient = useQueryClient();
+    const [userError, setUserError] = useState<string | null>(null);
+    
+    const { data: currentUserData, isLoading: userLoading } = useQuery<UserInfoIntrf | null>({
+        queryKey: ['auth-user'],
+        queryFn: async () => {
             try {
-                const userExist = localStorage.getItem('user');
-                if (userExist) {
-                    const parsedUser = JSON.parse(userExist);
-                    setUser(parsedUser);
-                }
-            } catch (err: any) {
-                localStorage.removeItem('user');
-                setUser(null);
-                setUserError(err.message || 'Failed to retrieve user data. Please sign in again.');
-            } finally {
-                setUserLoading(false); 
-            }
-        };
+                const request = await fetch(`${import.meta.env.VITE_BASE_API_URL}/users/show`, {
+                    credentials: 'include', // 🔑 CRITICAL: Agar browser mau mengirim HttpOnly Cookie
+                    method: 'GET',
+                });
 
-        initAuth();
-    }, []);
+                if (!request.ok) return null;
+                else return await request.json();
+            } catch (err) {
+                return null;
+            }
+        },
+        staleTime: 1800000, // Data auth dianggap segar selama 30 menit tanpa re-fetch berlebih
+        retry: false       // Jangan lakukan retry jika user memang belum login
+    });
+
+    const currentUserId = currentUserData ? currentUserData.user_id : null;
+    const currentUserName = currentUserData ? currentUserData.username : null;
+    const currentRole = currentUserData ? currentUserData.role : null;
+
+    console.log(currentRole, currentUserName, currentUserId);
 
     async function signIn(props: SignInIntrf) {
-        setUserLoading(true);
         setUserError(null);
 
         try {
             const request = await fetch(`${import.meta.env.VITE_BASE_API_URL}/auth/signin`, {
-                headers: { "Content-Type": "application/json" },
+                credentials: 'include',
                 body: JSON.stringify({
                     username: props.username.trim(),
                     password: props.password.trim()
                 }),
+                headers: { "Content-Type": "application/json" },
                 method: 'POST'
             });
 
@@ -53,36 +53,37 @@ export default function AuthServices() {
                 const errorMessage = response.error || response.message || 'Failed to sign in. Try again later';
                 setUserError(errorMessage);
             } else {
-                const userInfo: UserInfoIntrf = {
-                    role: response.role,
-                    token: response.token,
-                    user_id: response.user_id
+                await queryClient.invalidateQueries({ queryKey: ['auth-user'] });
+
+                if (response.role === 'admin') {
+                    navigate('/admin/page');
+                } else if (response.role === 'user') {
+                    navigate('/user/page');
+                } else {
+                    navigate('/sign-in');
                 }
-                localStorage.setItem('user', JSON.stringify(userInfo));
-                setUser(userInfo);
             }
         } catch (error: any) {
             setUserError(error.message || 'something went wrong. try again later');
-            setUser(null);
-        } finally {
-            setUserLoading(false);
-        }
-    }
-
-    function quit() {
-        setUserLoading(true);
-        setUserError(null);
-
-        try {
-            localStorage.removeItem('user');
-            setUser(null);
             navigate('/sign-in');
-        } catch (error: any) {
-            setUserError(error.message || 'something went wrong. try again later');
-        } finally {
-            setUserLoading(false);
         }
     }
 
-    return { currentRole, currentUserToken, currentUserId, quit, setUserError, signIn, userLoading, userError }
+    async function quit() {
+        setUserError(null);
+        try {
+            await fetch(`${import.meta.env.VITE_BASE_API_URL}/auth/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch (error: any) {
+            // Tetap lanjutkan proses logout di frontend meskipun request API logout gagal
+        } finally {
+            queryClient.setQueryData(['auth-user'], null);
+            queryClient.clear();
+            navigate('/sign-in');
+        }
+    }
+
+    return { currentRole, currentUserData, currentUserName, currentUserId, quit, setUserError, signIn, userLoading, userError }
 }

@@ -13,10 +13,12 @@ import cors from "cors";
 import db from "./database/mongodb";
 import authRouters from "./routers/auth.router";
 import userRouters from "./routers/user.router";
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors({
     credentials: true,
     origin: ['http://localhost:1999', 'http://localhost:5173']

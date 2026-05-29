@@ -87,6 +87,7 @@ export default function UserServices() {
         },
         onSettled: () => {
             setIsProcessing(false);
+            setSelectedId(null);
         }
     });
 

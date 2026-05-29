@@ -1,37 +1,40 @@
 import { PencilIcon, Save, Trash, X } from "lucide-react";
 import type { UserItemIntrf } from "../models/user-model";
 import { useEffect } from "react";
-import UserServices from "../services/user.service";
-import AuthServices from "../services/auth.service";
 
 export default function AdminUserItem(props: UserItemIntrf) {
-    const { changeUserDataMt, dataError, editUser, isProcessing, setDataError, setEditUser, isoToLocalDateTime } = UserServices();
-    const { currentUserId } = AuthServices();
-    
     useEffect(() => {
-        if (dataError) {
-            const x = setTimeout(() => setDataError(null), 3000);
+        if (props.data_error) {
+            const x = setTimeout(() => props.set_data_error(null), 3000);
             return () => clearTimeout(x);
         }
-    }, [dataError]);
+    }, [props.data_error]);
     
     useEffect(() => {
         if (props.is_selected) {
-            setEditUser({ created_at: isoToLocalDateTime(props.created_at), email: props.email, role: props.role, username: props.username });
+            props.set_edit_user({ 
+                created_at: props.iso_to_local(props.created_at), 
+                email: props.email, 
+                role: props.role, 
+                username: props.username 
+            });
         } else {
-            setEditUser({ created_at: '', email: '', role: '', username: '' });
+            props.set_edit_user({ 
+                created_at: '', 
+                email: '', 
+                role: '', 
+                username: '' 
+            });
         }
     }, [props.is_selected, props._id]);
     
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEditUser(prev => ({ ...prev, [e.target.name]: e.target.value }));
+        props.set_edit_user(prev => ({ ...prev, [e.target.name]: e.target.value }));
     }
     
     function saveChanges(event: React.SyntheticEvent) {
         event.preventDefault();
-        changeUserDataMt.mutate(props._id, {
-            onSuccess: () => props.on_select(props._id)
-        });
+        props.change_user_data.mutate(props._id);
     }
     
     const cancelEdit = () => props.on_select(props._id);
@@ -48,7 +51,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         type="datetime-local"
                         name="created_at"
                         id="created_at"
-                        value={editUser.created_at}
+                        value={props.edit_user.created_at}
                         onChange={handleInputChange}
                         className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                     />
@@ -59,7 +62,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         type="text"
                         name="email"
                         id="email"
-                        value={editUser.email}
+                        value={props.edit_user.email}
                         onChange={handleInputChange}
                         className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                     />
@@ -70,7 +73,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         type="text"
                         name="role"
                         id="role"
-                        value={editUser.role}
+                        value={props.edit_user.role}
                         onChange={handleInputChange}
                         className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] border outline-0 border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                     />
@@ -81,7 +84,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         type="text"
                         name="username"
                         id="username"
-                        value={editUser.username}
+                        value={props.edit_user.username}
                         onChange={handleInputChange}
                         className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                     />
@@ -89,7 +92,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                 <div className="flex gap-3 justify-end">
                     <button 
                         type="submit"
-                        disabled={isProcessing}
+                        disabled={props.is_processing}
                         className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
                     >
                         <Save/>
@@ -97,13 +100,13 @@ export default function AdminUserItem(props: UserItemIntrf) {
                     <button 
                         type="button"
                         onClick={cancelEdit}
-                        disabled={isProcessing}
+                        disabled={props.is_processing}
                         className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
                     >
                         <X/>
                     </button>
                 </div>
-                {dataError ? <div className="text-center text-red-500 font-medium">{dataError}</div> : null}
+                {props.data_error ? <div className="text-center text-red-500 font-medium">{props.data_error}</div> : null}
             </form>
         );
     }
@@ -115,10 +118,10 @@ export default function AdminUserItem(props: UserItemIntrf) {
             <div>Role: {props.role}</div>
             <div>Username: {props.username}</div>
             <div className="flex gap-3 justify-end">
-                {props._id !== currentUserId && props.role === "user" ? (
+                {props._id !== props.current_user_id && props.role === "user" ? (
                     <button 
                         type="button"
-                        disabled={isProcessing}
+                        disabled={props.is_processing}
                         className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
                         onClick={() => props.on_delete.mutate(props._id)}
                     >
@@ -127,7 +130,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                 ) : null}
                 <button 
                     type="button"
-                    disabled={isProcessing}
+                    disabled={props.is_processing}
                     className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
                     onClick={() => props.on_select(props._id)}
                 >

@@ -8,7 +8,7 @@ userRouters.delete('/admin-only/rm/:user_id', verifyToken, checkRole('admin'), d
 userRouters.delete('/admin-only/rm-all', verifyToken, checkRole('admin'), deleteAllUsers);
 
 userRouters.get('/admin-only/show', verifyToken, getAllUsers);
-userRouters.get('/show/:user_id', verifyToken, getUser);
+userRouters.get('/show', verifyToken, getUser);
 
 userRouters.put('/admin-only/change/:user_id', verifyToken, checkRole('admin'), changeUserData);
 

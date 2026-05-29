@@ -2,9 +2,16 @@ import { Trash2 } from 'lucide-react';
 import AdminNavbar from '../components/AdminNavbar';
 import AdminUserList from '../components/AdminUserList';
 import UserServices from '../services/user.service';
+import Loading from '../components/Loading';
+import AuthServices from '../services/auth.service';
 
 export default function AdminPage() {
-    const { deleteAllUsersMt, deleteUserMt, paginatedUsersData, searchedUser, handleSelectedId, isProcessing, selectedId, setSearchedUser } = UserServices();
+    const { currentUserId } = AuthServices();
+    const { 
+        changeUserDataMt, dataError, editUser, deleteAllUsersMt, deleteUserMt, paginatedUsersData, 
+        searchedUser, handleSelectedId, isProcessing, selectedId, setSearchedUser, setDataError, 
+        setEditUser, isoToLocalDateTime
+    } = UserServices();
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10">
@@ -27,15 +34,33 @@ export default function AdminPage() {
                         <div className='flex justify-center'><Trash2/></div>
                     </button>
                 </div>
-                <AdminUserList 
-                    fetch_next_page={paginatedUsersData.fetchNextPage}
-                    has_next_page={paginatedUsersData.hasNextPage}
-                    is_fetching_next_page={paginatedUsersData.isFetchingNextPage}
-                    on_delete={deleteUserMt}
-                    on_select={handleSelectedId}
-                    selected_id={selectedId}
-                    users={paginatedUsersData.flatennedData}
-                />
+                {paginatedUsersData.error ? (
+                    <div className='flex justify-center items-center h-full'>
+                        <div className='font-mono font-medium text-2xl'>{paginatedUsersData.error.message}</div>
+                    </div>
+                ) : paginatedUsersData.isLoading ? (
+                    <div className='flex justify-center bg-white items-center h-full'>
+                        <Loading/>
+                    </div>
+                ) : (
+                    <AdminUserList 
+                        change_user_data={changeUserDataMt}
+                        current_user_id={currentUserId}
+                        data_error={dataError}
+                        edit_user={editUser}
+                        fetch_next_page={paginatedUsersData.fetchNextPage}
+                        has_next_page={paginatedUsersData.hasNextPage}
+                        is_fetching_next_page={paginatedUsersData.isFetchingNextPage}
+                        iso_to_local={isoToLocalDateTime}
+                        is_processing={isProcessing}
+                        on_delete={deleteUserMt}
+                        on_select={handleSelectedId}
+                        selected_id={selectedId}
+                        set_data_error={setDataError}
+                        set_edit_user={setEditUser}
+                        users={paginatedUsersData.flatennedData}
+                    />
+                )}
             </div>
             {AdminNavbar(isProcessing)}
         </section>

@@ -43,12 +43,37 @@ export async function signIn(req: Request, res: Response) {
         if (!isPasswordMatch) return res.status(400).json({ message: "Invalid password" });
 
         const userToken = jwt.sign(
-            { user_id: findUser._id, role: findUser.role }, 
-            process.env.JWT_SECRET || 'your_jwt_key', 
+            { user_id: findUser._id, role: findUser.role, username: findUser.username }, 
+            process.env.JWT_SECRET || 'your_jwt_key',
+            { expiresIn: '1d' }
         );
 
-        res.status(200).json({ token: userToken, user_id: findUser._id, role: findUser.role });
+        res.cookie('token', userToken, {
+            httpOnly: true,                         // 🚫 Kebal XSS (JS tidak bisa baca)
+            secure: process.env.NODE_ENV === 'production', // Hanya lewat HTTPS di production
+            sameSite: 'lax',                        // 🛡️ Kebal CSRF (Membatasi cross-site requests)
+            maxAge: 24 * 60 * 60 * 1000             // Expire dalam 1 hari
+        });
+
+        res.status(200).json({ username: findUser.username, user_id: findUser._id, role: findUser.role });
     } catch (error: any) {
         res.status(500).json({ message: error.message });
+    }
+}
+
+export async function logout(req: Request, res: Response) {
+    try {
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+        });
+
+        // Atau cara alternatif manual jika res.clearCookie mengalami kendala:
+        // res.cookie('token', '', { httpOnly: true, expires: new Date(0), sameSite: 'lax' });
+
+        return res.status(200).json({ message: "Logged out successfully" });
+    } catch (error: any) {
+        return res.status(500).json({ message: error.message });
     }
 }

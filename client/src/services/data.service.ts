@@ -4,15 +4,15 @@ import type { EditDataIntrf, GetDataIntrf, InfiniteScrollIntrf, InsertDataIntrf 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 export default function DataServices() {
-    const { currentUserToken, userLoading } = AuthServices();
+    const { currentUserData, userLoading } = AuthServices();
     const [dataError, setDataError] = useState<string | null>(null);
 
     async function addData<X>(props: InsertDataIntrf<X>) {
         try {
             const request = await fetch(props.api_url, {
                 body: JSON.stringify(props.data),
+                credentials: 'include',
                 headers: {
-                    'Authorization': `Bearer ${currentUserToken!}`,
                     'Content-Type': 'application/json'
                 },
                 method: 'POST',
@@ -34,8 +34,8 @@ export default function DataServices() {
     async function deleteData(url: string) {
         try {
             const request = await fetch(url, {
+                credentials: 'include',
                 headers: {
-                    'Authorization': `Bearer ${currentUserToken!}`,
                     'Content-Type': 'application/json'
                 },
                 method: "DELETE",
@@ -58,8 +58,8 @@ export default function DataServices() {
         try {
             const request = await fetch(props.api_url, {
                 body: JSON.stringify(props.data),
+                credentials: 'include',
                 headers: {
-                    'Authorization': `Bearer ${currentUserToken!}`,
                     'Content-Type': 'application/json'
                 },
                 method: 'PUT',
@@ -80,11 +80,11 @@ export default function DataServices() {
 
     function getData<X>(props: GetDataIntrf) {
         const { data, error, isLoading } = useQuery<X, Error>({
-            enabled: !userLoading && !!currentUserToken,
+            enabled: !userLoading && !!currentUserData,
             queryFn: async () => {
                 const request = await fetch(props.api_url, {
+                    credentials: 'include',
                     headers: {
-                        'Authorization': `Bearer ${currentUserToken!}`,
                         'Content-Type': 'application/json'
                     },
                     method: 'GET',
@@ -110,7 +110,7 @@ export default function DataServices() {
 
     function infiniteScroll<X>(props: InfiniteScrollIntrf) {
         const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-            enabled: !userLoading && !!currentUserToken,
+            enabled: !userLoading && !!currentUserData,
             getNextPageParam: (lastPage, allPages): number | undefined => {
                 if (lastPage.length < props.limit) return;
                 return allPages.length + 1;
@@ -120,8 +120,8 @@ export default function DataServices() {
                 const finalUrl = props.searched ? `${baseUrl}&search=${props.searched.trim()}` : baseUrl;
 
                 const request = await fetch(finalUrl, {
+                    credentials: 'include',
                     headers: {
-                        'Authorization': `Bearer ${currentUserToken!}`,
                         'Content-Type': 'application/json'
                     },
                     method: 'GET'

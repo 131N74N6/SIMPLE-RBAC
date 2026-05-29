@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { User } from "../models/user.model";
+import { AuthRequest } from "../middleware/auth.middleware";
 
 export async function changeUserData(req: Request, res: Response) {
     try {
@@ -59,10 +60,15 @@ export async function getAllUsers(req: Request, res: Response) {
     }
 }
 
-export async function getUser(req: Request, res: Response) {
+export async function getUser(req: AuthRequest, res: Response) {
     try {
-        const user = await User.find({ _id: req.params.user_id });
-        res.status(200).json(user);
+        const user = await User.find({ _id: req.user?.user_id }, { password: 0 });
+        res.status(200).json({
+            created_at: user[0].created_at,
+            role: user[0].role,
+            user_id: user[0]._id,
+            username: user[0].username
+        });
     } catch (error: any) {
         res.status(500).json({ message: error.message });
     }
