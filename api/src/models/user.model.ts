@@ -1,7 +1,8 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
 export type UserIntrf = {
     created_at: string;
+    classname: string;
     email: string;
     password: string;
     role: string;
@@ -10,6 +11,7 @@ export type UserIntrf = {
 
 const userSchema = new Schema<UserIntrf>({
     created_at: { type: String, required: true },
+    classname: { type: String },
     email: { type: String, required: true },
     password: { type: String, required: true },
     role: { type: String, required: true },

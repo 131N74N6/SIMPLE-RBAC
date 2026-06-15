@@ -14,6 +14,8 @@ import db from "./database/mongodb";
 import authRouters from "./routers/auth.router";
 import userRouters from "./routers/user.router";
 import cookieParser from 'cookie-parser';
+import classRouters from './routers/classroom.router';
+import presenceRouters from './routers/presence.router';
 
 const app = express();
 
@@ -24,6 +26,8 @@ app.use(cors({
     origin: ['http://localhost:1999', 'http://localhost:5173']
 }));
 app.use('/api/auth', authRouters);
+app.use('/api/classes', classRouters);
+app.use('/api/presences', presenceRouters);
 app.use('/api/users', userRouters);
 
 if (process.env.NODE_ENV !== 'production') {

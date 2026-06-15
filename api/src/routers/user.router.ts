@@ -7,9 +7,9 @@ const userRouters = Router();
 userRouters.delete('/admin-only/rm/:user_id', verifyToken, checkRole('admin'), deleteUser);
 userRouters.delete('/admin-only/rm-all', verifyToken, checkRole('admin'), deleteAllUsers);
 
-userRouters.get('/admin-only/show', verifyToken, getAllUsers);
+userRouters.get('/show-all', verifyToken, checkRole('admin', 'master', 'student'), getAllUsers);
 userRouters.get('/show', verifyToken, getUser);
 
-userRouters.put('/admin-only/change/:user_id', verifyToken, checkRole('admin'), changeUserData);
+userRouters.put('/admin-only/remake/:user_id', verifyToken, checkRole('admin'), changeUserData);
 
 export default userRouters;

@@ -3,6 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 
 export interface AuthRequest extends Request {
     user?: {
+        classname: string;
         role: string;
         user_id: string;
         username: string;
@@ -10,6 +11,7 @@ export interface AuthRequest extends Request {
 }
 
 interface CustomJwtPayload extends JwtPayload {
+    classname: string;
     role: string;
     user_id: string;
     username: string;
@@ -25,6 +27,7 @@ export function verifyToken(req: AuthRequest, res: Response, next: NextFunction)
         const payload = decoded as CustomJwtPayload;
 
         req.user = {
+            classname: payload.classname,
             role: payload.role,
             user_id: payload.user_id,
             username: payload.username

@@ -5,8 +5,9 @@ import { User } from '../models/user.model';
 
 export async function register(req: Request, res: Response) {
     try {
-        const { email, password, role, username } = req.body;
-        if (!email && !password && !username && !role) return res.status(400).json({ message: "Please provide email, username, role and password" });
+        const { classname, email, password, role, username } = req.body;
+        if (!classname && !email && !password && !username && !role) return res.status(400).json({ message: "Please provide classname, email, username, role and password" });
+        if (!classname) return res.status(400).json({ message: "Please provide classname" });
         if (!email) return res.status(400).json({ message: "Please provide email" });
         if (!password) return res.status(400).json({ message: "Please provide password" });
         if (!username) return res.status(400).json({ message: "Please provide username" });
@@ -19,13 +20,13 @@ export async function register(req: Request, res: Response) {
         if (existingEmail) return res.status(409).json({ message: "Email already exists" });
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const createDate = new Date().toISOString();
-        const newUser = new User({ created_at: createDate, email, password: hashedPassword, role, username });
+        const created_at = new Date().toISOString();
+        const newUser = new User({ classname, created_at, email, password: hashedPassword, role, username });
         await newUser.save();
 
         res.status(200).json({ message: "User created successfully" });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'something went wrong' });
     }
 }
 
@@ -42,11 +43,12 @@ export async function signIn(req: Request, res: Response) {
         const isPasswordMatch = await bcrypt.compare(password, findUser.password);
         if (!isPasswordMatch) return res.status(400).json({ message: "Invalid password" });
 
-        const userToken = jwt.sign(
-            { user_id: findUser._id, role: findUser.role, username: findUser.username }, 
-            process.env.JWT_SECRET || 'your_jwt_key',
-            { expiresIn: '1d' }
-        );
+        const userToken = jwt.sign({ 
+            classname: findUser.classname, 
+            role: findUser.role, 
+            username: findUser.username, 
+            user_id: findUser._id,
+        }, process.env.JWT_SECRET || 'your_jwt_key', { expiresIn: '1d' });
 
         res.cookie('token', userToken, {
             httpOnly: true,                         // 🚫 Kebal XSS (JS tidak bisa baca)
@@ -57,7 +59,7 @@ export async function signIn(req: Request, res: Response) {
 
         res.status(200).json({ username: findUser.username, user_id: findUser._id, role: findUser.role });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'something went wrong' });
     }
 }
 
@@ -69,11 +71,8 @@ export async function logout(req: Request, res: Response) {
             sameSite: 'lax',
         });
 
-        // Atau cara alternatif manual jika res.clearCookie mengalami kendala:
-        // res.cookie('token', '', { httpOnly: true, expires: new Date(0), sameSite: 'lax' });
-
         return res.status(200).json({ message: "Logged out successfully" });
     } catch (error: any) {
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: 'something went wrong' });
     }
 }

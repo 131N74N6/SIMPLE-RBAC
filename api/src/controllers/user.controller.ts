@@ -19,7 +19,7 @@ export async function changeUserData(req: Request, res: Response) {
         });
         res.status(200).json({ message: "User data updated successfully" });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: "Something went wrong" });
     }
 }
 
@@ -28,7 +28,7 @@ export async function deleteAllUsers(_: Request, res: Response) {
         await User.deleteMany({ role: "user" });
         res.status(200).json({ message: "All users deleted successfully" });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: "Something went wrong" });
     }
 }
 
@@ -37,7 +37,7 @@ export async function deleteUser(req: Request, res: Response) {
         await User.deleteOne({ _id: req.params.user_id, role: "user" });
         res.status(200).json({ message: "User deleted successfully" });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: "Something went wrong" });
     }
 }
 
@@ -56,7 +56,7 @@ export async function getAllUsers(req: Request, res: Response) {
             res.status(200).json(users);
         }
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: "Something went wrong" });
     }
 }
 
@@ -70,6 +70,6 @@ export async function getUser(req: AuthRequest, res: Response) {
             username: user[0].username
         });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: "Something went wrong" });
     }
 }
