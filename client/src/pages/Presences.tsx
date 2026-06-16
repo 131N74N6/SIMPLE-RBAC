@@ -1,6 +1,6 @@
 import AuthServices from '../services/auth.service';
 
-export default function UserPage() {
+export default function Presences() {
     const { quit } = AuthServices();
     
     return (

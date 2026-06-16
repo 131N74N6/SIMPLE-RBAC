@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ClassRoom } from '../models/classroom.model';
-import { Presence } from '../models/presence.model';
+import { PresenceSlot, StudentAttendance } from '../models/presence.model';
 
 export async function changeClass(req: Request, res: Response) {
     try {
@@ -20,7 +20,8 @@ export async function deleteAllClasses(_: Request, res: Response) {
         if (totalClass === 0) return res.status(404).json({ message: 'no class found' });
 
         await Promise.all([
-            Presence.deleteMany(),
+            StudentAttendance.deleteMany(),
+            PresenceSlot.deleteMany(),
             ClassRoom.deleteMany()
         ]);
 
@@ -33,8 +34,9 @@ export async function deleteAllClasses(_: Request, res: Response) {
 export async function deleteOneClass(req: Request, res: Response) {
     try {
         await Promise.all([
-            Presence.deleteMany({ class_id: req.params.id }),
-            ClassRoom.deleteOne({ _id: req.params.id })
+            StudentAttendance.deleteMany({ classname: req.params.classname }),
+            PresenceSlot.deleteMany({ classname: req.params.classname }),
+            ClassRoom.deleteOne({ classname: req.params.classname })
         ]);
 
         return res.status(200).json({ message: 'class deleted' });

@@ -1,5 +1,5 @@
 import { PencilIcon, Save, Trash, X } from "lucide-react";
-import type { UserItemIntrf } from "../models/user-model";
+import type { UserItemIntrf } from "../models/user.model";
 import { useEffect } from "react";
 
 export default function AdminUserItem(props: UserItemIntrf) {

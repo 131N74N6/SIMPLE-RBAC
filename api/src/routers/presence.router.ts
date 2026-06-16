@@ -1,18 +1,19 @@
 import { Router } from "express";
 import { checkRole, verifyToken } from "../middleware/auth.middleware";
-import { changePresence, deleteAllPresences, deleteOnePresence, fillPresenceForStudent, getAllPresences, getAllPresencesForStudent, makePresence } from "../controllers/presence.controller";
+import { changePresence, deleteAllPresences, deleteOnePresence, fillPresenceForStudent, getPresenceDetailForMaster, getAllPresencesForMaster, makePresence, getAvailablePresencesForStudent } from "../controllers/presence.controller";
 
 const presenceRouters = Router();
 
-presenceRouters.delete('/rm-all', verifyToken, checkRole("admin", "master"), deleteAllPresences);
-presenceRouters.delete('/rm-all/:id', verifyToken, checkRole("admin", "master"), deleteOnePresence);
+presenceRouters.delete('/admin/rm-all', verifyToken, checkRole("admin"), deleteAllPresences);
+presenceRouters.delete('/rm/:id', verifyToken, checkRole("admin", "master"), deleteOnePresence);
 
-presenceRouters.get('/show-all', verifyToken, checkRole("admin", "master"), getAllPresences);
-presenceRouters.get('/student/show-all', verifyToken, checkRole("student"), getAllPresencesForStudent);
+presenceRouters.get('/master/show-all', verifyToken, checkRole("master"), getAllPresencesForMaster);
+presenceRouters.get('/master/show/:presence_slot_id', verifyToken, checkRole("master"), getPresenceDetailForMaster);
+presenceRouters.get('/student/show-all', verifyToken, checkRole("student"), getAvailablePresencesForStudent);
 
-presenceRouters.post('/make', verifyToken, checkRole("master"), makePresence);
+presenceRouters.post('/master/make', verifyToken, checkRole("master"), makePresence);
+presenceRouters.post('/student/fill', verifyToken, checkRole("student"), fillPresenceForStudent);
 
 presenceRouters.put('/remake', verifyToken, checkRole("admin", "master"), changePresence);
-presenceRouters.put('/student/fill', verifyToken, checkRole("student"), fillPresenceForStudent);
 
 export default presenceRouters;

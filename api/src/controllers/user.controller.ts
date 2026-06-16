@@ -11,6 +11,7 @@ export async function changeUserData(req: Request, res: Response) {
         
         await User.updateOne({ _id: req.params.user_id}, {
             $set: {
+                classname: req.body.classname,
                 created_at: req.body.created_at,
                 email: req.body.email,
                 role: req.body.role,
@@ -25,7 +26,7 @@ export async function changeUserData(req: Request, res: Response) {
 
 export async function deleteAllUsers(_: Request, res: Response) {
     try {
-        await User.deleteMany({ role: "user" });
+        await User.deleteMany({ $or: [{ role: "master" }, { role: "student" }] });
         res.status(200).json({ message: "All users deleted successfully" });
     } catch (error: any) {
         res.status(500).json({ message: "Something went wrong" });
@@ -34,7 +35,7 @@ export async function deleteAllUsers(_: Request, res: Response) {
 
 export async function deleteUser(req: Request, res: Response) {
     try {
-        await User.deleteOne({ _id: req.params.user_id, role: "user" });
+        await User.deleteOne({ _id: req.params.user_id });
         res.status(200).json({ message: "User deleted successfully" });
     } catch (error: any) {
         res.status(500).json({ message: "Something went wrong" });
@@ -62,12 +63,15 @@ export async function getAllUsers(req: Request, res: Response) {
 
 export async function getUser(req: AuthRequest, res: Response) {
     try {
-        const user = await User.find({ _id: req.user?.user_id }, { password: 0 });
+        const user = await User.findOne({ _id: req.user?.user_id }, { password: 0 });
+        if (!user) return res.status(404).json({ message: "user not found" });
+
         res.status(200).json({
-            created_at: user[0].created_at,
-            role: user[0].role,
-            user_id: user[0]._id,
-            username: user[0].username
+            clasname: user.classname,
+            created_at: user.created_at,
+            role: user.role,
+            user_id: user._id,
+            username: user.username
         });
     } catch (error: any) {
         res.status(500).json({ message: "Something went wrong" });

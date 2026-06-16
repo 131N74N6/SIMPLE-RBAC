@@ -1,6 +1,6 @@
 import { useState } from "react";
 import AuthServices from "./auth.service";
-import type { EditDataIntrf, GetDataIntrf, InfiniteScrollIntrf, InsertDataIntrf } from "../models/data-model";
+import type { EditDataIntrf, GetDataIntrf, InfiniteScrollIntrf, InsertDataIntrf } from "../models/data.model";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 export default function DataServices() {
@@ -20,13 +20,12 @@ export default function DataServices() {
 
             if (!request.ok) {
                 const errorData = await request.json();
-                throw new Error(errorData.message || "Failed to add data. Try again later.");
+                throw new Error(errorData.message || "Failed to add data. Try again later. Check your internet connection and try again later.");
             } else {
                 await request.json();
                 setDataError(null);
             }
         } catch (error: any) {
-            setDataError(error.message || "Check your internet connection and try again later.");
             throw error;
         }
     }
@@ -43,13 +42,12 @@ export default function DataServices() {
 
             if (!request.ok) {
                 const errorData = await request.json();
-                throw new Error(errorData.message || "Failed to delete data");
+                throw new Error(errorData.message || "Failed to delete data. Check your internet connection and try again later.");
             } else {
                 await request.json();
                 setDataError(null);
             }
         } catch (error: any) {
-            setDataError(error.message || "Check your internet connection and try again later.");
             throw error;
         }
     }
@@ -67,13 +65,12 @@ export default function DataServices() {
 
             if (!request.ok) {
                 const errorData = await request.json();
-                throw new Error(errorData.message || "Failed to edit data");
+                throw new Error(errorData.message || "Failed to edit data. Check your internet connection and try again later.");
             } else {
                 await request.json();
                 setDataError(null);
             }
         } catch (error: any) {
-            setDataError(error.message || "Check your internet connection and try again later.");
             throw error;
         }
     }
@@ -82,20 +79,24 @@ export default function DataServices() {
         const { data, error, isLoading } = useQuery<X, Error>({
             enabled: !userLoading && !!currentUserData,
             queryFn: async () => {
-                const request = await fetch(props.api_url, {
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    method: 'GET',
-                });
+                try {
+                    const request = await fetch(props.api_url, {
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        method: 'GET',
+                    });
 
-                const result = await request.json();
+                    const result = await request.json();
 
-                if (!request.ok) {
-                    throw new Error(result.message || "Failed to fetch data");
-                } else {
-                    return result as X;
+                    if (!request.ok) {
+                        throw new Error(result.message || "Failed to fetch data");
+                    } else {
+                        return result as X;
+                    }
+                } catch (error) {
+                    throw error;
                 }
             },
             queryKey: props.query_key,
@@ -119,21 +120,25 @@ export default function DataServices() {
                 const baseUrl = `${props.api_url}?page=${pageParam}&limit=${props.limit}`;
                 const finalUrl = props.searched ? `${baseUrl}&search=${props.searched.trim()}` : baseUrl;
 
-                const request = await fetch(finalUrl, {
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    method: 'GET'
-                });
+                try {
+                    const request = await fetch(finalUrl, {
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        method: 'GET'
+                    });
 
-                const response = await request.json();
+                    const response = await request.json();
 
-                if (!request.ok) {
-                    throw new Error(response.message);
-                } else {
-                    setDataError(null);
-                    return response;
+                    if (!request.ok) {
+                        throw new Error(response.message);
+                    } else {
+                        setDataError(null);
+                        return response;
+                    }
+                } catch (error) {
+                    throw error;
                 }
             },
             queryKey: props.query_key,

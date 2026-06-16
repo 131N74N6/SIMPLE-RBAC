@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AddUserIntrf, EditUserIntrf, UserItemIntrf } from "../models/user-model";
+import type { AddUserIntrf, EditUserIntrf, UserItemIntrf } from "../models/user.model";
 import DataServices from "./data.service";
 import { useState } from "react";
 import useDebounce from "../hooks/useDebounce";
@@ -10,8 +10,8 @@ export default function UserServices() {
 
     const [searchedUser, setSearchedUser] = useState<string>('');
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
-    const [newUser, setNewUser] = useState<AddUserIntrf>({ username: "", email: "", password: "", role: "" });
-    const [editUser, setEditUser] = useState<EditUserIntrf>({ created_at: '', email: '', role: '', username: '' });
+    const [newUser, setNewUser] = useState<AddUserIntrf>({ classname: "", username: "", email: "", password: "", role: "" });
+    const [editUser, setEditUser] = useState<EditUserIntrf>({ classname: "", created_at: '', email: '', role: '', username: '' });
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     const deboundedSearchUser = useDebounce<string>(searchedUser, 500);
@@ -51,10 +51,11 @@ export default function UserServices() {
             await addData<AddUserIntrf>({
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/auth/register`,
                 data: {
-                    username: newUser.username.trim(),
+                    classname: newUser.classname.trim() || "-",
                     email: newUser.email.trim(),
                     password: newUser.password.trim(),
-                    role: newUser.role.trim()
+                    role: newUser.role.trim(),
+                    username: newUser.username.trim()
                 }
             });
         },
@@ -62,7 +63,7 @@ export default function UserServices() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-users'] });
             queryClient.invalidateQueries({ queryKey: [`all-users-${deboundedSearchUser}`] });
-            setNewUser({ username: "", email: "", password: "", role: "" });
+            setNewUser({ classname: "", username: "", email: "", password: "", role: "" });
         },
         onSettled: () => setIsProcessing(false)
     });
@@ -70,9 +71,10 @@ export default function UserServices() {
     const changeUserDataMt = useMutation({
         onMutate: () => setIsProcessing(true),
         mutationFn: async (id: string) => {
-            await editData<UserItemIntrf>({
+            await editData<EditUserIntrf>({
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin-only/change/${id}`,
                 data: {
+                    classname: newUser.classname.trim() || "-",
                     created_at: new Date(editUser.created_at!).toISOString(),
                     email: editUser.email?.trim(),
                     username: editUser.username?.trim(),

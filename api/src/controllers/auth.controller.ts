@@ -6,8 +6,7 @@ import { User } from '../models/user.model';
 export async function register(req: Request, res: Response) {
     try {
         const { classname, email, password, role, username } = req.body;
-        if (!classname && !email && !password && !username && !role) return res.status(400).json({ message: "Please provide classname, email, username, role and password" });
-        if (!classname) return res.status(400).json({ message: "Please provide classname" });
+        if (!email && !password && !username && !role) return res.status(400).json({ message: "Please provide classname, email, username, role and password" });
         if (!email) return res.status(400).json({ message: "Please provide email" });
         if (!password) return res.status(400).json({ message: "Please provide password" });
         if (!username) return res.status(400).json({ message: "Please provide username" });
@@ -53,8 +52,8 @@ export async function signIn(req: Request, res: Response) {
         res.cookie('token', userToken, {
             httpOnly: true,                         // 🚫 Kebal XSS (JS tidak bisa baca)
             secure: process.env.NODE_ENV === 'production', // Hanya lewat HTTPS di production
-            sameSite: 'lax',                        // 🛡️ Kebal CSRF (Membatasi cross-site requests)
-            maxAge: 24 * 60 * 60 * 1000             // Expire dalam 1 hari
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 24 * 60 * 60 * 1000
         });
 
         res.status(200).json({ username: findUser.username, user_id: findUser._id, role: findUser.role });
@@ -68,7 +67,7 @@ export async function logout(req: Request, res: Response) {
         res.clearCookie('token', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         });
 
         return res.status(200).json({ message: "Logged out successfully" });

@@ -30,6 +30,16 @@ export default function AddUser() {
                     onChange={handleInputChange}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
+                <label htmlFor="Classname">Class</label>
+                <input 
+                    type="text" 
+                    placeholder="Classname"
+                    id="Classname"
+                    name="classname"
+                    value={newUser.username}
+                    onChange={handleInputChange}
+                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                />
                 <label htmlFor="Email">Email</label>
                 <input 
                     type="email" 

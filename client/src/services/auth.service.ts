@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { SignInIntrf, UserInfoIntrf } from "../models/user-model";
+import type { SignInIntrf, UserInfoIntrf } from "../models/user.model";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 

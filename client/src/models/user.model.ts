@@ -33,6 +33,7 @@ export type UserListIntrf = {
 export type UserItemIntrf = {
     _id: string;
     change_user_data: UseMutationResult<void, Error, string, void>;
+    classname: string;
     current_user_id: string | null;
     created_at: string;
     data_error: string | null;
@@ -52,6 +53,7 @@ export type UserItemIntrf = {
 
 export type AddUserIntrf = {
     email: string; 
+    classname: string;
     password: string; 
     role: string;
     username: string;
@@ -59,6 +61,7 @@ export type AddUserIntrf = {
 
 export type EditUserIntrf = {
     created_at: string;
+    classname: string;
     email: string; 
     role: string;
     username: string;

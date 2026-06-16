@@ -5,7 +5,7 @@ import UserServices from '../services/user.service';
 import Loading from '../components/Loading';
 import AuthServices from '../services/auth.service';
 
-export default function AdminPage() {
+export default function Users() {
     const { currentUserId } = AuthServices();
     const { 
         changeUserDataMt, dataError, editUser, deleteAllUsersMt, deleteUserMt, paginatedUsersData, 

@@ -1,4 +1,4 @@
-import type { UserListIntrf } from "../models/user-model";
+import type { UserListIntrf } from "../models/user.model";
 import AdminUserItem from "./AdminUserItem";
 import Loading from "./Loading";
 
