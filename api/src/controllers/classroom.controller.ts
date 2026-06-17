@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { ClassRoom } from '../models/classroom.model';
-import { PresenceSlot, StudentAttendance } from '../models/presence.model';
+import { PresenceSlot, StudentPresence } from '../models/presence.model';
+import { AuthRequest } from '../middleware/auth.middleware';
+import { User } from '../models/user.model';
 
 export async function changeClass(req: Request, res: Response) {
     try {
@@ -20,7 +22,7 @@ export async function deleteAllClasses(_: Request, res: Response) {
         if (totalClass === 0) return res.status(404).json({ message: 'no class found' });
 
         await Promise.all([
-            StudentAttendance.deleteMany(),
+            StudentPresence.deleteMany(),
             PresenceSlot.deleteMany(),
             ClassRoom.deleteMany()
         ]);
@@ -34,7 +36,7 @@ export async function deleteAllClasses(_: Request, res: Response) {
 export async function deleteOneClass(req: Request, res: Response) {
     try {
         await Promise.all([
-            StudentAttendance.deleteMany({ classname: req.params.classname }),
+            StudentPresence.deleteMany({ classname: req.params.classname }),
             PresenceSlot.deleteMany({ classname: req.params.classname }),
             ClassRoom.deleteOne({ classname: req.params.classname })
         ]);
@@ -53,6 +55,25 @@ export async function getAllClasses(req: Request, res: Response) {
 
         const allClasses = await ClassRoom.find().limit(limit).skip(skip);
         res.status(200).json(allClasses);
+    } catch (error) {
+        res.status(500).json({ message: 'something went wrong' });
+    }
+}
+
+export async function getAllStudentsInClass(req: AuthRequest, res: Response) {
+    try {
+        const searched = req.query.search as string | undefined;
+        const limit = parseInt(req.query.limit as string) || 1;
+        const page = parseInt(req.query.page as string) || 12;
+        const skip = (page - 1) * limit;
+
+        if (searched === undefined || searched.trim() === "") {
+            const users = await User.find({ classname: req.params.classname }).skip(skip).limit(limit);
+            res.status(200).json(users);
+        } else {
+            const users = await User.find({ classname: req.params.classname, username: { $regex: new RegExp(searched, 'i') } }).skip(skip).limit(limit);
+            res.status(200).json(users);
+        }
     } catch (error) {
         res.status(500).json({ message: 'something went wrong' });
     }

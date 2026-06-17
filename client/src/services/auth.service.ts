@@ -23,8 +23,8 @@ export default function AuthServices() {
                 return null;
             }
         },
-        staleTime: 1800000, // Data auth dianggap segar selama 30 menit tanpa re-fetch berlebih
-        retry: false       // Jangan lakukan retry jika user memang belum login
+        staleTime: Infinity,
+        retry: false
     });
 
     const currentUserId = currentUserData ? currentUserData.user_id : null;
@@ -56,9 +56,11 @@ export default function AuthServices() {
                 await queryClient.invalidateQueries({ queryKey: ['auth-user'] });
 
                 if (response.role === 'admin') {
-                    navigate('/admin/page');
-                } else if (response.role === 'user') {
-                    navigate('/user/page');
+                    navigate('/admin/students');
+                } else if (response.role === 'master') {
+                    navigate('/master/presence');
+                } else if (response.role === 'student') {
+                    navigate('/student/fill-presence');
                 } else {
                     navigate('/sign-in');
                 }

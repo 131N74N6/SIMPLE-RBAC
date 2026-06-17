@@ -1,5 +1,6 @@
 export type FillPresenceIntrf = {
-    status: string;
+    presence_slot_id: string;
+    student_status: string;
 }
 
 export type MakePresenceIntrf = {
@@ -8,13 +9,11 @@ export type MakePresenceIntrf = {
     start_time: string;
 }
 
-export type PresenceIntrf = {
+export type PresenceSlotIntrf = {
+    _id: string;
     created_at: string;
     classname: string;
     deadline: string;
-    master_id: string;
-    status: string;
     start_time: string;
-    student_id: string;
-    student_name: string;
+    master_id: String;
 }

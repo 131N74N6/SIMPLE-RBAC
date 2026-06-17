@@ -14,6 +14,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
         if (props.is_selected) {
             props.set_edit_user({ 
                 created_at: props.iso_to_local(props.created_at), 
+                classname: props.classname,
                 email: props.email, 
                 role: props.role, 
                 username: props.username 
@@ -21,6 +22,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
         } else {
             props.set_edit_user({ 
                 created_at: '', 
+                classname: '',
                 email: '', 
                 role: '', 
                 username: '' 
@@ -118,7 +120,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
             <div>Role: {props.role}</div>
             <div>Username: {props.username}</div>
             <div className="flex gap-3 justify-end">
-                {props._id !== props.current_user_id && props.role === "user" ? (
+                {props.role === "student" || props.role === "master" ? (
                     <button 
                         type="button"
                         disabled={props.is_processing}

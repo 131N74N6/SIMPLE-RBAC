@@ -18,6 +18,7 @@ export default function AdminUserList(props: UserListIntrf) {
                     <AdminUserItem 
                         _id={user._id}
                         change_user_data={props.change_user_data}
+                        classname={user.classname}
                         created_at={user.created_at}
                         current_user_id={props.current_user_id}
                         data_error={props.data_error}

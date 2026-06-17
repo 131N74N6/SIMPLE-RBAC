@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { User } from "../models/user.model";
 import { AuthRequest } from "../middleware/auth.middleware";
+import { PresenceSlot, StudentPresence } from "../models/presence.model";
 
 export async function changeUserData(req: Request, res: Response) {
     try {
@@ -24,25 +25,70 @@ export async function changeUserData(req: Request, res: Response) {
     }
 }
 
-export async function deleteAllUsers(_: Request, res: Response) {
+export async function deleteAllStudents(_: Request, res: Response) {
     try {
-        await User.deleteMany({ $or: [{ role: "master" }, { role: "student" }] });
+        const getStudents = await User.find({ role: 'student' });
+        if (getStudents.length === 0) return res.status(404).json({ message: "Student not found" });
+
+        await Promise.all([
+            StudentPresence.deleteMany(),
+            User.deleteOne({ role: "student" })
+        ]);
+
         res.status(200).json({ message: "All users deleted successfully" });
     } catch (error: any) {
         res.status(500).json({ message: "Something went wrong" });
     }
 }
 
-export async function deleteUser(req: Request, res: Response) {
+export async function deleteStudent(req: Request, res: Response) {
     try {
-        await User.deleteOne({ _id: req.params.user_id });
+        await Promise.all([
+            StudentPresence.deleteMany({ student_id: req.params.id }),
+            User.deleteOne({ _id: req.params.id, role: "student" })
+        ]);
+
+        res.status(200).json({ message: "All users deleted successfully" });
+    } catch (error: any) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export async function deleteAllMasters(_: Request, res: Response) {
+    try {
+        const getMasters = await User.find({ role: 'master' });
+        if (getMasters.length === 0) return res.status(404).json({ message: "Master not found" });
+
+        await Promise.all([
+            StudentPresence.deleteMany(),
+            PresenceSlot.deleteMany(),
+            User.deleteOne({ role: "master" })
+        ]);
+
         res.status(200).json({ message: "User deleted successfully" });
     } catch (error: any) {
         res.status(500).json({ message: "Something went wrong" });
     }
 }
 
-export async function getAllUsers(req: Request, res: Response) {
+export async function deleteMaster(req: Request, res: Response) {
+    try {
+        const presenceSlots = await PresenceSlot.find({ master_id: req.params.id });
+        const presenceSlotsIds = presenceSlots.map((presenceSlot) => presenceSlot._id);
+        
+        await Promise.all([
+            StudentPresence.deleteMany({ presence_slot_id: { $in: presenceSlotsIds } }),
+            PresenceSlot.deleteMany({ master_id: req.params.id }),
+            User.deleteOne({ _id: req.params.id })
+        ]);
+
+        res.status(200).json({ message: "User deleted successfully" });
+    } catch (error: any) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export async function getAllMasters(req: Request, res: Response) {
     try {
         const searched = req.query.search as string | undefined;
         const page = parseInt(req.query.page as string) || 1;
@@ -50,10 +96,29 @@ export async function getAllUsers(req: Request, res: Response) {
         const skip = (page - 1) * limit;
 
         if (searched === undefined || searched.trim() === "") {
-            const users = await User.find().skip(skip).limit(limit).sort({ created_at: 1 });
+            const users = await User.find({ role: "master" }).skip(skip).limit(limit).sort({ created_at: 1 });
             res.status(200).json(users);
         } else {
-            const users = await User.find({ username: { $regex: new RegExp(searched, 'i') } }).skip(skip).limit(limit).sort({ created_at: 1 });
+            const users = await User.find({ role: "master", username: { $regex: new RegExp(searched, 'i') } }).skip(skip).limit(limit).sort({ created_at: 1 });
+            res.status(200).json(users);
+        }
+    } catch (error: any) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export async function getAllStudents(req: Request, res: Response) {
+    try {
+        const searched = req.query.search as string | undefined;
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 16;
+        const skip = (page - 1) * limit;
+
+        if (searched === undefined || searched.trim() === "") {
+            const users = await User.find({ role: "student" }).skip(skip).limit(limit).sort({ created_at: 1 });
+            res.status(200).json(users);
+        } else {
+            const users = await User.find({ role: "student", username: { $regex: new RegExp(searched, 'i') } }).skip(skip).limit(limit).sort({ created_at: 1 });
             res.status(200).json(users);
         }
     } catch (error: any) {

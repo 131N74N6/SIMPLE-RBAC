@@ -2,22 +2,24 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import DataServices from "./data.service";
 import type { ClassIntrf } from "../models/class.model";
 import { useState } from "react";
+import useSearch from "../hooks/useSearch";
 
 export default function ClassService() {
     const queryClient = useQueryClient();
     const { addData, deleteData, editData, infiniteScroll } = DataServices();
+    const { debouncedSearch, search, setSearch } = useSearch();
     const [classname, setClassname] = useState<string>("");
-    const [classError, setClassError] = useState<string | null>(null);
+    const [classnameError, setClassnameError] = useState<string | null>(null);
     
     const addNewClassMt = useMutation({
         mutationFn: async () => {
             await addData<Pick<ClassIntrf, 'classname'>>({
-                api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/admin-only/make`,
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/admin/make`,
                 data: { classname: classname.trim() }
             });
         },
         onError(error) {
-            setClassError(error.message);
+            setClassnameError(error.message);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-classes'] });
@@ -35,12 +37,12 @@ export default function ClassService() {
     const changeClassMt = useMutation({
         mutationFn: async (className: string) => {
             await editData<Pick<ClassIntrf, 'classname'>>({
-                api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/admin-only/remake/${className}`,
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/admin/remake/${className}`,
                 data: { classname: classname.trim() }
             });
         },
         onError(error) {
-            setClassError(error.message);
+            setClassnameError(error.message);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-classes'] });
@@ -52,10 +54,10 @@ export default function ClassService() {
     
     const deleteAllClassesMt = useMutation({
         mutationFn: async () => {
-            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/classes/admin-only/rm-all`);
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/classes/admin/rm-all`);
         },
         onError(error) {
-            setClassError(error.message);
+            setClassnameError(error.message);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-classes'] });
@@ -67,10 +69,10 @@ export default function ClassService() {
     
     const deleteOneClassMt = useMutation({
         mutationFn: async (className: string) => {
-            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/classes/admin-only/rm/${className}`);
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/classes/admin/rm/${className}`);
         },
         onError(error) {
-            setClassError(error.message);
+            setClassnameError(error.message);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-classes'] });
@@ -80,30 +82,55 @@ export default function ClassService() {
         }
     });
 
-    const { error, fetchNextPage, flatennedData, hasNextPage, isFetchingNextPage, isLoading } = infiniteScroll<ClassIntrf>({
-        api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/admin-only/show-all`,
+    const { 
+        error: classError, 
+        fetchNextPage: classFetchNextPage, 
+        flatennedData: classFlattendedData, 
+        hasNextPage: classHasNextPage, 
+        isFetchingNextPage: classIsFetchingNextPage, 
+        isLoading: classIsLoading 
+    } = infiniteScroll<ClassIntrf>({
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/admin/show-all`,
         limit: 12,
         query_key: ['all-classes'],
         stale_time: Infinity
     });
 
-    const allClassData = { error, fetchNextPage, flatennedData, hasNextPage, isFetchingNextPage, isLoading };
-    const addNewClassMtIsProcessing = addNewClassMt.isPending;
-    const changeClassMtIsProcessing = changeClassMt.isPending;
-    const deleteAllClassesMtIsProcessing = deleteAllClassesMt.isPending;
-    const deleteOneClassMtIsProcessing = deleteOneClassMt.isPending;
+    const allClassData = { 
+        classError, classFetchNextPage, classFlattendedData, classHasNextPage, 
+        classIsFetchingNextPage, classIsLoading 
+    };
+
+    const { 
+        error: studentClassError, 
+        fetchNextPage: studentClassFetchNextPage, 
+        flatennedData: studentClassFlatennedData, 
+        hasNextPage: studentClassHasNextPage, 
+        isFetchingNextPage: studentClassIsFetchingNextPage, 
+        isLoading: studentClassIsLoading 
+    } = infiniteScroll<ClassIntrf>({
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/students`,
+        limit: 12,
+        query_key: debouncedSearch ? ['all-students-class'] : [`all-students-class-${debouncedSearch}`],
+        searched: debouncedSearch,
+        stale_time: Infinity
+    });
+
+    const allStudentsInClass = { 
+        studentClassError, studentClassFetchNextPage, studentClassFlatennedData, 
+        studentClassHasNextPage, studentClassIsFetchingNextPage, studentClassIsLoading 
+    };
 
     return { 
         addNewClass, 
-        addNewClassMtIsProcessing, 
         allClassData,
-        classError, 
+        allStudentsInClass,
+        classnameError, 
         changeClassMt,
-        changeClassMtIsProcessing,
         deleteAllClassesMt,
-        deleteAllClassesMtIsProcessing, 
         deleteOneClassMt, 
-        deleteOneClassMtIsProcessing, 
-        setClassError 
+        search,
+        setClassnameError,
+        setSearch
     }
 }

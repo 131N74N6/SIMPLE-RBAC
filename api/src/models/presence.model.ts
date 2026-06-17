@@ -36,4 +36,4 @@ const studentPresenceSchema = new Schema<StudentPresenceIntrf>({
 });
 
 export const PresenceSlot = mongoose.model<PresenceSlotIntrf>("presence-slots", presenceSlotSchema, "presence-slots");
-export const StudentAttendance = mongoose.model<StudentPresenceIntrf>("student-presences", studentPresenceSchema, "student-presences");
+export const StudentPresence = mongoose.model<StudentPresenceIntrf>("student-presences", studentPresenceSchema, "student-presences");

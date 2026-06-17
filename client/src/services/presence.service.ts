@@ -1,21 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import DataServices from "./data.service";
-import type { FillPresenceIntrf, MakePresenceIntrf, PresenceIntrf } from "../models/presence.model";
+import type { FillPresenceIntrf, MakePresenceIntrf, PresenceSlotIntrf } from "../models/presence.model";
 import { useState } from "react";
 
 export default function PresenceServices() {
     const queryClient = useQueryClient();
-    const { addData, deleteData, editData, infiniteScroll } = DataServices();
+    const { addData, deleteData, infiniteScroll } = DataServices();
 
     const [presence, setPresence] = useState<MakePresenceIntrf>({ classname: "", deadline: "", start_time: "" });
-    const [studentStatus, setStudentStatus] = useState("");
     const [presenceError, setPresenceError] = useState<string | null>(null);
     
     const fillPresenceMt = useMutation({
-        mutationFn: async (id: string) => {
-            await editData<FillPresenceIntrf>({
-                api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/student/fill/${id}`,
-                data: { status: studentStatus || 'Not Present' }
+        mutationFn: async (props: FillPresenceIntrf) => {
+            await addData<FillPresenceIntrf>({
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/student/fill`,
+                data: { 
+                    presence_slot_id: props.presence_slot_id,
+                    student_status: props.student_status.trim()
+                }
             });
         },
         onError(error) {
@@ -32,10 +34,10 @@ export default function PresenceServices() {
     const makeNewPresenceMt = useMutation({
         mutationFn: async () => {
             await addData<MakePresenceIntrf>({
-                api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/make`,
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/master/make`,
                 data: { 
-                    start_time: presence.start_time,
-                    deadline: presence.deadline,
+                    start_time: new Date(presence.start_time).toLocaleString(),
+                    deadline: new Date(presence.deadline).toLocaleString(),
                     classname: presence.classname.trim(), 
                 }
             });
@@ -50,21 +52,17 @@ export default function PresenceServices() {
             setPresence({ classname: "", deadline: "", start_time: "" });
         }
     });
-
-    const makeNewPresence = (event: React.SyntheticEvent) => {
-        event.preventDefault();
-        makeNewPresenceMt.mutate();
-    }
     
     const deleteAllPresencesMt = useMutation({
         mutationFn: async () => {
-            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/presences/rm-all`);
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/presences/master/rm-all`);
         },
         onError(error) {
             setPresenceError(error.message);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-presences'] });
+            queryClient.invalidateQueries({ queryKey: ['all-presences-form'] });
         },
         onSettled: () => {
             setPresence({ classname: "", deadline: "", start_time: "" });
@@ -73,13 +71,14 @@ export default function PresenceServices() {
     
     const deleteOnePresenceMt = useMutation({
         mutationFn: async (id: string) => {
-            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/presences/rm/${id}`);
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/presences/master/rm/${id}`);
         },
         onError(error) {
             setPresenceError(error.message);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-presences'] });
+            queryClient.invalidateQueries({ queryKey: ['all-presences-form'] });
         },
         onSettled: () => {
             setPresence({ classname: "", deadline: "", start_time: "" });
@@ -90,31 +89,49 @@ export default function PresenceServices() {
         setPresence(prev => ({ ...prev, [event.target.name]: event.target.value }));
     }
 
-    const { error, fetchNextPage, flatennedData, hasNextPage, isFetchingNextPage, isLoading } = infiniteScroll<PresenceIntrf>({
-        api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/show-all`,
+    const { 
+        error, 
+        fetchNextPage, 
+        flatennedData, 
+        hasNextPage, 
+        isFetchingNextPage, 
+        isLoading 
+    } = infiniteScroll<PresenceSlotIntrf>({
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/master/show-all`,
         limit: 12,
         query_key: ['all-presences'],
         stale_time: Infinity
     });
 
     const allPresencesData = { error, fetchNextPage, flatennedData, hasNextPage, isFetchingNextPage, isLoading };
-    const makeNewPresenceMtIsProcessing = makeNewPresenceMt.isPending;
-    const fillPresenceMtIsProcessing = fillPresenceMt.isPending;
-    const deleteAllPresencesMtIsProcessing = deleteAllPresencesMt.isPending;
-    const deleteOnePresenceMtIsProcessing = deleteOnePresenceMt.isPending;
+
+    const { 
+        error: availablePresenceError, 
+        fetchNextPage: availablePresenceNextPage, 
+        flatennedData: availableFlatennedData, 
+        hasNextPage: availablePresenceHasNextPage, 
+        isFetchingNextPage: availablePresenceIsFetchingNextPage, 
+        isLoading: isFetchingIsLoading 
+    } = infiniteScroll<PresenceSlotIntrf>({
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/student/show-all`,
+        limit: 12,
+        query_key: ['all-presences-form'],
+        stale_time: Infinity
+    });
+
+    const allAvailablePresences = { availablePresenceError, availablePresenceNextPage, availableFlatennedData, availablePresenceHasNextPage, availablePresenceIsFetchingNextPage, isFetchingIsLoading };
 
     return { 
-        makeNewPresence, 
-        makeNewPresenceMtIsProcessing, 
+        makeNewPresenceMt, 
         allPresencesData,
-        fillPresenceMtIsProcessing,
-        deleteAllPresencesMt,
-        deleteAllPresencesMtIsProcessing, 
+        allAvailablePresences,
+        deleteAllPresencesMt, 
         deleteOnePresenceMt, 
-        deleteOnePresenceMtIsProcessing, 
+        fillPresenceMt,
         handleInputChange,
+        presence,
         presenceError, 
-        setPresenceError, 
-        setStudentStatus
+        setPresence,
+        setPresenceError
     }
 }

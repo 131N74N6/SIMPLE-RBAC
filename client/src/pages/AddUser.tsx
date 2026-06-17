@@ -3,7 +3,7 @@ import AdminNavbar from "../components/AdminNavbar";
 import UserServices from "../services/user.service";
 
 export default function AddUser() {
-    const { addUserMt, dataError, handleInputChange, isProcessing, newUser, setDataError } = UserServices();
+    const { addUserMt, dataError, handleInputChange, newUser, setDataError } = UserServices();
 
     useEffect(() =>{
         if (dataError) {
@@ -36,7 +36,7 @@ export default function AddUser() {
                     placeholder="Classname"
                     id="Classname"
                     name="classname"
-                    value={newUser.username}
+                    value={newUser.classname}
                     onChange={handleInputChange}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
@@ -73,7 +73,7 @@ export default function AddUser() {
                 <div>
                     <button 
                         type="submit"
-                        disabled={isProcessing}
+                        disabled={addUserMt.isPending}
                         className="bg-blue-500 hover:bg-blue-600 text-white font-medium font-mono py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                         Add User
@@ -81,7 +81,7 @@ export default function AddUser() {
                 </div>
                 {dataError && <p className="text-red-500 mt-2">{dataError}</p>}
             </form>
-            {AdminNavbar(isProcessing)}
+            {AdminNavbar(addUserMt.isPending)}
         </div>
     )
 }

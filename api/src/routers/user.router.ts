@@ -1,18 +1,21 @@
 import { Router } from "express";
-import { changeUserData, deleteAllUsers, deleteUser, getAllUsers, getUser } from "../controllers/user.controller";
+import { changeUserData, deleteAllMasters, deleteAllStudents, deleteMaster, deleteStudent, getAllMasters, getAllStudents, getUser } from "../controllers/user.controller";
 import { checkRole, verifyToken } from "../middleware/auth.middleware";
 import { makeClass } from "../controllers/classroom.controller";
 
 const userRouters = Router();
 
-userRouters.delete('/admin-only/rm/:user_id', verifyToken, checkRole('admin'), deleteUser);
-userRouters.delete('/admin-only/rm-all', verifyToken, checkRole('admin'), deleteAllUsers);
+userRouters.delete('/admin/rm-master/id', verifyToken, checkRole('admin'), deleteMaster);
+userRouters.delete('/admin/rm-all-masters', verifyToken, checkRole('admin'), deleteAllMasters);
+userRouters.delete('/admin/rm-student/id', verifyToken, checkRole('admin'), deleteStudent);
+userRouters.delete('/admin/rm-all-students', verifyToken, checkRole('admin'), deleteAllStudents);
 
-userRouters.get('/show-all', verifyToken, checkRole('admin', 'master', 'student'), getAllUsers);
-userRouters.get('/show', verifyToken, getUser);
+userRouters.get('/show-all-students', verifyToken, checkRole('admin'), getAllStudents);
+userRouters.get('/show-all-masters', verifyToken, checkRole('admin'), getAllMasters);
+userRouters.get('/show', verifyToken, checkRole('admin', 'master', 'student'), getUser);
 
-userRouters.post('/admin-only/make', verifyToken, makeClass);
+userRouters.post('/admin/make', verifyToken, checkRole('admin'), makeClass);
 
-userRouters.put('/admin-only/remake/:user_id', verifyToken, checkRole('admin'), changeUserData);
+userRouters.put('/admin/remake/:user_id', verifyToken, checkRole('admin'), changeUserData);
 
 export default userRouters;

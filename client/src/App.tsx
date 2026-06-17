@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import SignIn from "./pages/SignIn";
-import Users from "./pages/Users";
 import Presences from "./pages/Presences";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -10,6 +9,8 @@ import UserDetail from "./pages/UserDetail";
 import MakePresence from "./pages/MakePresence";
 import FillPresence from "./pages/FillPresence";
 import Classes from "./pages/Classes";
+import Students from "./pages/Students";
+import Masters from "./pages/Masters";
 
 const queryClient = new QueryClient();
 
@@ -27,10 +28,18 @@ export default function App() {
                         element={<Unauthorized/>}
                     />
                     <Route 
-                        path="/admin/page" 
+                        path="/admin/students" 
                         element={
                             <ProtectedRoute required_roles={['admin']}>
-                                <Users/>
+                                <Students/>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route 
+                        path="/admin/masters" 
+                        element={
+                            <ProtectedRoute required_roles={['admin']}>
+                                <Masters/>
                             </ProtectedRoute>
                         }
                     />
@@ -51,7 +60,7 @@ export default function App() {
                         }
                     />
                     <Route 
-                        path="/master/presence" 
+                        path="/master/presences" 
                         element={
                             <ProtectedRoute required_roles={['master']}>
                                 <Presences/>

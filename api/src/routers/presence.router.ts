@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { checkRole, verifyToken } from "../middleware/auth.middleware";
-import { changePresence, deleteAllPresences, deleteOnePresence, fillPresenceForStudent, getPresenceDetailForMaster, getAllPresencesForMaster, makePresence, getAvailablePresencesForStudent } from "../controllers/presence.controller";
+import { changePresence, deleteAllPresencesForMaster, deleteOnePresenceForMaster, fillPresenceForStudent, getPresenceDetailForMaster, getAllPresencesForMaster, makePresence, getAvailablePresencesForStudent } from "../controllers/presence.controller";
 
 const presenceRouters = Router();
 
-presenceRouters.delete('/admin/rm-all', verifyToken, checkRole("admin"), deleteAllPresences);
-presenceRouters.delete('/rm/:id', verifyToken, checkRole("admin", "master"), deleteOnePresence);
+presenceRouters.delete('/master/rm-all', verifyToken, checkRole("master"), deleteAllPresencesForMaster);
+presenceRouters.delete('/master/rm/:id', verifyToken, checkRole("master"), deleteOnePresenceForMaster);
 
 presenceRouters.get('/master/show-all', verifyToken, checkRole("master"), getAllPresencesForMaster);
 presenceRouters.get('/master/show/:presence_slot_id', verifyToken, checkRole("master"), getPresenceDetailForMaster);

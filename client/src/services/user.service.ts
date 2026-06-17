@@ -2,19 +2,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AddUserIntrf, EditUserIntrf, UserItemIntrf } from "../models/user.model";
 import DataServices from "./data.service";
 import { useState } from "react";
-import useDebounce from "../hooks/useDebounce";
+import useSearch from "../hooks/useSearch";
 
 export default function UserServices() {
     const queryClient = useQueryClient();
     const { addData, dataError, deleteData, editData, infiniteScroll, setDataError } = DataServices();
 
-    const [searchedUser, setSearchedUser] = useState<string>('');
-    const [isProcessing, setIsProcessing] = useState<boolean>(false);
+    const { debouncedSearch, search, setSearch } = useSearch();
     const [newUser, setNewUser] = useState<AddUserIntrf>({ classname: "", username: "", email: "", password: "", role: "" });
     const [editUser, setEditUser] = useState<EditUserIntrf>({ classname: "", created_at: '', email: '', role: '', username: '' });
     const [selectedId, setSelectedId] = useState<string | null>(null);
-
-    const deboundedSearchUser = useDebounce<string>(searchedUser, 500);
 
     function isoToLocalDateTime(isoString: string): string {
         const date = new Date(isoString);
@@ -27,15 +24,45 @@ export default function UserServices() {
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
 
-    const { error, flatennedData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = infiniteScroll<UserItemIntrf>({
-        api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin-only/show`,
+    const { 
+        error: masterError, 
+        flatennedData: flatennedMasterData, 
+        fetchNextPage: fetchNextMasterData, 
+        hasNextPage: masterHasNextPage, 
+        isFetchingNextPage: isMasterFetchingNextPage, 
+        isLoading: isMasterLoading 
+    } = infiniteScroll<UserItemIntrf>({
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin/show-all-masters`,
         limit: 16,
-        searched: deboundedSearchUser,
-        stale_time: 1800000,
-        query_key: deboundedSearchUser ? [`all-users-${deboundedSearchUser}`] : ['all-users']
+        searched: debouncedSearch,
+        stale_time: Infinity,
+        query_key: debouncedSearch ? [`all-users-${debouncedSearch}`] : ['all-masters']
     });
     
-    const paginatedUsersData = { error, flatennedData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading };
+    const paginatedMastersData = { 
+        masterError, flatennedMasterData, fetchNextMasterData, 
+        masterHasNextPage, isMasterFetchingNextPage, isMasterLoading 
+    };
+
+    const { 
+        error: studentError, 
+        flatennedData: flatennedStudentsData, 
+        fetchNextPage: fetchNextStudentsData, 
+        hasNextPage: stuentHasNextPage, 
+        isFetchingNextPage: iStudentFetchingNextPage, 
+        isLoading: isStudentsLoading 
+    } = infiniteScroll<UserItemIntrf>({
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin/show-all-students`,
+        limit: 16,
+        searched: debouncedSearch,
+        stale_time: Infinity,
+        query_key: debouncedSearch ? [`all-users-${debouncedSearch}`] : ['all-students']
+    });
+    
+    const paginatedStudentsData = { 
+        studentError, flatennedStudentsData, fetchNextStudentsData, 
+        stuentHasNextPage, iStudentFetchingNextPage, isStudentsLoading 
+    };
 
     function handleSelectedId(id: string) {
         setSelectedId(prev => prev === id ? null : id);
@@ -46,7 +73,6 @@ export default function UserServices() {
     }
 
     const addUserMt = useMutation({
-        onMutate: () => setIsProcessing(true),
         mutationFn: async () => {
             await addData<AddUserIntrf>({
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/auth/register`,
@@ -61,18 +87,19 @@ export default function UserServices() {
         },
         onError: () => {},
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-users'] });
-            queryClient.invalidateQueries({ queryKey: [`all-users-${deboundedSearchUser}`] });
+            queryClient.invalidateQueries({ queryKey: ['all-masters'] });
+            queryClient.invalidateQueries({ queryKey: [`all-masters-${debouncedSearch}`] });
+            queryClient.invalidateQueries({ queryKey: ['all-students'] });
+            queryClient.invalidateQueries({ queryKey: [`all-students-${debouncedSearch}`] });
+            queryClient.invalidateQueries({ queryKey: ['all-students-class'] });
             setNewUser({ classname: "", username: "", email: "", password: "", role: "" });
-        },
-        onSettled: () => setIsProcessing(false)
+        }
     });
 
     const changeUserDataMt = useMutation({
-        onMutate: () => setIsProcessing(true),
         mutationFn: async (id: string) => {
             await editData<EditUserIntrf>({
-                api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin-only/change/${id}`,
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin/remake/${id}`,
                 data: {
                     classname: newUser.classname.trim() || "-",
                     created_at: new Date(editUser.created_at!).toISOString(),
@@ -84,44 +111,85 @@ export default function UserServices() {
         },
         onError: () => {},
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-users'] });
-            queryClient.invalidateQueries({ queryKey: [`all-users-${deboundedSearchUser}`] });
+            queryClient.invalidateQueries({ queryKey: ['all-masters'] });
+            queryClient.invalidateQueries({ queryKey: [`all-masters-${debouncedSearch}`] });
+            queryClient.invalidateQueries({ queryKey: ['all-students'] });
+            queryClient.invalidateQueries({ queryKey: [`all-students-${debouncedSearch}`] });
+            queryClient.invalidateQueries({ queryKey: ['all-students-class'] });
+            setNewUser({ classname: "", username: "", email: "", password: "", role: "" });
         },
         onSettled: () => {
-            setIsProcessing(false);
             setSelectedId(null);
         }
     });
 
-    const deleteAllUsersMt = useMutation({
-        onMutate: () => setIsProcessing(true),
+    const deleteAllMastersMt = useMutation({
         mutationFn: async () => {
-            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin-only/rm-all`);
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin/rm-all-masters`);
         },
         onError: () => {},
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-users'] });
-            queryClient.invalidateQueries({ queryKey: [`all-users-${deboundedSearchUser}`] });
-        },
-        onSettled: () => setIsProcessing(false)
+            queryClient.invalidateQueries({ queryKey: ['all-masters'] });
+            queryClient.invalidateQueries({ queryKey: [`all-masters-${debouncedSearch}`] });
+        }
     });
 
-    const deleteUserMt = useMutation({
-        onMutate: () => setIsProcessing(true),
+    const deleteMasterMt = useMutation({
         mutationFn: async (id: string) => {
-            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin-only/rm/${id}`);
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin/rm-master/${id}`);
         },
         onError: () => {},
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-users'] });
-            queryClient.invalidateQueries({ queryKey: [`all-users-${deboundedSearchUser}`] });
+            queryClient.invalidateQueries({ queryKey: ['all-masters'] });
+            queryClient.invalidateQueries({ queryKey: [`all-masters-${debouncedSearch}`] });
+        }
+    });
+
+    const deleteAllStudentsMt = useMutation({
+        mutationFn: async () => {
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin/rm-all-students`);
         },
-        onSettled: () => setIsProcessing(false)
+        onError: () => {},
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['all-students'] });
+            queryClient.invalidateQueries({ queryKey: ['all-students-class'] });
+            queryClient.invalidateQueries({ queryKey: [`all-students-${debouncedSearch}`] });
+        }
+    });
+
+    const deleteStudentMt = useMutation({
+        mutationFn: async (id: string) => {
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin/rm-student/${id}`);
+        },
+        onError: () => {},
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['all-students'] });
+            queryClient.invalidateQueries({ queryKey: ['all-students-class'] });
+            queryClient.invalidateQueries({ queryKey: [`all-students-${debouncedSearch}`] });
+        }
     });
 
     return { 
-        addUserMt, changeUserDataMt, dataError, deleteAllUsersMt, deleteUserMt, editUser, handleInputChange, handleSelectedId,
-        isoToLocalDateTime, isProcessing, newUser, paginatedUsersData, searchedUser, selectedId, setSelectedId, setDataError, 
-        setEditUser, setNewUser, setSearchedUser 
+        addUserMt, 
+        changeUserDataMt, 
+        dataError, 
+        deleteAllMastersMt, 
+        deleteMasterMt, 
+        deleteAllStudentsMt, 
+        deleteStudentMt, 
+        editUser, 
+        handleInputChange, 
+        handleSelectedId,
+        isoToLocalDateTime, 
+        newUser, 
+        paginatedMastersData, 
+        paginatedStudentsData, 
+        search, 
+        selectedId, 
+        setSelectedId, 
+        setDataError, 
+        setEditUser, 
+        setNewUser, 
+        setSearch 
     };
 }

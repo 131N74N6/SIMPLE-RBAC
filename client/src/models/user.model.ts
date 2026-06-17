@@ -13,7 +13,7 @@ export type SignInIntrf = {
 }
 
 export type UserListIntrf = {
-    change_user_data: UseMutationResult<void, Error, string, void>;
+    change_user_data: UseMutationResult<void, Error, string, unknown>;
     current_user_id: string | null;
     data_error: string | null;
     edit_user: EditUserIntrf;
@@ -22,7 +22,7 @@ export type UserListIntrf = {
     is_fetching_next_page: boolean;
     is_processing: boolean;
     iso_to_local: (isoString: string) => string;
-    on_delete: UseMutationResult<void, Error, string, void>;
+    on_delete: UseMutationResult<void, Error, string, unknown>;
     on_select: (id: string) => void;
     selected_id: string | null;
     set_data_error: React.Dispatch<React.SetStateAction<string | null>>;
@@ -32,7 +32,7 @@ export type UserListIntrf = {
 
 export type UserItemIntrf = {
     _id: string;
-    change_user_data: UseMutationResult<void, Error, string, void>;
+    change_user_data: UseMutationResult<void, Error, string, unknown>;
     classname: string;
     current_user_id: string | null;
     created_at: string;
@@ -42,7 +42,7 @@ export type UserItemIntrf = {
     is_processing: boolean;
     is_selected: boolean;
     iso_to_local: (isoString: string) => string;
-    on_delete: UseMutationResult<void, Error, string, void>;
+    on_delete: UseMutationResult<void, Error, string, unknown>;
     on_select: (id: string) => void;
     password: string;
     role: string;
