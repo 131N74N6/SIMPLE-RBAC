@@ -6,7 +6,8 @@ import AuthServices from "../services/auth.service";
 import UserServices from "../services/user.service";
 
 export default function Students() {
-const { currentUserId } = AuthServices();
+    const { currentUserId } = AuthServices();
+    
     const { 
         changeUserDataMt, dataError, editUser, deleteAllStudentsMt, deleteStudentMt, paginatedStudentsData, 
         search, handleSelectedId, selectedId, setSearch, setDataError, 
