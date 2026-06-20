@@ -32,7 +32,7 @@ export default function UserServices() {
         isFetchingNextPage: isMasterFetchingNextPage, 
         isLoading: isMasterLoading 
     } = infiniteScroll<UserItemIntrf>({
-        api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin/show-all-masters`,
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/users/show-all-masters`,
         limit: 16,
         searched: debouncedSearch,
         stale_time: Infinity,
@@ -52,7 +52,7 @@ export default function UserServices() {
         isFetchingNextPage: iStudentFetchingNextPage, 
         isLoading: isStudentsLoading 
     } = infiniteScroll<UserItemIntrf>({
-        api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin/show-all-students`,
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/users/show-all-students`,
         limit: 16,
         searched: debouncedSearch,
         stale_time: Infinity,
@@ -169,6 +169,13 @@ export default function UserServices() {
         }
     });
 
+    const isProcessing = addUserMt.isPending || 
+    changeUserDataMt.isPending || 
+    deleteAllMastersMt.isPending || 
+    deleteAllStudentsMt.isPending ||
+    deleteMasterMt.isPending || 
+    deleteStudentMt.isPending
+
     return { 
         addUserMt, 
         changeUserDataMt, 
@@ -180,6 +187,7 @@ export default function UserServices() {
         editUser, 
         handleInputChange, 
         handleSelectedId,
+        isProcessing,
         isoToLocalDateTime, 
         newUser, 
         paginatedMastersData, 

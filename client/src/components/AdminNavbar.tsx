@@ -36,6 +36,14 @@ export default function AdminNavbar(is_processing: boolean) {
                 type="button"
                 disabled={is_processing}
                 className="text-center md:text-left w-full cursor-pointer disabled:cursor-not-allowed font-medium p-1.5 rounded-md hover:bg-blue-200 hover:text-blue-800"
+                onClick={() => navigate("/admin/classes")}
+            >
+                Classes
+            </button>
+            <button 
+                type="button"
+                disabled={is_processing}
+                className="text-center md:text-left w-full cursor-pointer disabled:cursor-not-allowed font-medium p-1.5 rounded-md hover:bg-blue-200 hover:text-blue-800"
                 onClick={quit}
             >
                 Sign Out

@@ -65,5 +65,5 @@ export default function Masters() {
             </div>
             {AdminNavbar(changeUserDataMt.isPending || deleteAllMastersMt.isPending || deleteMasterMt.isPending)}
         </section>
-    )
+    );
 }

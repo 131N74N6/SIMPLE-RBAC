@@ -56,5 +56,5 @@ export default function AdminUserList(props: UserListIntrf) {
                 )}
             </div>
         </div>
-    )
+    );
 }

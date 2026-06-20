@@ -4,12 +4,16 @@ import type { ClassIntrf } from "../models/class.model";
 import { useState } from "react";
 import useSearch from "../hooks/useSearch";
 
-export default function ClassService() {
+export default function ClassServices() {
     const queryClient = useQueryClient();
     const { addData, deleteData, editData, infiniteScroll } = DataServices();
     const { debouncedSearch, search, setSearch } = useSearch();
+
+    const [openForm, setOpenForm] = useState<boolean>(false);
     const [classname, setClassname] = useState<string>("");
     const [classnameError, setClassnameError] = useState<string | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+
     
     const addNewClassMt = useMutation({
         mutationFn: async () => {
@@ -82,6 +86,9 @@ export default function ClassService() {
         }
     });
 
+    const handleSelectedId = (id: string) => setSelectedId(prev => prev === id ? null : id);
+    const handleForm = () => setOpenForm(!openForm);
+
     const { 
         error: classError, 
         fetchNextPage: classFetchNextPage, 
@@ -121,15 +128,24 @@ export default function ClassService() {
         studentClassHasNextPage, studentClassIsFetchingNextPage, studentClassIsLoading 
     };
 
+    const isProcessing = addNewClassMt.isPending || changeClassMt.isPending || deleteOneClassMt.isPending || deleteAllClassesMt.isPending;
+
     return { 
         addNewClass, 
         allClassData,
         allStudentsInClass,
+        classname,
         classnameError, 
         changeClassMt,
         deleteAllClassesMt,
         deleteOneClassMt, 
+        handleForm,
+        handleSelectedId,
+        isProcessing,
+        openForm,
         search,
+        selectedId,
+        setClassname,
         setClassnameError,
         setSearch
     }
