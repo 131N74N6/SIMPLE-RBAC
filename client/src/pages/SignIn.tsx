@@ -12,7 +12,7 @@ export default function SignIn() {
     useEffect(() => {
         if (currentUserId && !userLoading) {
             if (currentRole === 'admin') navigate('/admin/students');
-            else if (currentRole === 'user') navigate('/master/presence');
+            else if (currentRole === 'user') navigate('/master/presences');
             else if (currentRole === 'student') navigate('/student/fill-presence');
             else navigate('/sign-in');
         }

@@ -58,7 +58,7 @@ export default function AuthServices() {
                 if (response.role === 'admin') {
                     navigate('/admin/students');
                 } else if (response.role === 'master') {
-                    navigate('/master/presence');
+                    navigate('/master/presences');
                 } else if (response.role === 'student') {
                     navigate('/student/fill-presence');
                 } else {
