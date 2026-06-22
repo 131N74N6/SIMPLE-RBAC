@@ -31,8 +31,6 @@ export default function AuthServices() {
     const currentUserName = currentUserData ? currentUserData.username : null;
     const currentRole = currentUserData ? currentUserData.role : null;
 
-    console.log(currentRole, currentUserName, currentUserId);
-
     async function signIn(props: SignInIntrf) {
         setUserError(null);
 

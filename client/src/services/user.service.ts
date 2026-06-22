@@ -1,5 +1,5 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AddUserIntrf, EditUserIntrf, UserItemIntrf } from "../models/user.model";
+import { Query, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { AddUserIntrf, EditUserIntrf, UserInfoIntrf } from "../models/user.model";
 import DataServices from "./data.service";
 import { useState } from "react";
 import useSearch from "../hooks/useSearch";
@@ -31,7 +31,7 @@ export default function UserServices() {
         hasNextPage: masterHasNextPage, 
         isFetchingNextPage: isMasterFetchingNextPage, 
         isLoading: isMasterLoading 
-    } = infiniteScroll<UserItemIntrf>({
+    } = infiniteScroll<UserInfoIntrf>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/users/show-all-masters`,
         limit: 16,
         searched: debouncedSearch,
@@ -51,7 +51,7 @@ export default function UserServices() {
         hasNextPage: stuentHasNextPage, 
         isFetchingNextPage: iStudentFetchingNextPage, 
         isLoading: isStudentsLoading 
-    } = infiniteScroll<UserItemIntrf>({
+    } = infiniteScroll<UserInfoIntrf>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/users/show-all-students`,
         limit: 16,
         searched: debouncedSearch,
@@ -87,11 +87,17 @@ export default function UserServices() {
         },
         onError: () => {},
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-masters'] });
-            queryClient.invalidateQueries({ queryKey: [`all-masters-${debouncedSearch}`] });
-            queryClient.invalidateQueries({ queryKey: ['all-students'] });
-            queryClient.invalidateQueries({ queryKey: [`all-students-${debouncedSearch}`] });
-            queryClient.invalidateQueries({ queryKey: ['all-students-class'] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-masters') || 
+                        queryKey[0].startsWith('all-students') || 
+                        queryKey[0].startsWith('all-students-class');
+                    }
+                    return false;
+                }
+            });
             setNewUser({ classname: "", username: "", email: "", password: "", role: "" });
         }
     });
@@ -111,11 +117,17 @@ export default function UserServices() {
         },
         onError: () => {},
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-masters'] });
-            queryClient.invalidateQueries({ queryKey: [`all-masters-${debouncedSearch}`] });
-            queryClient.invalidateQueries({ queryKey: ['all-students'] });
-            queryClient.invalidateQueries({ queryKey: [`all-students-${debouncedSearch}`] });
-            queryClient.invalidateQueries({ queryKey: ['all-students-class'] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-masters') || 
+                        queryKey[0].startsWith('all-students') || 
+                        queryKey[0].startsWith('all-students-class');
+                    }
+                    return false;
+                }
+            });
             setNewUser({ classname: "", username: "", email: "", password: "", role: "" });
         },
         onSettled: () => {
@@ -129,8 +141,15 @@ export default function UserServices() {
         },
         onError: () => {},
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-masters'] });
-            queryClient.invalidateQueries({ queryKey: [`all-masters-${debouncedSearch}`] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-masters');
+                    }
+                    return false;
+                }
+            });
         }
     });
 
@@ -140,8 +159,15 @@ export default function UserServices() {
         },
         onError: () => {},
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-masters'] });
-            queryClient.invalidateQueries({ queryKey: [`all-masters-${debouncedSearch}`] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-masters');
+                    }
+                    return false;
+                }
+            });
         }
     });
 
@@ -151,9 +177,16 @@ export default function UserServices() {
         },
         onError: () => {},
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-students'] });
-            queryClient.invalidateQueries({ queryKey: ['all-students-class'] });
-            queryClient.invalidateQueries({ queryKey: [`all-students-${debouncedSearch}`] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-students') || 
+                        queryKey[0].startsWith('all-students-class');
+                    }
+                    return false;
+                }
+            });
         }
     });
 
@@ -163,9 +196,16 @@ export default function UserServices() {
         },
         onError: () => {},
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-students'] });
-            queryClient.invalidateQueries({ queryKey: ['all-students-class'] });
-            queryClient.invalidateQueries({ queryKey: [`all-students-${debouncedSearch}`] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-students') || 
+                        queryKey[0].startsWith('all-students-class');
+                    }
+                    return false;
+                }
+            });
         }
     });
 

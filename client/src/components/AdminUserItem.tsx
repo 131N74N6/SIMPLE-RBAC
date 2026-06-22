@@ -13,11 +13,11 @@ export default function AdminUserItem(props: UserItemIntrf) {
     useEffect(() => {
         if (props.is_selected) {
             props.set_edit_user({ 
-                created_at: props.iso_to_local(props.created_at), 
-                classname: props.classname,
-                email: props.email, 
-                role: props.role, 
-                username: props.username 
+                created_at: props.iso_to_local(props.user.created_at), 
+                classname: props.user.classname!,
+                email: props.user.email, 
+                role: props.user.role, 
+                username: props.user.username 
             });
         } else {
             props.set_edit_user({ 
@@ -28,7 +28,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                 username: '' 
             });
         }
-    }, [props.is_selected, props._id]);
+    }, [props.is_selected, props.user._id, props.user]);
     
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         props.set_edit_user(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -36,10 +36,10 @@ export default function AdminUserItem(props: UserItemIntrf) {
     
     function saveChanges(event: React.SyntheticEvent) {
         event.preventDefault();
-        props.change_user_data.mutate(props._id);
+        props.change_user_data_mt.mutate(props.user._id);
     }
     
-    const cancelEdit = () => props.on_select(props._id);
+    const cancelEdit = () => props.on_select(props.user._id);
 
     if (props.is_selected) {
         return (
@@ -115,26 +115,27 @@ export default function AdminUserItem(props: UserItemIntrf) {
 
     return (
         <div className="font-mono shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white">
-            <div>Created At: {props.created_at}</div>
-            <div>Email: {props.email}</div>
-            <div>Role: {props.role}</div>
-            <div>Username: {props.username}</div>
+            {props.user.classname && props.user.classname !== "-" ? (
+                <div>Class: {props.user.classname}</div>
+            ) : null}
+            <div>Created At: {props.user.created_at}</div>
+            <div>Email: {props.user.email}</div>
+            <div>Role: {props.user.role}</div>
+            <div>Username: {props.user.username}</div>
             <div className="flex gap-3 justify-end">
-                {props.role === "student" || props.role === "master" ? (
-                    <button 
-                        type="button"
-                        disabled={props.is_processing}
-                        className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
-                        onClick={() => props.on_delete.mutate(props._id)}
-                    >
-                        <Trash/>
-                    </button>
-                ) : null}
                 <button 
                     type="button"
                     disabled={props.is_processing}
                     className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
-                    onClick={() => props.on_select(props._id)}
+                    onClick={() => props.on_delete.mutate(props.user._id)}
+                >
+                    <Trash/>
+                </button>
+                <button 
+                    type="button"
+                    disabled={props.is_processing}
+                    className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
+                    onClick={() => props.on_select(props.user._id)}
                 >
                     <PencilIcon/>
                 </button>

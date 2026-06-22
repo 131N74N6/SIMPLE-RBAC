@@ -16,7 +16,7 @@ export default function ClassItem(props: ClassItemIntrf) {
         } else {
             props.set_edit_classname("");
         }
-    }, [props.is_selected, props.class_detail._id]);
+    }, [props.is_selected, props.class_detail._id, props.class_detail.classname]);
     
     function saveChanges(event: React.SyntheticEvent) {
         event.preventDefault();
@@ -67,7 +67,7 @@ export default function ClassItem(props: ClassItemIntrf) {
     return (
         <div className="font-mono shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white">
             <div>Created At: {new Date(props.class_detail.created_at).toLocaleString()}</div>
-            <div>Username: {props.class_detail.classname}</div>
+            <div>Classname: {props.class_detail.classname}</div>
             <div className="flex gap-3 justify-end">
                 <button 
                     type="button"

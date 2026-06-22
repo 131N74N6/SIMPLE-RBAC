@@ -27,7 +27,20 @@ export default function Classes() {
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10">
             {openForm ? (
-                <form onSubmit={addNewClass}></form>
+                <div className="flex justify-center items-center z-20 inset-0 fixed">
+                    <form onSubmit={addNewClass} className="flex flex-col gap-2.5 p-2.5">
+                        <input
+                            type="text"
+                            id="classname"
+                            value={classname}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setClassname(event.target.value)}
+                        />
+                        <div className="grid grid-cols-2 gap-2.5">
+                            <button type="submit" className="cursor-pointer">Add</button>
+                            <button type="button" className="cursor-pointer" onClick={handleForm}>Close</button>
+                        </div>
+                    </form>
+                </div>
             ) : null}
             <div className="flex flex-col h-full w-full md:w-3/4 gap-3 p-2.5">
                 <div className='flex gap-2.5'>

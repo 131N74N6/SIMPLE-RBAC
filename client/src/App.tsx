@@ -19,86 +19,18 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
                 <Routes>
-                    <Route 
-                        path="/sign-in" 
-                        element={<SignIn/>}
-                    />
-                    <Route 
-                        path="/unauthorized" 
-                        element={<Unauthorized/>}
-                    />
-                    <Route 
-                        path="/admin/students" 
-                        element={
-                            <ProtectedRoute required_roles={['admin']}>
-                                <Students/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route 
-                        path="/admin/masters" 
-                        element={
-                            <ProtectedRoute required_roles={['admin']}>
-                                <Masters/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route 
-                        path="/admin/classes" 
-                        element={
-                            <ProtectedRoute required_roles={['admin']}>
-                                <Classes/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route 
-                        path="/admin/add-user" 
-                        element={
-                            <ProtectedRoute required_roles={['admin']}>
-                                <AddUser/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route 
-                        path="/master/presences" 
-                        element={
-                            <ProtectedRoute required_roles={['master']}>
-                                <Presences/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route 
-                        path="/master/make-presence" 
-                        element={
-                            <ProtectedRoute required_roles={['master']}>
-                                <MakePresence/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route 
-                        path="/student/fill-presence" 
-                        element={
-                            <ProtectedRoute required_roles={['student']}>
-                                <FillPresence/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route 
-                        path="/profile" 
-                        element={
-                            <ProtectedRoute required_roles={['admin', 'master', 'student']}>
-                                <UserDetail/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route 
-                        path="*" 
-                        element={<Navigate to="/sign-in" replace/>}
-                    />
-                    <Route 
-                        path="/" 
-                        element={<Navigate to="/sign-in" replace/>}
-                    />
+                    <Route path="/sign-in" element={<SignIn/>}/>
+                    <Route path="/unauthorized" element={<Unauthorized/>}/>
+                    <Route path="/admin/students" element={<ProtectedRoute required_roles={['admin']}><Students/></ProtectedRoute>}/>
+                    <Route path="/admin/masters" element={<ProtectedRoute required_roles={['admin']}><Masters/></ProtectedRoute>}/>
+                    <Route path="/admin/classes" element={<ProtectedRoute required_roles={['admin']}><Classes/></ProtectedRoute>}/>
+                    <Route path="/admin/add-user" element={<ProtectedRoute required_roles={['admin']}><AddUser/></ProtectedRoute>}/>
+                    <Route path="/master/presences" element={<ProtectedRoute required_roles={['master']}><Presences/></ProtectedRoute>}/>
+                    <Route path="/master/make-presence" element={<ProtectedRoute required_roles={['master']}><MakePresence/></ProtectedRoute>}/>
+                    <Route path="/student/fill-presence" element={<ProtectedRoute required_roles={['student']}><FillPresence/></ProtectedRoute>}/>
+                    <Route path="/profile" element={<ProtectedRoute required_roles={['admin', 'master', 'student']}><UserDetail/></ProtectedRoute>}/>
+                    <Route path="*" element={<Navigate to="/sign-in" replace/>}/>
+                    <Route path="/" element={<Navigate to="/sign-in" replace/>}/>
                 </Routes>
             </BrowserRouter>
         </QueryClientProvider>

@@ -16,25 +16,18 @@ export default function AdminUserList(props: UserListIntrf) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {props.users.map((user) => (
                     <AdminUserItem 
-                        _id={user._id}
-                        change_user_data={props.change_user_data}
-                        classname={user.classname}
-                        created_at={user.created_at}
-                        current_user_id={props.current_user_id}
+                        change_user_data_mt={props.change_user_data_mt}
                         data_error={props.data_error}
                         edit_user={props.edit_user}
-                        email={user.email}
                         is_processing={props.is_processing}
-                        iso_to_local={props.iso_to_local}
                         is_selected={user._id === props.selected_id}
-                        key={`user-${user._id}`}
+                        iso_to_local={props.iso_to_local}
+                        key={`${user._id}`}
                         on_delete={props.on_delete}
                         on_select={props.on_select}
-                        password={user.password}
-                        role={user.role}
                         set_data_error={props.set_data_error}
                         set_edit_user={props.set_edit_user}
-                        username={user.username}
+                        user={user}
                     />
                 ))}
             </div>

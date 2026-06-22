@@ -12,6 +12,6 @@ classRouters.get('/students', verifyToken, checkRole("admin", "master", "student
 
 classRouters.post('/admin/make', verifyToken, checkRole("admin"), makeClass);
 
-classRouters.put('/admin/remake', verifyToken, checkRole("admin"), changeClass);
+classRouters.put('/admin/remake/:id', verifyToken, checkRole("admin"), changeClass);
 
 export default classRouters;

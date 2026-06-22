@@ -6,9 +6,19 @@ import { User } from '../models/user.model';
 
 export async function changeClass(req: Request, res: Response) {
     try {
-        await ClassRoom.updateOne({ _id: req.params.id }, {
-            $set: { classname: req.body.classname }
-        });
+        const targetClass = await ClassRoom.findOne({ _id: req.params.id });
+
+        const isClassExist = await ClassRoom.findOne({ classname: req.body.classname });
+        if (isClassExist) return res.status(409).json({ message: "class name already exist" });
+        
+        await Promise.all([
+            User.updateMany({ classname: targetClass?.classname }, {
+                $set: { classname: req.body.classname }
+            }),
+            ClassRoom.updateOne({ _id: req.params.id }, {
+                $set: { classname: req.body.classname }
+            })
+        ]);
 
         return res.status(200).json({ message: 'class changed' });
     } catch (error) {

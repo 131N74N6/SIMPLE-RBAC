@@ -2,12 +2,9 @@ import { Trash2 } from "lucide-react";
 import AdminNavbar from "../components/AdminNavbar";
 import AdminUserList from "../components/AdminUserList";
 import Loading from "../components/Loading";
-import AuthServices from "../services/auth.service";
 import UserServices from "../services/user.service";
 
 export default function Students() {
-    const { currentUserId } = AuthServices();
-    
     const { 
         changeUserDataMt, dataError, editUser, deleteAllStudentsMt, deleteStudentMt, paginatedStudentsData, 
         search, handleSelectedId, selectedId, setSearch, setDataError, 
@@ -45,8 +42,7 @@ export default function Students() {
                     </div>
                 ) : (
                     <AdminUserList 
-                        change_user_data={changeUserDataMt}
-                        current_user_id={currentUserId}
+                        change_user_data_mt={changeUserDataMt}
                         data_error={dataError}
                         edit_user={editUser}
                         fetch_next_page={paginatedStudentsData.fetchNextStudentsData}

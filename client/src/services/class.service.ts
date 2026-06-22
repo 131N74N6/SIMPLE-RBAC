@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Query, useMutation, useQueryClient } from "@tanstack/react-query";
 import DataServices from "./data.service";
 import type { ClassIntrf } from "../models/class.model";
 import { useState } from "react";
@@ -27,6 +27,15 @@ export default function ClassServices() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-classes'] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-classes');
+                    }
+                    return false;
+                }
+            });
         },
         onSettled: () => {
             setClassname("");
@@ -39,9 +48,9 @@ export default function ClassServices() {
     }
     
     const changeClassMt = useMutation({
-        mutationFn: async (className: string) => {
+        mutationFn: async (id: string) => {
             await editData<Pick<ClassIntrf, 'classname'>>({
-                api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/admin/remake/${className}`,
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/admin/remake/${id}`,
                 data: { classname: classname.trim() }
             });
         },
@@ -49,7 +58,18 @@ export default function ClassServices() {
             setClassnameError(error.message);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-classes'] });
+            setSelectedId(null);
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-classes') || 
+                        queryKey[0].startsWith('all-students')|| 
+                        queryKey[0].startsWith('all-students-class');
+                    }
+                    return false;
+                }
+            });
         },
         onSettled: () => {
             setClassname("");
@@ -64,7 +84,17 @@ export default function ClassServices() {
             setClassnameError(error.message);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-classes'] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-classes') || 
+                        queryKey[0].startsWith('all-students')|| 
+                        queryKey[0].startsWith('all-students-class');
+                    }
+                    return false;
+                }
+            });
         },
         onSettled: () => {
             setClassname("");
@@ -79,7 +109,17 @@ export default function ClassServices() {
             setClassnameError(error.message);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-classes'] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-classes') || 
+                        queryKey[0].startsWith('all-students')|| 
+                        queryKey[0].startsWith('all-students-class');
+                    }
+                    return false;
+                }
+            });
         },
         onSettled: () => {
             setClassname("");

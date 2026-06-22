@@ -1,7 +1,10 @@
 import type { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult, UseMutationResult } from "@tanstack/react-query";
 
 export type UserInfoIntrf = {
+    _id: string;
     created_at: string;
+    classname?: string;
+    email: string;
     role: string;
     user_id: string;
     username: string;
@@ -13,8 +16,7 @@ export type SignInIntrf = {
 }
 
 export type UserListIntrf = {
-    change_user_data: UseMutationResult<void, Error, string, unknown>;
-    current_user_id: string | null;
+    change_user_data_mt: UseMutationResult<void, Error, string, unknown>;
     data_error: string | null;
     edit_user: EditUserIntrf;
     fetch_next_page: (options?: FetchNextPageOptions | undefined) => Promise<InfiniteQueryObserverResult<InfiniteData<any, unknown>, Error>>;
@@ -27,28 +29,21 @@ export type UserListIntrf = {
     selected_id: string | null;
     set_data_error: React.Dispatch<React.SetStateAction<string | null>>;
     set_edit_user: React.Dispatch<React.SetStateAction<EditUserIntrf>>;
-    users: UserItemIntrf[];
+    users: UserInfoIntrf[];
 }
 
 export type UserItemIntrf = {
-    _id: string;
-    change_user_data: UseMutationResult<void, Error, string, unknown>;
-    classname: string;
-    current_user_id: string | null;
-    created_at: string;
+    change_user_data_mt: UseMutationResult<void, Error, string, unknown>;
     data_error: string | null;
     edit_user: EditUserIntrf;
-    email: string;
     is_processing: boolean;
     is_selected: boolean;
     iso_to_local: (isoString: string) => string;
     on_delete: UseMutationResult<void, Error, string, unknown>;
     on_select: (id: string) => void;
-    password: string;
-    role: string;
     set_data_error: React.Dispatch<React.SetStateAction<string | null>>;
     set_edit_user: React.Dispatch<React.SetStateAction<EditUserIntrf>>;
-    username: string;
+    user: UserInfoIntrf;
 }
 
 export type AddUserIntrf = {

@@ -15,7 +15,6 @@ export type ClassItemIntrf = {
     on_delete: UseMutationResult<void, Error, string, unknown>;
     on_edit: UseMutationResult<void, Error, string, unknown>;
     on_select: (id: string) => void;
-    selected_id: string | null;
     set_data_error: React.Dispatch<React.SetStateAction<string | null>>;
     set_edit_classname: React.Dispatch<React.SetStateAction<string>>;
 }

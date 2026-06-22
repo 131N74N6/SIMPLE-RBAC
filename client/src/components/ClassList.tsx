@@ -21,12 +21,12 @@ export default function ClassList(props: ClassListIntrf) {
                         data_error={props.data_error}
                         is_processing={props.is_processing}
                         is_selected={each_class._id === props.selected_id}
+                        key={`${each_class._id}`}
                         on_delete={props.on_delete}
                         on_edit={props.on_edit}
                         on_select={props.on_select}
                         set_data_error={props.set_data_error}
                         set_edit_classname={props.set_edit_classname}
-                        selected_id={props.selected_id}
                     />
                 ))}
             </div>
