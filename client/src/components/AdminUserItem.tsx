@@ -12,27 +12,17 @@ export default function AdminUserItem(props: UserItemIntrf) {
     
     useEffect(() => {
         if (props.is_selected) {
-            props.set_edit_user({ 
-                created_at: props.iso_to_local(props.user.created_at), 
-                classname: props.user.classname!,
-                email: props.user.email, 
-                role: props.user.role, 
-                username: props.user.username 
-            });
+            props.set_edit_user("created_at", props.iso_to_local(props.user.created_at));
+            props.set_edit_user("email", props.user.email);
+            props.set_edit_user("role", props.user.role);
+            props.set_edit_user("username", props.user.username);
         } else {
-            props.set_edit_user({ 
-                created_at: '', 
-                classname: '',
-                email: '', 
-                role: '', 
-                username: '' 
-            });
+            props.set_edit_user("created_at", "");
+            props.set_edit_user("email", "");
+            props.set_edit_user("role", "");
+            props.set_edit_user("username", "");
         }
     }, [props.is_selected, props.user._id, props.user]);
-    
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        props.set_edit_user(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    }
     
     function saveChanges(event: React.SyntheticEvent) {
         event.preventDefault();
@@ -54,7 +44,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         name="created_at"
                         id="created_at"
                         value={props.edit_user.created_at}
-                        onChange={handleInputChange}
+                        onChange={(event) => props.set_edit_user("created_at", event.target.value)}
                         className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                     />
                 </div>
@@ -65,7 +55,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         name="email"
                         id="email"
                         value={props.edit_user.email}
-                        onChange={handleInputChange}
+                        onChange={(event) => props.set_edit_user("email", event.target.value)}
                         className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                     />
                 </div>
@@ -76,7 +66,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         name="role"
                         id="role"
                         value={props.edit_user.role}
-                        onChange={handleInputChange}
+                        onChange={(event) => props.set_edit_user("role", event.target.value)}
                         className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] border outline-0 border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                     />
                 </div>
@@ -87,7 +77,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         name="username"
                         id="username"
                         value={props.edit_user.username}
-                        onChange={handleInputChange}
+                        onChange={(event) => props.set_edit_user("username", event.target.value)}
                         className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                     />
                 </div>

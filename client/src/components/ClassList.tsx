@@ -17,8 +17,8 @@ export default function ClassList(props: ClassListIntrf) {
                 {props.class_data.map((each_class) => (
                     <ClassItem 
                         class_detail={each_class}
-                        classname={props.classname}
                         data_error={props.data_error}
+                        edit_classname={props.edit_classname}
                         is_processing={props.is_processing}
                         is_selected={each_class._id === props.selected_id}
                         key={`${each_class._id}`}

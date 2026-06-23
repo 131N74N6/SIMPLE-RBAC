@@ -2,12 +2,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import DataServices from "./data.service";
 import type { FillPresenceIntrf, MakePresenceIntrf, PresenceSlotIntrf } from "../models/presence.model";
 import { useState } from "react";
+import { usePresenceStore } from "../stores/presence.store";
 
 export default function PresenceServices() {
     const queryClient = useQueryClient();
     const { addData, deleteData, infiniteScroll } = DataServices();
-
-    const [presence, setPresence] = useState<MakePresenceIntrf>({ classname: "", deadline: "", start_time: "" });
+    const { presence, resetPresence, setPresence } = usePresenceStore();
     const [presenceError, setPresenceError] = useState<string | null>(null);
     
     const fillPresenceMt = useMutation({
@@ -27,7 +27,7 @@ export default function PresenceServices() {
             queryClient.invalidateQueries({ queryKey: ['all-presences'] });
         },
         onSettled: () => {
-            setPresence({ classname: "", deadline: "", start_time: "" });
+            resetPresence();
         }
     });
 
@@ -49,7 +49,7 @@ export default function PresenceServices() {
             queryClient.invalidateQueries({ queryKey: ['all-presences'] });
         },
         onSettled: () => {
-            setPresence({ classname: "", deadline: "", start_time: "" });
+            resetPresence();
         }
     });
     
@@ -65,7 +65,7 @@ export default function PresenceServices() {
             queryClient.invalidateQueries({ queryKey: ['all-presences-form'] });
         },
         onSettled: () => {
-            setPresence({ classname: "", deadline: "", start_time: "" });
+            resetPresence();
         }
     });
     
@@ -81,13 +81,9 @@ export default function PresenceServices() {
             queryClient.invalidateQueries({ queryKey: ['all-presences-form'] });
         },
         onSettled: () => {
-            setPresence({ classname: "", deadline: "", start_time: "" });
+            resetPresence();
         }
     });
-
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setPresence(prev => ({ ...prev, [event.target.name]: event.target.value }));
-    }
 
     const { 
         error, 
@@ -119,7 +115,14 @@ export default function PresenceServices() {
         stale_time: Infinity
     });
 
-    const allAvailablePresences = { availablePresenceError, availablePresenceNextPage, availableFlatennedData, availablePresenceHasNextPage, availablePresenceIsFetchingNextPage, isFetchingIsLoading };
+    const allAvailablePresences = { 
+        availablePresenceError, 
+        availablePresenceNextPage, 
+        availableFlatennedData, 
+        availablePresenceHasNextPage, 
+        availablePresenceIsFetchingNextPage, 
+        isFetchingIsLoading
+    };
 
     return { 
         makeNewPresenceMt, 
@@ -128,7 +131,6 @@ export default function PresenceServices() {
         deleteAllPresencesMt, 
         deleteOnePresenceMt, 
         fillPresenceMt,
-        handleInputChange,
         presence,
         presenceError, 
         setPresence,

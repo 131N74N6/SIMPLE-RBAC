@@ -3,11 +3,8 @@ import AdminNavbar from "../components/AdminNavbar";
 import AdminUserList from "../components/AdminUserList";
 import Loading from "../components/Loading";
 import UserServices from "../services/user.service";
-import AuthServices from "../services/auth.service";
 
 export default function Masters() {
-    const { currentUserId } = AuthServices();
-    
     const { 
         changeUserDataMt, dataError, editUser, deleteAllMastersMt, deleteMasterMt, paginatedMastersData, 
         search, handleSelectedId, selectedId, setSearch, setDataError, 
@@ -45,8 +42,7 @@ export default function Masters() {
                     </div>
                 ) : (
                     <AdminUserList 
-                        change_user_data={changeUserDataMt}
-                        current_user_id={currentUserId}
+                        change_user_data_mt={changeUserDataMt}
                         data_error={dataError}
                         edit_user={editUser}
                         fetch_next_page={paginatedMastersData.fetchNextMasterData}

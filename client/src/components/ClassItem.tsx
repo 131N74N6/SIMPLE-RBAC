@@ -37,7 +37,7 @@ export default function ClassItem(props: ClassItemIntrf) {
                         type="text"
                         name="classname"
                         id="classname"
-                        value={props.classname}
+                        value={props.edit_classname}
                         onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => props.set_edit_classname(event.target.value)}
                         className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                     />

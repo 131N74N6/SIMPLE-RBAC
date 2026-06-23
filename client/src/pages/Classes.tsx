@@ -8,7 +8,8 @@ export default function Classes() {
     const { 
         addNewClass, 
         allClassData,
-        classname, 
+        newClassName, 
+        editClassName,
         classnameError,
         changeClassMt,
         deleteAllClassesMt,
@@ -19,7 +20,8 @@ export default function Classes() {
         openForm,
         search,
         selectedId,
-        setClassname,
+        setEditClassName,
+        setNewClassName,
         setClassnameError,
         setSearch
     } = ClassServices();
@@ -32,8 +34,8 @@ export default function Classes() {
                         <input
                             type="text"
                             id="classname"
-                            value={classname}
-                            onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setClassname(event.target.value)}
+                            value={newClassName}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewClassName(event.target.value)}
                         />
                         <div className="grid grid-cols-2 gap-2.5">
                             <button type="submit" className="cursor-pointer">Add</button>
@@ -80,9 +82,9 @@ export default function Classes() {
                 ) : (
                     <ClassList 
                         class_data={allClassData.classFlattendedData}
-                        classname={classname}
                         data_error={classnameError}
                         fetch_next_page={allClassData.classFetchNextPage}
+                        edit_classname={editClassName}
                         has_next_page={allClassData.classHasNextPage}
                         is_fetching_next_page={allClassData.classIsFetchingNextPage}
                         is_processing={isProcessing}
@@ -90,7 +92,7 @@ export default function Classes() {
                         on_edit={changeClassMt}
                         on_select={handleSelectedId}
                         set_data_error={setClassnameError}
-                        set_edit_classname={setClassname}
+                        set_edit_classname={setEditClassName}
                         selected_id={selectedId}
                     />
                 )}

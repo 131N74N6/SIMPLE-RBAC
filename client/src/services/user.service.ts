@@ -1,17 +1,14 @@
 import { Query, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AddUserIntrf, EditUserIntrf, UserInfoIntrf } from "../models/user.model";
 import DataServices from "./data.service";
-import { useState } from "react";
 import useSearch from "../hooks/useSearch";
+import { useUserStore } from "../stores/user.store";
 
 export default function UserServices() {
     const queryClient = useQueryClient();
     const { addData, dataError, deleteData, editData, infiniteScroll, setDataError } = DataServices();
-
     const { debouncedSearch, search, setSearch } = useSearch();
-    const [newUser, setNewUser] = useState<AddUserIntrf>({ classname: "", username: "", email: "", password: "", role: "" });
-    const [editUser, setEditUser] = useState<EditUserIntrf>({ classname: "", created_at: '', email: '', role: '', username: '' });
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const { editUser, newUser, resetNewUser, selectedId, setEditUser, setNewUser, setSelectedId } = useUserStore();
 
     function isoToLocalDateTime(isoString: string): string {
         const date = new Date(isoString);
@@ -68,10 +65,6 @@ export default function UserServices() {
         setSelectedId(prev => prev === id ? null : id);
     }
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setNewUser(prev => ({ ...prev, [event.target.name]: event.target.value }));
-    }
-
     const addUserMt = useMutation({
         mutationFn: async () => {
             await addData<AddUserIntrf>({
@@ -98,7 +91,7 @@ export default function UserServices() {
                     return false;
                 }
             });
-            setNewUser({ classname: "", username: "", email: "", password: "", role: "" });
+            
         }
     });
 
@@ -128,7 +121,7 @@ export default function UserServices() {
                     return false;
                 }
             });
-            setNewUser({ classname: "", username: "", email: "", password: "", role: "" });
+            resetNewUser();
         },
         onSettled: () => {
             setSelectedId(null);
@@ -225,7 +218,6 @@ export default function UserServices() {
         deleteAllStudentsMt, 
         deleteStudentMt, 
         editUser, 
-        handleInputChange, 
         handleSelectedId,
         isProcessing,
         isoToLocalDateTime, 

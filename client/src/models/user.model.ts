@@ -28,7 +28,7 @@ export type UserListIntrf = {
     on_select: (id: string) => void;
     selected_id: string | null;
     set_data_error: React.Dispatch<React.SetStateAction<string | null>>;
-    set_edit_user: React.Dispatch<React.SetStateAction<EditUserIntrf>>;
+    set_edit_user: (field: "email" | "role" | "username" | "created_at", value: string) => void;
     users: UserInfoIntrf[];
 }
 
@@ -42,7 +42,7 @@ export type UserItemIntrf = {
     on_delete: UseMutationResult<void, Error, string, unknown>;
     on_select: (id: string) => void;
     set_data_error: React.Dispatch<React.SetStateAction<string | null>>;
-    set_edit_user: React.Dispatch<React.SetStateAction<EditUserIntrf>>;
+    set_edit_user: (field: "email" | "role" | "username" | "created_at", value: string) => void;
     user: UserInfoIntrf;
 }
 

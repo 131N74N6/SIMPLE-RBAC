@@ -3,7 +3,7 @@ import AdminNavbar from "../components/AdminNavbar";
 import UserServices from "../services/user.service";
 
 export default function AddUser() {
-    const { addUserMt, dataError, handleInputChange, newUser, setDataError } = UserServices();
+    const { addUserMt, dataError, setNewUser, newUser, setDataError } = UserServices();
 
     useEffect(() =>{
         if (dataError) {
@@ -27,7 +27,7 @@ export default function AddUser() {
                     id="Username"
                     name="username"
                     value={newUser.username}
-                    onChange={handleInputChange}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("username", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <label htmlFor="Classname">Class</label>
@@ -37,7 +37,7 @@ export default function AddUser() {
                     id="Classname"
                     name="classname"
                     value={newUser.classname}
-                    onChange={handleInputChange}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("classname", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <label htmlFor="Email">Email</label>
@@ -47,7 +47,7 @@ export default function AddUser() {
                     id="Email"
                     name="email"
                     value={newUser.email}
-                    onChange={handleInputChange}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("email", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <label htmlFor="Password">Password</label>
@@ -57,7 +57,7 @@ export default function AddUser() {
                     id="Password"
                     name="password"
                     value={newUser.password}
-                    onChange={handleInputChange}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("password", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <label htmlFor="Role">Role</label>
@@ -67,7 +67,7 @@ export default function AddUser() {
                     id="Role"
                     name="role"
                     value={newUser.role}
-                    onChange={handleInputChange}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("role", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <div>

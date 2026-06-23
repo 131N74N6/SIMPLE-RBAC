@@ -3,23 +3,21 @@ import DataServices from "./data.service";
 import type { ClassIntrf } from "../models/class.model";
 import { useState } from "react";
 import useSearch from "../hooks/useSearch";
+import { useClassStore } from "../stores/class.store";
 
 export default function ClassServices() {
     const queryClient = useQueryClient();
     const { addData, deleteData, editData, infiniteScroll } = DataServices();
     const { debouncedSearch, search, setSearch } = useSearch();
-
-    const [openForm, setOpenForm] = useState<boolean>(false);
-    const [classname, setClassname] = useState<string>("");
+    const { editClassName, newClassName, openForm, selectedId, setEditClassName, setNewClassName, setOpenForm, setSelectedId } = useClassStore();
     const [classnameError, setClassnameError] = useState<string | null>(null);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
 
     
     const addNewClassMt = useMutation({
         mutationFn: async () => {
             await addData<Pick<ClassIntrf, 'classname'>>({
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/admin/make`,
-                data: { classname: classname.trim() }
+                data: { classname: newClassName.trim() }
             });
         },
         onError(error) {
@@ -38,7 +36,7 @@ export default function ClassServices() {
             });
         },
         onSettled: () => {
-            setClassname("");
+            setNewClassName("");
         }
     });
 
@@ -51,7 +49,7 @@ export default function ClassServices() {
         mutationFn: async (id: string) => {
             await editData<Pick<ClassIntrf, 'classname'>>({
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/admin/remake/${id}`,
-                data: { classname: classname.trim() }
+                data: { classname: editClassName.trim() }
             });
         },
         onError(error) {
@@ -72,7 +70,8 @@ export default function ClassServices() {
             });
         },
         onSettled: () => {
-            setClassname("");
+            setNewClassName("");
+            setEditClassName("");
         }
     });
     
@@ -97,7 +96,8 @@ export default function ClassServices() {
             });
         },
         onSettled: () => {
-            setClassname("");
+            setNewClassName("");
+            setEditClassName("");
         }
     });
     
@@ -122,7 +122,8 @@ export default function ClassServices() {
             });
         },
         onSettled: () => {
-            setClassname("");
+            setNewClassName("");
+            setEditClassName("");
         }
     });
 
@@ -174,7 +175,8 @@ export default function ClassServices() {
         addNewClass, 
         allClassData,
         allStudentsInClass,
-        classname,
+        newClassName,
+        editClassName,
         classnameError, 
         changeClassMt,
         deleteAllClassesMt,
@@ -185,7 +187,8 @@ export default function ClassServices() {
         openForm,
         search,
         selectedId,
-        setClassname,
+        setNewClassName,
+        setEditClassName,
         setClassnameError,
         setSearch
     }
