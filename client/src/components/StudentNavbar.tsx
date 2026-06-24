@@ -6,7 +6,7 @@ export default function StudentNavbar(is_processing: boolean) {
     const { currentUserName, quit } = AuthServices();
 
     return (
-        <nav className="p-2.5 flex md:flex-col gap-2.5 md:w-1/4 w-full flex-row font-mono bg-orange-800 text-white font-medium">
+        <nav className="p-2.5 flex md:flex-col gap-2.5 md:w-1/4 w-full flex-row font-mono bg-gray-900 text-white font-medium">
             <div className="p-1.5 md:flex hidden">Hello, {currentUserName}</div>
             <button 
                 type="button"

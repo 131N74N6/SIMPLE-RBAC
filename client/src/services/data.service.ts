@@ -75,9 +75,9 @@ export default function DataServices() {
         }
     }
 
-    function getData<X>(props: GetDataIntrf) {
+    function getData<X>(props: GetDataIntrf): { data: X | undefined; error: Error | null; isLoading: boolean } {
         const { data, error, isLoading } = useQuery<X, Error>({
-            enabled: !userLoading && !!currentUserData,
+            enabled: !userLoading && !!currentUserData && (props.enabled ?? true),
             queryFn: async () => {
                 try {
                     const request = await fetch(props.api_url, {
@@ -111,7 +111,7 @@ export default function DataServices() {
 
     function infiniteScroll<X>(props: InfiniteScrollIntrf) {
         const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-            enabled: !userLoading && !!currentUserData,
+            enabled: !userLoading && !!currentUserData && (props.enabled ?? true),
             getNextPageParam: (lastPage, allPages): number | undefined => {
                 if (lastPage.length < props.limit) return;
                 return allPages.length + 1;

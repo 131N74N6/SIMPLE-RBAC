@@ -5,24 +5,29 @@ import { useEffect } from "react";
 export default function AdminUserItem(props: UserItemIntrf) {
     useEffect(() => {
         if (props.data_error) {
-            const x = setTimeout(() => props.set_data_error(null), 3000);
-            return () => clearTimeout(x);
+            const timer = setTimeout(() => props.set_data_error(null), 3000);
+            return () => clearTimeout(timer);
         }
-    }, [props.data_error]);
+    }, [props.data_error, props.set_data_error]);
     
-    useEffect(() => {
-        if (props.is_selected) {
+    const handleSelect = () => {
+        const isSelected = !props.is_selected;
+        props.on_select(props.user._id);
+        
+        if (isSelected) {
+            props.set_edit_user("classname", props.user.classname!);
             props.set_edit_user("created_at", props.iso_to_local(props.user.created_at));
             props.set_edit_user("email", props.user.email);
             props.set_edit_user("role", props.user.role);
             props.set_edit_user("username", props.user.username);
         } else {
+            props.set_edit_user("classname", "");
             props.set_edit_user("created_at", "");
             props.set_edit_user("email", "");
             props.set_edit_user("role", "");
             props.set_edit_user("username", "");
         }
-    }, [props.is_selected, props.user._id, props.user]);
+    };
     
     function saveChanges(event: React.SyntheticEvent) {
         event.preventDefault();
@@ -37,6 +42,17 @@ export default function AdminUserItem(props: UserItemIntrf) {
                 onSubmit={saveChanges}
                 className="font-mono shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
             >
+                <div className="flex gap-2 items-center">
+                    <label htmlFor="classname">Classname: </label>
+                    <input 
+                        type="text"
+                        name="classname"
+                        id="classname"
+                        value={props.edit_user.classname}
+                        onChange={(event) => props.set_edit_user("classname", event.target.value)}
+                        className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                    />
+                </div>
                 <div className="flex gap-2 items-center">
                     <label htmlFor="created_at">Created at: </label>
                     <input 
@@ -105,9 +121,6 @@ export default function AdminUserItem(props: UserItemIntrf) {
 
     return (
         <div className="font-mono shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white">
-            {props.user.classname && props.user.classname !== "-" ? (
-                <div>Class: {props.user.classname}</div>
-            ) : null}
             <div>Created At: {props.user.created_at}</div>
             <div>Email: {props.user.email}</div>
             <div>Role: {props.user.role}</div>
@@ -125,7 +138,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                     type="button"
                     disabled={props.is_processing}
                     className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
-                    onClick={() => props.on_select(props.user._id)}
+                    onClick={handleSelect}
                 >
                     <PencilIcon/>
                 </button>

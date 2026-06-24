@@ -8,7 +8,7 @@ classRouters.delete('/admin/rm-all', verifyToken, checkRole("admin"), deleteAllC
 classRouters.delete('/admin/rm/:classname', verifyToken, checkRole("admin"), deleteOneClass);
 
 classRouters.get('/admin/show-all', verifyToken, checkRole("admin"), getAllClasses);
-classRouters.get('/students', verifyToken, checkRole("admin", "master", "student"), getAllStudentsInClass);
+classRouters.get('/students/:classname', verifyToken, checkRole("admin", "master", "student"), getAllStudentsInClass);
 
 classRouters.post('/admin/make', verifyToken, checkRole("admin"), makeClass);
 

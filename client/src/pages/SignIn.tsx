@@ -27,7 +27,7 @@ export default function SignIn() {
 
     async function handleSubmit(event: React.SyntheticEvent) {
         event.preventDefault();
-        await signIn({ password, username });
+        await signIn.mutateAsync({ password, username });
     }
 
     return (
@@ -58,10 +58,10 @@ export default function SignIn() {
                 </div>
                 <button 
                     type="submit" 
-                    disabled={userLoading}
+                    disabled={userLoading || signIn.isPending}
                     className="bg-blue-300 hover:bg-blue-400 cursor-pointer p-2 rounded text-blue-950 disabled:cursor-not-allowed disabled:bg-blue-200 disabled:text-blue-500"
                 >
-                    Sign In
+                    {signIn.isPending ? "Signing In..." : "Sign In"}
                 </button>
                 {userError ? <span className="text-olive-50 font-medium text-center">{userError}</span> : null}
             </form>

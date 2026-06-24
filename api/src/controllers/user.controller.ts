@@ -32,7 +32,23 @@ export async function deleteAllStudents(_: Request, res: Response) {
 
         await Promise.all([
             StudentPresence.deleteMany(),
-            User.deleteOne({ role: "student" })
+            User.deleteMany({ role: "student" })
+        ]);
+
+        res.status(200).json({ message: "All users deleted successfully" });
+    } catch (error: any) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export async function deleteAllStudentByClass(req: Request, res: Response) {
+    try {
+        const getStudents = await User.find({ role: 'student', classname: req.params.classname });
+        if (getStudents.length === 0) return res.status(404).json({ message: "Student not found" });
+
+        await Promise.all([
+            StudentPresence.deleteMany(),
+            User.deleteMany({ role: "student" })
         ]);
 
         res.status(200).json({ message: "All users deleted successfully" });

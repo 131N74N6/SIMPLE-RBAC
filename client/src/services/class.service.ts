@@ -1,17 +1,23 @@
 import { Query, useMutation, useQueryClient } from "@tanstack/react-query";
 import DataServices from "./data.service";
-import type { ClassIntrf } from "../models/class.model";
-import { useState } from "react";
+import type { ClassIntrf, ClassServiceIntrf } from "../models/class.model";
 import useSearch from "../hooks/useSearch";
 import { useClassStore } from "../stores/class.store";
 
-export default function ClassServices() {
+export default function ClassServices(props?: ClassServiceIntrf) {
     const queryClient = useQueryClient();
     const { addData, deleteData, editData, infiniteScroll } = DataServices();
     const { debouncedSearch, search, setSearch } = useSearch();
-    const { editClassName, newClassName, openForm, selectedId, setEditClassName, setNewClassName, setOpenForm, setSelectedId } = useClassStore();
-    const [classnameError, setClassnameError] = useState<string | null>(null);
-
+    
+    const editClassName = useClassStore((state) => state.editClassName);
+    const handleSelectedId = useClassStore((state) => state.handleSelectedId);
+    const newClassName = useClassStore((state) => state.newClassName);
+    const openForm = useClassStore((state) => state.openForm);
+    const resetEditClassName = useClassStore((state) => state.resetEditClassName);
+    const selectedId = useClassStore((state) => state.selectedId);
+    const setEditClassName = useClassStore((state) => state.setEditClassName);
+    const setNewClassName = useClassStore((state) => state.setNewClassName);
+    const setOpenForm = useClassStore((state) => state.setOpenForm);
     
     const addNewClassMt = useMutation({
         mutationFn: async () => {
@@ -21,7 +27,7 @@ export default function ClassServices() {
             });
         },
         onError(error) {
-            setClassnameError(error.message);
+            props?.setMessage!(error.message);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['all-classes'] });
@@ -34,9 +40,8 @@ export default function ClassServices() {
                     return false;
                 }
             });
-        },
-        onSettled: () => {
             setNewClassName("");
+            setOpenForm(false);
         }
     });
 
@@ -53,10 +58,9 @@ export default function ClassServices() {
             });
         },
         onError(error) {
-            setClassnameError(error.message);
+            props?.setMessage!(error.message);
         },
         onSuccess: () => {
-            setSelectedId(null);
             queryClient.invalidateQueries({
                 predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
                     const queryKey = query.queryKey;
@@ -68,10 +72,7 @@ export default function ClassServices() {
                     return false;
                 }
             });
-        },
-        onSettled: () => {
-            setNewClassName("");
-            setEditClassName("");
+            resetEditClassName();
         }
     });
     
@@ -80,7 +81,7 @@ export default function ClassServices() {
             await deleteData(`${import.meta.env.VITE_BASE_API_URL}/classes/admin/rm-all`);
         },
         onError(error) {
-            setClassnameError(error.message);
+            props?.setMessage!(error.message);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({
@@ -94,10 +95,8 @@ export default function ClassServices() {
                     return false;
                 }
             });
-        },
-        onSettled: () => {
             setNewClassName("");
-            setEditClassName("");
+            resetEditClassName();
         }
     });
     
@@ -106,7 +105,7 @@ export default function ClassServices() {
             await deleteData(`${import.meta.env.VITE_BASE_API_URL}/classes/admin/rm/${className}`);
         },
         onError(error) {
-            setClassnameError(error.message);
+            props?.setMessage!(error.message);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({
@@ -120,14 +119,11 @@ export default function ClassServices() {
                     return false;
                 }
             });
-        },
-        onSettled: () => {
             setNewClassName("");
-            setEditClassName("");
+            resetEditClassName();
         }
     });
 
-    const handleSelectedId = (id: string) => setSelectedId(prev => prev === id ? null : id);
     const handleForm = () => setOpenForm(!openForm);
 
     const { 
@@ -177,7 +173,6 @@ export default function ClassServices() {
         allStudentsInClass,
         newClassName,
         editClassName,
-        classnameError, 
         changeClassMt,
         deleteAllClassesMt,
         deleteOneClassMt, 
@@ -189,7 +184,6 @@ export default function ClassServices() {
         selectedId,
         setNewClassName,
         setEditClassName,
-        setClassnameError,
         setSearch
     }
 }

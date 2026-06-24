@@ -1,11 +1,13 @@
-import { Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import AdminNavbar from "../components/AdminNavbar";
+import { useParams } from "react-router-dom";
+import UserServices from "../services/user.service";
 import AdminUserList from "../components/AdminUserList";
 import Loading from "../components/Loading";
-import UserServices from "../services/user.service";
-import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
 
-export default function Students() {
+export default function ClassDetail() {
+    const { classname } = useParams();
     const [error, setError] = useState<string | null>(null);
     
     useEffect(() =>{
@@ -16,10 +18,10 @@ export default function Students() {
     }, [error, setError]);
 
     const { 
-        changeUserDataMt, editUser, deleteAllStudentsMt, deleteStudentMt, paginatedStudentsData, 
+        changeUserDataMt, editUser, deleteAllStudentsMt, deleteStudentMt, getAllStudentsByClass, 
         search, handleSelectedId, selectedId, setSearch, 
         setEditUser, isoToLocalDateTime
-    } = UserServices();
+    } = UserServices({ classname: classname, setMessage: setError });
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10">
@@ -42,11 +44,11 @@ export default function Students() {
                         <div className='flex justify-center'><Trash2/></div>
                     </button>
                 </div>
-                {paginatedStudentsData.studentError ? (
+                {getAllStudentsByClass.studentError2 ? (
                     <div className='flex justify-center items-center h-full'>
-                        <div className='font-mono font-medium text-2xl'>{paginatedStudentsData.studentError.message}</div>
+                        <div className='font-mono font-medium text-2xl'>{getAllStudentsByClass.studentError2.message}</div>
                     </div>
-                ) : paginatedStudentsData.isStudentsLoading ? (
+                ) : getAllStudentsByClass.isStudentsLoading2 ? (
                     <div className='flex justify-center bg-white items-center h-full'>
                         <Loading/>
                     </div>
@@ -55,9 +57,9 @@ export default function Students() {
                         change_user_data_mt={changeUserDataMt}
                         data_error={error}
                         edit_user={editUser}
-                        fetch_next_page={paginatedStudentsData.fetchNextStudentsData}
-                        has_next_page={paginatedStudentsData.stuentHasNextPage}
-                        is_fetching_next_page={paginatedStudentsData.iStudentFetchingNextPage}
+                        fetch_next_page={getAllStudentsByClass.fetchNextStudentsData2}
+                        has_next_page={getAllStudentsByClass.stuentHasNextPage2}
+                        is_fetching_next_page={getAllStudentsByClass.iStudentFetchingNextPage2}
                         iso_to_local={isoToLocalDateTime}
                         is_processing={changeUserDataMt.isPending}
                         on_delete={deleteStudentMt}
@@ -65,7 +67,7 @@ export default function Students() {
                         selected_id={selectedId}
                         set_data_error={setError}
                         set_edit_user={setEditUser}
-                        users={paginatedStudentsData.flatennedStudentsData}
+                        users={getAllStudentsByClass.flatennedStudentsData2}
                     />
                 )}
             </div>

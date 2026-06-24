@@ -1,22 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PresenceServices from "../services/presence.service";
 import MasterNavbar from "../components/MasterNavbar";
 
 export default function MakePresence() {
-    const { 
-        makeNewPresenceMt, 
-        handleInputChange,
-        presence,
-        presenceError,
-        setPresenceError
-    } = PresenceServices();
-
-    useEffect(() => {
-        if (presenceError) {
-            const x = setTimeout(() => setPresenceError(null), 2000);
-            return () => clearTimeout(x);
+    const [error, setError] = useState<string | null>(null);
+    
+    useEffect(() =>{
+        if (error) {
+            const timer = setTimeout(() => setError(null), 3000);
+            return () => clearTimeout(timer);
         }
-    }, [presenceError]);
+    }, [error, setError]);
+
+    const { makeNewPresenceMt, setPresence, presence } = PresenceServices({ setMessage: setError });
 
     const makeNewPresence = (event: React.SyntheticEvent) => {
         event.preventDefault();
@@ -33,7 +29,7 @@ export default function MakePresence() {
                     id="classname"
                     name="classname"
                     value={presence.classname}
-                    onChange={handleInputChange}
+                    onChange={(event) => setPresence("classname", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <label htmlFor="start_time">Start Time</label>
@@ -43,7 +39,7 @@ export default function MakePresence() {
                     id="start_time"
                     name="start_time"
                     value={presence.start_time}
-                    onChange={handleInputChange}
+                    onChange={(event) => setPresence("start_time", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <label htmlFor="deadline">Deadline</label>
@@ -53,7 +49,7 @@ export default function MakePresence() {
                     id="deadline"
                     name="deadline"
                     value={presence.deadline}
-                    onChange={handleInputChange}
+                    onChange={(event) => setPresence("deadline", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <div>
@@ -65,7 +61,7 @@ export default function MakePresence() {
                         Add Presence
                     </button>
                 </div>
-                {presenceError && <p className="text-red-500 mt-2">{presenceError}</p>}
+                {error && <p className="text-red-500 mt-2">{error}</p>}
             </form>
             {MasterNavbar(makeNewPresenceMt.isPending)}
         </div>

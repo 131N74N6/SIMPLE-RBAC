@@ -11,6 +11,7 @@ import FillPresence from "./pages/FillPresence";
 import Classes from "./pages/Classes";
 import Students from "./pages/Students";
 import Masters from "./pages/Masters";
+import ClassDetail from "./pages/ClassDetail";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ export default function App() {
                     <Route path="/unauthorized" element={<Unauthorized/>}/>
                     <Route path="/admin/students" element={<ProtectedRoute required_roles={['admin']}><Students/></ProtectedRoute>}/>
                     <Route path="/admin/masters" element={<ProtectedRoute required_roles={['admin']}><Masters/></ProtectedRoute>}/>
+                    <Route path="/admin/class/:classname" element={<ProtectedRoute required_roles={['admin', 'master', 'student']}><ClassDetail/></ProtectedRoute>}/>
                     <Route path="/admin/classes" element={<ProtectedRoute required_roles={['admin']}><Classes/></ProtectedRoute>}/>
                     <Route path="/admin/add-user" element={<ProtectedRoute required_roles={['admin']}><AddUser/></ProtectedRoute>}/>
                     <Route path="/master/presences" element={<ProtectedRoute required_roles={['master']}><Presences/></ProtectedRoute>}/>

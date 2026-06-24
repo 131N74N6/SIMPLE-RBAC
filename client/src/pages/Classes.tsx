@@ -1,16 +1,25 @@
-import { Trash2, UserPlus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import AdminNavbar from "../components/AdminNavbar";
 import ClassList from "../components/ClassList";
 import Loading from "../components/Loading";
 import ClassServices from "../services/class.service";
+import { useEffect, useState } from "react";
 
 export default function Classes() {
+    const [error, setError] = useState<string | null>(null);
+    
+    useEffect(() =>{
+        if (error) {
+            const timer = setTimeout(() => setError(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [error, setError]);
+    
     const { 
         addNewClass, 
         allClassData,
         newClassName, 
         editClassName,
-        classnameError,
         changeClassMt,
         deleteAllClassesMt,
         deleteOneClassMt, 
@@ -22,9 +31,8 @@ export default function Classes() {
         selectedId,
         setEditClassName,
         setNewClassName,
-        setClassnameError,
         setSearch
-    } = ClassServices();
+    } = ClassServices({ setMessage: setError });
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10">
@@ -68,7 +76,7 @@ export default function Classes() {
                         onClick={handleForm}
                         className='shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] w-[10%] cursor-pointer disabled:cursor-not-allowed font-medium p-1.5 text-base border border-black outline-0 font-mono text-black'
                     >
-                        <div className='flex justify-center'><UserPlus/></div>
+                        <div className='flex justify-center'><Plus/></div>
                     </button>
                 </div>
                 {allClassData.classError ? (
@@ -82,7 +90,7 @@ export default function Classes() {
                 ) : (
                     <ClassList 
                         class_data={allClassData.classFlattendedData}
-                        data_error={classnameError}
+                        data_error={error}
                         fetch_next_page={allClassData.classFetchNextPage}
                         edit_classname={editClassName}
                         has_next_page={allClassData.classHasNextPage}
@@ -91,7 +99,7 @@ export default function Classes() {
                         on_delete={deleteOneClassMt}
                         on_edit={changeClassMt}
                         on_select={handleSelectedId}
-                        set_data_error={setClassnameError}
+                        set_data_error={setError}
                         set_edit_classname={setEditClassName}
                         selected_id={selectedId}
                     />

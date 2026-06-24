@@ -3,13 +3,31 @@ import AdminNavbar from "../components/AdminNavbar";
 import AdminUserList from "../components/AdminUserList";
 import Loading from "../components/Loading";
 import UserServices from "../services/user.service";
+import { useEffect, useState } from "react";
 
 export default function Masters() {
+    const [error, setError] = useState<string | null>(null);
+    
+    useEffect(() =>{
+        if (error) {
+            const timer = setTimeout(() => setError(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [error, setError]);
+    
     const { 
-        changeUserDataMt, dataError, editUser, deleteAllMastersMt, deleteMasterMt, paginatedMastersData, 
-        search, handleSelectedId, selectedId, setSearch, setDataError, 
-        setEditUser, isoToLocalDateTime
-    } = UserServices();
+        changeUserDataMt,
+        editUser,
+        deleteAllMastersMt,
+        deleteMasterMt,
+        paginatedMastersData,
+        search,
+        handleSelectedId,
+        selectedId,
+        setSearch,
+        setEditUser, 
+        isoToLocalDateTime
+    } = UserServices({ setMessage: setError });
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10">
@@ -43,7 +61,7 @@ export default function Masters() {
                 ) : (
                     <AdminUserList 
                         change_user_data_mt={changeUserDataMt}
-                        data_error={dataError}
+                        data_error={error}
                         edit_user={editUser}
                         fetch_next_page={paginatedMastersData.fetchNextMasterData}
                         has_next_page={paginatedMastersData.masterHasNextPage}
@@ -53,7 +71,7 @@ export default function Masters() {
                         on_delete={deleteMasterMt}
                         on_select={handleSelectedId}
                         selected_id={selectedId}
-                        set_data_error={setDataError}
+                        set_data_error={setError}
                         set_edit_user={setEditUser}
                         users={paginatedMastersData.flatennedMasterData}
                     />

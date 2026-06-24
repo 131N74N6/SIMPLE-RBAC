@@ -1,24 +1,30 @@
 import { PencilIcon, Save, Trash, X } from "lucide-react";
 import type { ClassItemIntrf } from "../models/class.model";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ClassItem(props: ClassItemIntrf) {
+    const navigate = useNavigate();
+
     useEffect(() => {
         if (props.data_error) {
             const x = setTimeout(() => props.set_data_error(null), 3000);
             return () => clearTimeout(x);
         }
     }, [props.data_error]);
-    
-    useEffect(() => {
-        if (props.is_selected) {
+
+    const handleSelect = () => {
+        const isSelected = !props.is_selected;
+        props.on_select(props.class_detail._id);
+        
+        if (isSelected) {
             props.set_edit_classname(props.class_detail.classname);
         } else {
             props.set_edit_classname("");
         }
-    }, [props.is_selected, props.class_detail._id, props.class_detail.classname]);
+    };
     
-    function saveChanges(event: React.SyntheticEvent) {
+    const saveChanges = (event: React.SyntheticEvent) => {
         event.preventDefault();
         props.on_edit.mutate(props.class_detail._id);
     }
@@ -67,13 +73,15 @@ export default function ClassItem(props: ClassItemIntrf) {
     return (
         <div className="font-mono shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white">
             <div>Created At: {new Date(props.class_detail.created_at).toLocaleString()}</div>
-            <div>Classname: {props.class_detail.classname}</div>
+            <button type="button" className="text-left cursor-pointer" onClick={() => navigate(`/admin/class/${props.class_detail.classname}`)}>
+                <div>Classname: {props.class_detail.classname}</div>
+            </button>
             <div className="flex gap-3 justify-end">
                 <button 
                     type="button"
                     disabled={props.is_processing}
                     className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
-                    onClick={() => props.on_delete.mutate(props.class_detail._id)}
+                    onClick={() => props.on_delete.mutate(props.class_detail.classname)}
                 >
                     <Trash/>
                 </button>
@@ -81,7 +89,7 @@ export default function ClassItem(props: ClassItemIntrf) {
                     type="button"
                     disabled={props.is_processing}
                     className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
-                    onClick={() => props.on_select(props.class_detail._id)}
+                    onClick={handleSelect}
                 >
                     <PencilIcon/>
                 </button>

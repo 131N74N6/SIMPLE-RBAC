@@ -9,9 +9,8 @@ export type UserState = {
     handleSelectedId: (id: string) => void;
     resetEditUser: () => void;
     resetNewUser: () => void;
-    setEditUser: (field: 'username' | 'email' | 'created_at' | 'role', value: string) => void;
+    setEditUser: (field: 'classname' | 'username' | 'email' | 'created_at' | 'role', value: string) => void;
     setNewUser: (field: 'classname' | 'username' | 'email' | 'password' | 'role', value: string) => void;
-    setSelectedId: (id: string | null | ((prev: string | null) => string | null)) => void;
 }
 
 export const useUserStore = create<UserState>((set) => ({
@@ -34,9 +33,11 @@ export const useUserStore = create<UserState>((set) => ({
     selectedId: null as string | null,
 
     handleSelectedId: (id) => set((state) => ({ selectedId: state.selectedId === id ? null : id })),
-    resetEditUser: () => set({ editUser: { classname: "", created_at: "", email: "", role: "", username: "" } }),
+    resetEditUser: () => set({ 
+        editUser: { classname: "", created_at: "", email: "", role: "", username: "" }, 
+        selectedId: null
+    }),
     resetNewUser: () => set({ newUser: { classname: "", email: "", password: "", role: "", username: "" } }),
-    setEditUser: (field, value) => set((state) => ({ newUser: { ...state.newUser, [field]: value } })),
-    setNewUser: (field, value) => set((state) => ({ editUser: { ...state.editUser, [field]: value } })),
-    setSelectedId: (id) => set((state) => ({ selectedId: typeof id === 'function' ? id(state.selectedId) : id })),
+    setEditUser: (field, value) => set((state) => ({ editUser: { ...state.editUser, [field]: value } })),
+    setNewUser: (field, value) => set((state) => ({ newUser: { ...state.newUser, [field]: value } })),
 }));

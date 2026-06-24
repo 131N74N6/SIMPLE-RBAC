@@ -49,21 +49,13 @@ export async function fillPresenceForStudent(req: AuthRequest, res: Response) {
         const student_name = req.user?.username;
         const classname = req.user?.classname;
 
-        if (!presence_slot_id || !status) {
-            return res.status(400).json({ message: "Slot ID and Status are required" });
-        }
+        if (!presence_slot_id || !status) return res.status(400).json({ message: "Slot ID and Status are required" });
 
         const targetSlot = await PresenceSlot.find({ _id: presence_slot_id });
         if (targetSlot.length === 0) return res.status(404).json({ message: "Presence form not found" });
 
-        const alreadyFilled = await StudentPresence.findOne({ presence_slot_id, student_id: student_id });
-        if (alreadyFilled) return res.status(400).json({ message: "You have already filled this presence form!" });
-
-        const now = new Date().toLocaleString();
+        const now = new Date().toISOString();
         const deadlineTime = targetSlot[0].deadline;
-        if (now > deadlineTime) {
-            return res.status(400).json({ message: "Oops! The deadline for this presence has passed" });
-        }
 
         const newAttendance = new StudentPresence({
             presence_slot_id,
@@ -146,6 +138,18 @@ export async function getPresenceSlotForStudent(req: AuthRequest, res: Response)
     }
 }
 
+export async function isPresenceFilled(req: AuthRequest, res: Response) {
+    try {
+        const { presence_slot_id } = req.params;
+        const student_id = req.user?.user_id;
+
+        const alreadyFilled = await StudentPresence.findOne({ presence_slot_id, student_id: student_id });
+        res.status(200).json({ status: alreadyFilled?.status });
+    } catch (error) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
 export async function makePresence(req: AuthRequest, res: Response) {
     try {
         const { classname, deadline, start_time } = req.body;
@@ -162,7 +166,7 @@ export async function makePresence(req: AuthRequest, res: Response) {
         });
         
         await newSlot.save();
-        res.status(201).json({ message: "Presence form successfully created for " + classname });
+        res.status(200).json({ message: "Presence form successfully created for " + classname });
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
     }

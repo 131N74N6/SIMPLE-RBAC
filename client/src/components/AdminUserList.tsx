@@ -6,7 +6,7 @@ export default function AdminUserList(props: UserListIntrf) {
     if (props.users.length === 0) {
         return (
             <div className="flex items-center justify-center h-full">
-                <h2 className="text-2xl text-gray-500">No users found.</h2>
+                <h2 className="text-2xl text-gray-500">Data not found or deleted.</h2>
             </div>
         );
     }

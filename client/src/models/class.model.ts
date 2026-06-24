@@ -1,5 +1,9 @@
 import type { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult, UseMutationResult } from "@tanstack/react-query";
 
+export type ClassServiceIntrf = {
+    setMessage?: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
 export type ClassIntrf = {
     _id: string;
     created_at: string;

@@ -1,14 +1,17 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Query, useMutation, useQueryClient } from "@tanstack/react-query";
 import DataServices from "./data.service";
-import type { FillPresenceIntrf, MakePresenceIntrf, PresenceSlotIntrf } from "../models/presence.model";
-import { useState } from "react";
+import type { FillPresenceIntrf, MakePresenceIntrf, PresenceSericeIntrf, PresenceSlotIntrf } from "../models/presence.model";
 import { usePresenceStore } from "../stores/presence.store";
+import AuthServices from "./auth.service";
 
-export default function PresenceServices() {
+export default function PresenceServices(props?: PresenceSericeIntrf) {
     const queryClient = useQueryClient();
-    const { addData, deleteData, infiniteScroll } = DataServices();
-    const { presence, resetPresence, setPresence } = usePresenceStore();
-    const [presenceError, setPresenceError] = useState<string | null>(null);
+    const { currentUserId } = AuthServices();
+    const { addData, deleteData, getData, infiniteScroll } = DataServices();
+    
+    const presence = usePresenceStore((state) => state.presence);
+    const resetPresence = usePresenceStore((state) => state.resetPresence);
+    const setPresence = usePresenceStore((state) => state.setPresence);
     
     const fillPresenceMt = useMutation({
         mutationFn: async (props: FillPresenceIntrf) => {
@@ -16,15 +19,24 @@ export default function PresenceServices() {
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/student/fill`,
                 data: { 
                     presence_slot_id: props.presence_slot_id,
-                    student_status: props.student_status.trim()
+                    status: props.status.trim()
                 }
             });
         },
         onError(error) {
-            setPresenceError(error.message);
+            props?.setMessage!(error.message);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-presences'] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                        return queryKey[0].startsWith(`is-filled-${currentUserId}-`) ||
+                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`);
+                    }
+                    return false;
+                }
+            });
         },
         onSettled: () => {
             resetPresence();
@@ -36,17 +48,17 @@ export default function PresenceServices() {
             await addData<MakePresenceIntrf>({
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/master/make`,
                 data: { 
-                    start_time: new Date(presence.start_time).toLocaleString(),
-                    deadline: new Date(presence.deadline).toLocaleString(),
+                    start_time: new Date(presence.start_time).toISOString(),
+                    deadline: new Date(presence.deadline).toISOString(),
                     classname: presence.classname.trim(), 
                 }
             });
         },
         onError(error) {
-            setPresenceError(error.message);
+            props?.setMessage!(error.message);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-presences'] });
+            queryClient.invalidateQueries({ queryKey: [`all-presences-${currentUserId}`] });
         },
         onSettled: () => {
             resetPresence();
@@ -58,11 +70,20 @@ export default function PresenceServices() {
             await deleteData(`${import.meta.env.VITE_BASE_API_URL}/presences/master/rm-all`);
         },
         onError(error) {
-            setPresenceError(error.message);
+            props?.setMessage!(error.message);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-presences'] });
-            queryClient.invalidateQueries({ queryKey: ['all-presences-form'] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                        return queryKey[0].startsWith(`is-filled-${currentUserId}-`) ||
+                        queryKey[0].startsWith(`all-presences-${currentUserId}`) ||
+                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`);
+                    }
+                    return false;
+                }
+            });
         },
         onSettled: () => {
             resetPresence();
@@ -74,11 +95,20 @@ export default function PresenceServices() {
             await deleteData(`${import.meta.env.VITE_BASE_API_URL}/presences/master/rm/${id}`);
         },
         onError(error) {
-            setPresenceError(error.message);
+            props?.setMessage!(error.message);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['all-presences'] });
-            queryClient.invalidateQueries({ queryKey: ['all-presences-form'] });
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                        return queryKey[0].startsWith(`is-filled-${currentUserId}-`) ||
+                        queryKey[0].startsWith(`all-presences-${currentUserId}`) ||
+                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`);
+                    }
+                    return false;
+                }
+            });
         },
         onSettled: () => {
             resetPresence();
@@ -95,11 +125,11 @@ export default function PresenceServices() {
     } = infiniteScroll<PresenceSlotIntrf>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/master/show-all`,
         limit: 12,
-        query_key: ['all-presences'],
+        query_key: [`all-presences-${currentUserId}`],
         stale_time: Infinity
     });
 
-    const allPresencesData = { error, fetchNextPage, flatennedData, hasNextPage, isFetchingNextPage, isLoading };
+    const allPresenceSlots = { error, fetchNextPage, flatennedData, hasNextPage, isFetchingNextPage, isLoading };
 
     const { 
         error: availablePresenceError, 
@@ -111,11 +141,11 @@ export default function PresenceServices() {
     } = infiniteScroll<PresenceSlotIntrf>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/student/show-all`,
         limit: 12,
-        query_key: ['all-presences-form'],
+        query_key: [`all-presences-form-${currentUserId}`],
         stale_time: Infinity
     });
 
-    const allAvailablePresences = { 
+    const allAvailablePresenceForms = { 
         availablePresenceError, 
         availablePresenceNextPage, 
         availableFlatennedData, 
@@ -126,14 +156,14 @@ export default function PresenceServices() {
 
     return { 
         makeNewPresenceMt, 
-        allPresencesData,
-        allAvailablePresences,
+        allPresenceSlots,
+        allAvailablePresenceForms,
+        currentUserId,
         deleteAllPresencesMt, 
         deleteOnePresenceMt, 
         fillPresenceMt,
+        getData,
         presence,
-        presenceError, 
         setPresence,
-        setPresenceError
     }
 }

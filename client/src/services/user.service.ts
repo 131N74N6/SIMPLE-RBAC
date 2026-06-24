@@ -1,14 +1,22 @@
 import { Query, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AddUserIntrf, EditUserIntrf, UserInfoIntrf } from "../models/user.model";
+import type { AddUserIntrf, EditUserIntrf, UserInfoIntrf, UserServiceIntrf } from "../models/user.model";
 import DataServices from "./data.service";
 import useSearch from "../hooks/useSearch";
 import { useUserStore } from "../stores/user.store";
 
-export default function UserServices() {
+export default function UserServices(props?: UserServiceIntrf) {
     const queryClient = useQueryClient();
-    const { addData, dataError, deleteData, editData, infiniteScroll, setDataError } = DataServices();
+    const { addData, deleteData, editData, infiniteScroll } = DataServices();
     const { debouncedSearch, search, setSearch } = useSearch();
-    const { editUser, newUser, resetNewUser, selectedId, setEditUser, setNewUser, setSelectedId } = useUserStore();
+
+    const handleSelectedId = useUserStore((state) => state.handleSelectedId);
+    const editUser = useUserStore((state) => state.editUser);
+    const newUser = useUserStore((state) => state.newUser);
+    const resetEditUser = useUserStore((state) => state.resetEditUser);
+    const resetNewUser = useUserStore((state) => state.resetNewUser);
+    const setEditUser = useUserStore((state) => state.setEditUser);
+    const selectedId = useUserStore((state) => state.selectedId);
+    const setNewUser = useUserStore((state) => state.setNewUser);
 
     function isoToLocalDateTime(isoString: string): string {
         const date = new Date(isoString);
@@ -33,7 +41,7 @@ export default function UserServices() {
         limit: 16,
         searched: debouncedSearch,
         stale_time: Infinity,
-        query_key: debouncedSearch ? [`all-users-${debouncedSearch}`] : ['all-masters']
+        query_key: debouncedSearch ? [`all-masters-${debouncedSearch}`] : ['all-masters']
     });
     
     const paginatedMastersData = { 
@@ -53,7 +61,7 @@ export default function UserServices() {
         limit: 16,
         searched: debouncedSearch,
         stale_time: Infinity,
-        query_key: debouncedSearch ? [`all-users-${debouncedSearch}`] : ['all-students']
+        query_key: debouncedSearch ? [`all-students-${debouncedSearch}`] : ['all-students']
     });
     
     const paginatedStudentsData = { 
@@ -61,9 +69,26 @@ export default function UserServices() {
         stuentHasNextPage, iStudentFetchingNextPage, isStudentsLoading 
     };
 
-    function handleSelectedId(id: string) {
-        setSelectedId(prev => prev === id ? null : id);
-    }
+    const { 
+        error: studentError2, 
+        flatennedData: flatennedStudentsData2, 
+        fetchNextPage: fetchNextStudentsData2, 
+        hasNextPage: stuentHasNextPage2, 
+        isFetchingNextPage: iStudentFetchingNextPage2, 
+        isLoading: isStudentsLoading2 
+    } = infiniteScroll<UserInfoIntrf>({
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/students/${props?.classname}`,
+        enabled: !!props?.classname,
+        limit: 16,
+        searched: debouncedSearch,
+        stale_time: Infinity,
+        query_key: debouncedSearch ? [`all-students-class-${props?.classname}-${debouncedSearch}`] : [`all-students-class-${props?.classname}`]
+    });
+    
+    const getAllStudentsByClass = { 
+        studentError2, flatennedStudentsData2, fetchNextStudentsData2, 
+        stuentHasNextPage2, iStudentFetchingNextPage2, isStudentsLoading2 
+    };
 
     const addUserMt = useMutation({
         mutationFn: async () => {
@@ -78,7 +103,9 @@ export default function UserServices() {
                 }
             });
         },
-        onError: () => {},
+        onError: (error) => {
+            props?.setMessage!(error.message);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({
                 predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
@@ -91,7 +118,9 @@ export default function UserServices() {
                     return false;
                 }
             });
-            
+        },
+        onSettled: () => {
+            resetNewUser();
         }
     });
 
@@ -100,7 +129,7 @@ export default function UserServices() {
             await editData<EditUserIntrf>({
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin/remake/${id}`,
                 data: {
-                    classname: newUser.classname.trim() || "-",
+                    classname: editUser.classname.trim(),
                     created_at: new Date(editUser.created_at!).toISOString(),
                     email: editUser.email?.trim(),
                     username: editUser.username?.trim(),
@@ -108,7 +137,9 @@ export default function UserServices() {
                 }
             });
         },
-        onError: () => {},
+        onError: (error) => {
+            props?.setMessage!(error.message);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({
                 predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
@@ -121,10 +152,7 @@ export default function UserServices() {
                     return false;
                 }
             });
-            resetNewUser();
-        },
-        onSettled: () => {
-            setSelectedId(null);
+            resetEditUser();
         }
     });
 
@@ -132,7 +160,9 @@ export default function UserServices() {
         mutationFn: async () => {
             await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin/rm-all-masters`);
         },
-        onError: () => {},
+        onError: (error) => {
+            props?.setMessage!(error.message);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({
                 predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
@@ -150,7 +180,9 @@ export default function UserServices() {
         mutationFn: async (id: string) => {
             await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin/rm-master/${id}`);
         },
-        onError: () => {},
+        onError: (error) => {
+            props?.setMessage!(error.message);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({
                 predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
@@ -168,7 +200,9 @@ export default function UserServices() {
         mutationFn: async () => {
             await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin/rm-all-students`);
         },
-        onError: () => {},
+        onError: (error) => {
+            props?.setMessage!(error.message);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({
                 predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
@@ -187,7 +221,9 @@ export default function UserServices() {
         mutationFn: async (id: string) => {
             await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin/rm-student/${id}`);
         },
-        onError: () => {},
+        onError: (error) => {
+            props?.setMessage!(error.message);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({
                 predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
@@ -212,12 +248,12 @@ export default function UserServices() {
     return { 
         addUserMt, 
         changeUserDataMt, 
-        dataError, 
         deleteAllMastersMt, 
         deleteMasterMt, 
         deleteAllStudentsMt, 
         deleteStudentMt, 
         editUser, 
+        getAllStudentsByClass,
         handleSelectedId,
         isProcessing,
         isoToLocalDateTime, 
@@ -226,8 +262,6 @@ export default function UserServices() {
         paginatedStudentsData, 
         search, 
         selectedId, 
-        setSelectedId, 
-        setDataError, 
         setEditUser, 
         setNewUser, 
         setSearch 

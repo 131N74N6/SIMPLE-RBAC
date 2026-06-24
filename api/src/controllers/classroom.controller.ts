@@ -34,7 +34,8 @@ export async function deleteAllClasses(_: Request, res: Response) {
         await Promise.all([
             StudentPresence.deleteMany(),
             PresenceSlot.deleteMany(),
-            ClassRoom.deleteMany()
+            ClassRoom.deleteMany(),
+            User.updateMany({ role: "student" }, { $set: { classname: "-" } })
         ]);
 
         return res.status(200).json({ message: 'class deleted' });
@@ -44,11 +45,13 @@ export async function deleteAllClasses(_: Request, res: Response) {
 }
 
 export async function deleteOneClass(req: Request, res: Response) {
+    const getClassName = req.params.classname;
     try {
         await Promise.all([
-            StudentPresence.deleteMany({ classname: req.params.classname }),
-            PresenceSlot.deleteMany({ classname: req.params.classname }),
-            ClassRoom.deleteOne({ classname: req.params.classname })
+            StudentPresence.deleteMany({ classname: getClassName }),
+            PresenceSlot.deleteMany({ classname: getClassName }),
+            ClassRoom.deleteOne({ classname: getClassName }),
+            User.updateMany({ role: "student", classname: getClassName }, { $set: { classname: "-" } })
         ]);
 
         return res.status(200).json({ message: 'class deleted' });
@@ -70,7 +73,7 @@ export async function getAllClasses(req: Request, res: Response) {
     }
 }
 
-export async function getAllStudentsInClass(req: AuthRequest, res: Response) {
+export async function getAllStudentsInClass(req: Request, res: Response) {
     try {
         const searched = req.query.search as string | undefined;
         const limit = parseInt(req.query.limit as string) || 1;

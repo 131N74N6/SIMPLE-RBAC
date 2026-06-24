@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { SignInIntrf, UserInfoIntrf } from "../models/user.model";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function AuthServices() {
     const navigate = useNavigate();
@@ -13,7 +13,7 @@ export default function AuthServices() {
         queryFn: async () => {
             try {
                 const request = await fetch(`${import.meta.env.VITE_BASE_API_URL}/users/show`, {
-                    credentials: 'include', // 🔑 CRITICAL: Agar browser mau mengirim HttpOnly Cookie
+                    credentials: 'include', 
                     method: 'GET',
                 });
 
@@ -31,43 +31,49 @@ export default function AuthServices() {
     const currentUserName = currentUserData ? currentUserData.username : null;
     const currentRole = currentUserData ? currentUserData.role : null;
 
-    async function signIn(props: SignInIntrf) {
-        setUserError(null);
+    const signIn = useMutation({
+        mutationFn: async (props: SignInIntrf) => {
+            try {
+                const request = await fetch(`${import.meta.env.VITE_BASE_API_URL}/auth/signin`, {
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: props.username.trim(),
+                        password: props.password.trim()
+                    }),
+                    headers: { "Content-Type": "application/json" },
+                    method: 'POST'
+                });
 
-        try {
-            const request = await fetch(`${import.meta.env.VITE_BASE_API_URL}/auth/signin`, {
-                credentials: 'include',
-                body: JSON.stringify({
-                    username: props.username.trim(),
-                    password: props.password.trim()
-                }),
-                headers: { "Content-Type": "application/json" },
-                method: 'POST'
-            });
+                const response = await request.json();
 
-            const response = await request.json();
-
-            if (!request.ok) {
-                const errorMessage = response.error || response.message || 'Failed to sign in. Try again later';
-                setUserError(errorMessage);
-            } else {
-                await queryClient.invalidateQueries({ queryKey: ['auth-user'] });
-
-                if (response.role === 'admin') {
-                    navigate('/admin/students');
-                } else if (response.role === 'master') {
-                    navigate('/master/presences');
-                } else if (response.role === 'student') {
-                    navigate('/student/fill-presence');
+                if (!request.ok) {
+                    const errorMessage = response.error || response.message || 'Failed to sign in. Try again later';
+                    throw new Error(errorMessage);
                 } else {
-                    navigate('/sign-in');
+                    return response
                 }
+            } catch (error: any) {
+                throw error;
             }
-        } catch (error: any) {
+        },
+        onError: (error) => {
             setUserError(error.message || 'something went wrong. try again later');
             navigate('/sign-in');
+        },
+        onSuccess: async (response) => {
+            await queryClient.invalidateQueries({ queryKey: ['auth-user'] });
+
+            if (response.role === 'admin') {
+                navigate('/admin/students');
+            } else if (response.role === 'master') {
+                navigate('/master/presences');
+            } else if (response.role === 'student') {
+                navigate('/student/fill-presence');
+            } else {
+                navigate('/sign-in');
+            }
         }
-    }
+    });
 
     async function quit() {
         setUserError(null);

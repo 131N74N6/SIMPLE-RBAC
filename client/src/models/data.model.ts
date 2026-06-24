@@ -5,12 +5,14 @@ export type EditDataIntrf<T> = {
 
 export type GetDataIntrf = {
     api_url: string;
+    enabled?: boolean;
     stale_time: number;
     query_key: string[];
 }
 
 export type InfiniteScrollIntrf = {
     api_url: string;
+    enabled?: boolean;
     limit: number;
     stale_time: number;
     query_key: string[];

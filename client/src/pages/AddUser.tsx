@@ -1,16 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AdminNavbar from "../components/AdminNavbar";
 import UserServices from "../services/user.service";
 
 export default function AddUser() {
-    const { addUserMt, dataError, setNewUser, newUser, setDataError } = UserServices();
-
+    const [error, setError] = useState<string | null>(null);
+    
     useEffect(() =>{
-        if (dataError) {
-            const timer = setTimeout(() => setDataError(null), 3000);
+        if (error) {
+            const timer = setTimeout(() => setError(null), 3000);
             return () => clearTimeout(timer);
         }
-    }, [dataError, setDataError]);
+    }, [error, setError]);
+    
+    const { addUserMt, setNewUser, newUser } = UserServices({ setMessage: setError });
 
     function handleSubmit(event: React.SyntheticEvent) {
         event.preventDefault();
@@ -79,7 +81,7 @@ export default function AddUser() {
                         Add User
                     </button>
                 </div>
-                {dataError && <p className="text-red-500 mt-2">{dataError}</p>}
+                {error && <p className="text-red-500 mt-2">{error}</p>}
             </form>
             {AdminNavbar(addUserMt.isPending)}
         </div>
