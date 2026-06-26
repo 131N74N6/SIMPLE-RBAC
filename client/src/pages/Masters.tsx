@@ -23,7 +23,7 @@ export default function Masters() {
     } = UserServices({ setMessage: setError });
 
     return (
-        <section className="flex md:flex-row flex-col h-screen relative z-10">
+        <section className="flex md:flex-row flex-col h-screen relative z-10 bg-gray-950">
             <div className="flex flex-col h-full w-full md:w-3/4 gap-3 p-2.5">
                 <div className='flex gap-2.5'>
                     <input
@@ -32,13 +32,13 @@ export default function Masters() {
                         name='search_user'
                         onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setSearch(event.target.value)}
                         placeholder='find username here...'
-                        className='shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] w-[90%] font-medium p-1.5 text-base border border-black outline-0 font-mono text-black'
+                        className='shadow-[6px_6px_0px_0px] shadow-red-300 w-[90%] font-medium p-1.5 text-base border border-red-300 outline-0 font-mono text-red-300'
                     />
                     <button
                         type='button'
                         disabled={changeUserDataMt.isPending || deleteMasterMt.isPending}
                         onClick={() => deleteAllMastersMt.mutate()}
-                        className='shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] w-[10%] cursor-pointer disabled:cursor-not-allowed font-medium p-1.5 text-base border border-black outline-0 font-mono text-black'
+                        className='shadow-[6px_6px_0px_0px] shadow-red-300 cursor-pointer disabled:cursor-not-allowed font-medium p-1.5 text-base border border-red-300 outline-0 font-mono text-red-300 w-[10%]'
                     >
                         <div className='flex justify-center'><Trash2/></div>
                     </button>

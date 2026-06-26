@@ -10,6 +10,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 import express from "express";
 import cors from "cors";
+import http from "http";
+import { Server } from 'socket.io';
 import db from "./database/mongodb";
 import authRouters from "./routers/auth.router";
 import userRouters from "./routers/user.router";
@@ -19,6 +21,28 @@ import presenceSlotRouters from './routers/presence-slot.router';
 import studentPresenceRouters from './routers/student-presence.router';
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: { origin: ["http://localhost:5173"] }
+});
+
+io.on("connection", (socket) => {
+    console.log("user connected");
+
+    socket.on("join:class", (classname: string) => {
+        socket.join(`class: ${classname}`);
+        console.log(`class: ${classname}`);
+    });
+
+    socket.on("join:master", (master_id: string) => {
+        socket.join(`master id: ${master_id}`);
+        console.log(`master id: ${master_id}`);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("user disconnected");
+    });
+});
 
 app.use(express.json());
 app.use(cookieParser());
@@ -34,7 +58,7 @@ app.use('/api/users', userRouters);
 
 if (process.env.NODE_ENV !== 'production') {
     db.then(() => {
-        app.listen(1999, () => console.log('api running at http://localhost:1999'))
+        server.listen(1999, () => console.log('api running at http://localhost:1999'))
     });
 }
 

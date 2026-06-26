@@ -12,9 +12,9 @@ export default function AddUser() {
     }
 
     return (
-        <div className="flex md:flex-row flex-col h-screen relative z-10 font-mono">
-            <form className="flex flex-col gap-3 h-full md:w-3/4 w-full bg-white p-2.5" onSubmit={handleSubmit}>
-                <label htmlFor="Username">Username</label>
+        <section className="flex md:flex-row flex-col h-screen relative z-10 font-mono">
+            <form className="flex flex-col gap-3 h-full md:w-3/4 w-full bg-gray-950 p-2.5" onSubmit={handleSubmit}>
+                <label className="text-blue-300" htmlFor="Username">Username</label>
                 <input 
                     type="text" 
                     placeholder="Username"
@@ -22,9 +22,9 @@ export default function AddUser() {
                     name="username"
                     value={newUser.username}
                     onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("username", event.target.value)}
-                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                    className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-blue-300 outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
-                <label htmlFor="Classname">Class</label>
+                <label className="text-blue-300" htmlFor="Classname">Class</label>
                 <input 
                     type="text" 
                     placeholder="Classname"
@@ -32,9 +32,9 @@ export default function AddUser() {
                     name="classname"
                     value={newUser.classname}
                     onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("classname", event.target.value)}
-                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                    className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-blue-300 outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
-                <label htmlFor="Email">Email</label>
+                <label className="text-blue-300" htmlFor="Email">Email</label>
                 <input 
                     type="email" 
                     placeholder="Email"
@@ -42,9 +42,9 @@ export default function AddUser() {
                     name="email"
                     value={newUser.email}
                     onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("email", event.target.value)}
-                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                    className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-blue-300 outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
-                <label htmlFor="Password">Password</label>
+                <label className="text-blue-300" htmlFor="Password">Password</label>
                 <input 
                     type="password" 
                     placeholder="Password"
@@ -52,9 +52,9 @@ export default function AddUser() {
                     name="password"
                     value={newUser.password}
                     onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("password", event.target.value)}
-                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                    className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-blue-300 outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
-                <label htmlFor="Role">Role</label>
+                <label className="text-blue-300" htmlFor="Role">Role</label>
                 <input 
                     type="text" 
                     placeholder="Role"
@@ -62,13 +62,13 @@ export default function AddUser() {
                     name="role"
                     value={newUser.role}
                     onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("role", event.target.value)}
-                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                    className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-blue-300 outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
                 <div>
                     <button 
                         type="submit"
                         disabled={addUserMt.isPending}
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-medium font-mono py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="bg-blue-500 cursor-pointer hover:bg-blue-600 text-white font-medium font-mono py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                         Add User
                     </button>
@@ -76,6 +76,6 @@ export default function AddUser() {
                 {error && <p className="text-red-500 mt-2">{error}</p>}
             </form>
             {AdminNavbar(addUserMt.isPending)}
-        </div>
+        </section>
     )
 }

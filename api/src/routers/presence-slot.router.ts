@@ -4,13 +4,13 @@ import { changePresenceForm, deleteAllPresencesForMaster, deleteOnePresenceForMa
 
 const presenceSlotRouters = Router();
 
-presenceSlotRouters.delete('/master/rm-all', verifyToken, checkRole("master"), deleteAllPresencesForMaster);
-presenceSlotRouters.delete('/master/rm/:id', verifyToken, checkRole("master"), deleteOnePresenceForMaster);
+presenceSlotRouters.delete('/rm-all', verifyToken, checkRole("master"), deleteAllPresencesForMaster);
+presenceSlotRouters.delete('/rm/:id', verifyToken, checkRole("master"), deleteOnePresenceForMaster);
 
-presenceSlotRouters.get('/master/show-all', verifyToken, checkRole("master"), getAllPresencesForMaster);
-presenceSlotRouters.get('/master/show/:presence_slot_id', verifyToken, checkRole("master"), getPresenceDetailForMaster);
+presenceSlotRouters.get('/show-all', verifyToken, checkRole("admin", "master"), getAllPresencesForMaster);
+presenceSlotRouters.get('/show-detail/:presence_slot_id', verifyToken, checkRole("admin", "master"), getPresenceDetailForMaster);
 
-presenceSlotRouters.post('/master/make', verifyToken, checkRole("master"), makePresence);
+presenceSlotRouters.post('/make', verifyToken, checkRole("master"), makePresence);
 
 presenceSlotRouters.put('/remake-form/:id', verifyToken, checkRole("admin", "master"), changePresenceForm);
 

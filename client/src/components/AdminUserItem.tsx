@@ -40,7 +40,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
         return (
             <form 
                 onSubmit={saveChanges}
-                className="font-mono shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                className="bg-gray-800 font-mono shadow-[6px_6px_0px_0px] shadow-violet-300 border border-violet-300 flex flex-col gap-2.5 text-violet-300 font-medium p-2.5 rounded-[10px]"
             >
                 <div className="flex gap-2 items-center">
                     <label htmlFor="classname">Classname: </label>
@@ -50,7 +50,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         id="classname"
                         value={props.edit_user.classname}
                         onChange={(event) => props.set_edit_user("classname", event.target.value)}
-                        className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                        className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-violet-300 outline-0 border border-violet-300 flex flex-col gap-2.5 text-violet-300 font-medium p-2.5 rounded-[10px]"
                     />
                 </div>
                 <div className="flex gap-2 items-center">
@@ -61,7 +61,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         id="created_at"
                         value={props.edit_user.created_at}
                         onChange={(event) => props.set_edit_user("created_at", event.target.value)}
-                        className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                        className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-violet-300 outline-0 border border-violet-300 flex flex-col gap-2.5 text-violet-300 font-medium p-2.5 rounded-[10px]"
                     />
                 </div>
                 <div className="flex gap-2 items-center">
@@ -72,7 +72,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         id="email"
                         value={props.edit_user.email}
                         onChange={(event) => props.set_edit_user("email", event.target.value)}
-                        className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                        className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-violet-300 outline-0 border border-violet-300 flex flex-col gap-2.5 text-violet-300 font-medium p-2.5 rounded-[10px]"
                     />
                 </div>
                 <div className="flex gap-2 items-center">
@@ -83,7 +83,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         id="role"
                         value={props.edit_user.role}
                         onChange={(event) => props.set_edit_user("role", event.target.value)}
-                        className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] border outline-0 border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                        className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-violet-300 border outline-0 border-violet-300 flex flex-col gap-2.5 text-violet-300 font-medium p-2.5 rounded-[10px]"
                     />
                 </div>
                 <div className="flex gap-2 items-center">
@@ -94,14 +94,14 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         id="username"
                         value={props.edit_user.username}
                         onChange={(event) => props.set_edit_user("username", event.target.value)}
-                        className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                        className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-violet-300 outline-0 border border-violet-300 flex flex-col gap-2.5 text-violet-300 font-medium p-2.5 rounded-[10px] "
                     />
                 </div>
-                <div className="flex gap-3 justify-end">
+                <div className="flex gap-2 justify-end">
                     <button 
                         type="submit"
                         disabled={props.is_processing}
-                        className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
+                        className=" hover:text-red-300 text-red-400 transition-colors duration-300 disabled:cursor-not-allowed cursor-pointer flex justify-center"
                     >
                         <Save/>
                     </button>
@@ -109,7 +109,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                         type="button"
                         onClick={cancelEdit}
                         disabled={props.is_processing}
-                        className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
+                        className=" hover:text-blue-300 text-blue-400 transition-colors duration-300 disabled:cursor-not-allowed cursor-pointer flex justify-center"
                     >
                         <X/>
                     </button>
@@ -120,16 +120,16 @@ export default function AdminUserItem(props: UserItemIntrf) {
     }
 
     return (
-        <div className="font-mono shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white">
+        <div className="bg-gray-800 font-mono shadow-[6px_6px_0px_0px] shadow-violet-300 border border-violet-300 flex flex-col gap-2.5 text-violet-300 font-medium p-2.5 rounded-[10px] ">
             <div>Created At: {props.user.created_at}</div>
             <div>Email: {props.user.email}</div>
             <div>Role: {props.user.role}</div>
             <div>Username: {props.user.username}</div>
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-2 justify-end">
                 <button 
                     type="button"
                     disabled={props.is_processing}
-                    className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
+                    className="text-red-400 p-1.5 hover:text-red-300 transition-colors duration-300 disabled:cursor-not-allowed cursor-pointer flex justify-center"
                     onClick={() => props.on_delete.mutate(props.user._id)}
                 >
                     <Trash/>
@@ -137,7 +137,7 @@ export default function AdminUserItem(props: UserItemIntrf) {
                 <button 
                     type="button"
                     disabled={props.is_processing}
-                    className="bg-white border border-black rounded-[10px] p-1.5 hover:bg-red-500 hover:text-white transition-colors duration-300 disabled:cursor-not-allowed w-20 cursor-pointer flex justify-center"
+                    className="text-blue-400 p-1.5 hover:text-blue-300 transition-colors duration-300 disabled:cursor-not-allowed cursor-pointer flex justify-center"
                     onClick={handleSelect}
                 >
                     <PencilIcon/>

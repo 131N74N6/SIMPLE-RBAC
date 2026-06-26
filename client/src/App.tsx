@@ -11,6 +11,7 @@ import Classes from "./pages/Classes";
 import Students from "./pages/Students";
 import Masters from "./pages/Masters";
 import ClassDetail from "./pages/ClassDetail";
+import PresenceDetail from "./pages/PresenceDetail";
 
 const queryClient = new QueryClient();
 
@@ -29,8 +30,9 @@ export default function App() {
                     <Route path="/master/presences" element={<ProtectedRoute required_roles={['master']}><Presences/></ProtectedRoute>}/>
                     <Route path="/master/make-presence" element={<ProtectedRoute required_roles={['master']}><MakePresence/></ProtectedRoute>}/>
                     <Route path="/student/fill-presence" element={<ProtectedRoute required_roles={['student']}><FillPresence/></ProtectedRoute>}/>
+                    <Route path="/admin/students" element={<ProtectedRoute required_roles={['admin']}><Students/></ProtectedRoute>}/>
+                    <Route path="/status-detail/:_id" element={<ProtectedRoute required_roles={['admin', 'master']}><PresenceDetail/></ProtectedRoute>}/>
                     <Route path="*" element={<Navigate to="/sign-in" replace/>}/>
-                    <Route path="/" element={<Navigate to="/sign-in" replace/>}/>
                 </Routes>
             </BrowserRouter>
         </QueryClientProvider>

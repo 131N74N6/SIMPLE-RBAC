@@ -6,7 +6,7 @@ export default function MasterNavbar(is_processing: boolean) {
     const { currentUserName, quit } = AuthServices();
 
     return (
-        <nav className="p-2.5 flex md:flex-col gap-2.5 md:w-1/4 w-full flex-row font-mono bg-green-800 text-white font-medium">
+        <nav className="p-2.5 flex md:flex-col gap-2.5 md:w-1/4 w-full flex-row font-mono bg-green-950 text-white font-medium">
             <div className="p-1.5 md:flex hidden">Hello, {currentUserName}</div>
             <button 
                 type="button"

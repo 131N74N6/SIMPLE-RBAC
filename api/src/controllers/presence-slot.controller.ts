@@ -65,14 +65,23 @@ export async function getAllPresencesForMaster(req: AuthRequest, res: Response) 
 
 export async function getPresenceDetailForMaster(req: Request, res: Response) {
     try {
+        let studentList;
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 12;
         const skip = (page - 1) * limit;
-
+        
+        const searched = req.query.search as string | undefined;
         const presenceTotal = await StudentPresence.find({ presence_slot_id: req.params.presence_slot_id }).countDocuments();
         if (presenceTotal === 0) return res.status(404).json({ message: "Student not found" });
 
-        const studentList = await StudentPresence.find({ presence_slot_id: req.params.presence_slot_id }).limit(limit).skip(skip);
+        if (searched === undefined || searched === "") {
+            studentList = await StudentPresence.find({ presence_slot_id: req.params.presence_slot_id }).limit(limit).skip(skip);
+        } else {
+            studentList = await StudentPresence.find({ 
+                student_name: { $regex: new RegExp(searched, 'i') }, 
+                presence_slot_id: req.params.presence_slot_id 
+            }).limit(limit).skip(skip);
+        }
         res.status(200).json(studentList);
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });

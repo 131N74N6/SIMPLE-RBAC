@@ -1,7 +1,10 @@
-import { Pen, Save, Trash, X } from "lucide-react";
+import { Eye, Pen, Save, Trash, X } from "lucide-react";
 import type { PresenceItemIntrf } from "../models/presence-slot.model";
+import { useNavigate } from "react-router-dom";
 
 export default function PresenceSlotItem(props: PresenceItemIntrf) {
+    const navigate = useNavigate();
+
     const isoToLocalDateTime = (isoString: string): string => {
         const date = new Date(isoString);
         const year = date.getFullYear();
@@ -35,7 +38,7 @@ export default function PresenceSlotItem(props: PresenceItemIntrf) {
 
     if (props.is_selected) {
         return (
-            <form className="bg-gray-800 font-mono border-blue-300 flex flex-col gap-2.5" onSubmit={editPresenceForm}>
+            <form className="bg-gray-800 font-mono border-blue-300 flex flex-col gap-2.5 p-2.5 rounded-[10px]" onSubmit={editPresenceForm}>
                 <label htmlFor="classname">classname</label>
                 <input 
                     type="text" 
@@ -88,8 +91,8 @@ export default function PresenceSlotItem(props: PresenceItemIntrf) {
     }
 
     return (
-        <div className="bg-gray-800 font-mono border-blue-300 flex flex-col gap-2.5">
-            <div className="font-medium text-blue-300">{props.slot.classname}</div>
+        <div className="bg-gray-800 font-mono border-blue-300 flex flex-col gap-2.5 p-2.5 rounded-[10px]">
+            <div className="font-medium text-blue-300">Class: {props.slot.classname}</div>
             <div className="text-blue-300">Created At: {new Date(props.slot.created_at).toLocaleString()}</div>
             <div className="text-blue-300">Start Time: {new Date(props.slot.start_time).toLocaleString()}</div>
             <div className="text-blue-300">Deadline: {new Date(props.slot.deadline).toLocaleString()}</div>
@@ -107,6 +110,13 @@ export default function PresenceSlotItem(props: PresenceItemIntrf) {
                     className="font-medium cursor-pointer text-[12px] text-blue-400 hover:text-blue-300 transition-colors disabled:cursor-not-allowed"
                 >
                     <Trash/>
+                </button>
+                <button 
+                    type="button"
+                    onClick={() => navigate(`/status-detail/${props.slot._id}`)}
+                    className="font-medium cursor-pointer text-[12px] text-blue-400 hover:text-blue-300 transition-colors disabled:cursor-not-allowed"
+                >
+                    <Eye/>
                 </button>
             </div>
         </div>

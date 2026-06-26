@@ -3,6 +3,27 @@ import { Request, Response } from 'express';
 import { StudentPresence } from "../models/student-presence.model";
 import { PresenceSlot } from "../models/presence-slot.model";
 
+export async function deleteAllStatuses(req: Request, res: Response) {
+    try {
+        const presenceSlotId = req.params.presence_slot_id;
+        const presenceStatusTotal = await StudentPresence.find({ presence_slot_id: presenceSlotId }).countDocuments();
+        if (presenceStatusTotal === 0) return res.status(404).json({ message: "data not found" });
+
+        await StudentPresence.deleteMany({ presence_slot_id: req.params.presence_slot_id });
+        res.status(200).json({ message: "all presence status deleted" });
+    } catch (error) {
+        res.status(500).json({ message: "something went wrong" });
+    }
+}
+export async function deleteStatus(req: Request, res: Response) {
+    try {
+        await StudentPresence.deleteOne({ _id: req.params._id });
+        res.status(200).json({ message: "1 presence status deleted" });
+    } catch (error) {
+        res.status(500).json({ message: "something went wrong" });
+    }
+}
+
 export async function changeStudentPresence(req: Request, res: Response) {
     try {
         await StudentPresence.updateOne({ _id: req.params.id }, {

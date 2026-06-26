@@ -23,7 +23,7 @@ export default function Presences() {
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10 font-mono">
             {error ? <div>{error}</div> : null}
-            <div className="flex flex-col gap-3 h-full md:w-3/4 w-full bg-gray-900 p-2.5">
+            <div className="flex flex-col gap-3 h-full md:w-3/4 w-full bg-gray-950 p-2.5">
                 <div className='flex gap-2.5'>
                     <button 
                         type='button' 

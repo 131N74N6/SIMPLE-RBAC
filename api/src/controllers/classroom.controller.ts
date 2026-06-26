@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ClassRoom } from '../models/classroom.model';
-import { PresenceSlot, StudentPresence } from '../models/presence-slot.model';
-import { AuthRequest } from '../middleware/auth.middleware';
+import { PresenceSlot } from '../models/presence-slot.model';
+import { StudentPresence } from "../models/student-presence.model";
 import { User } from '../models/user.model';
 
 export async function changeClass(req: Request, res: Response) {

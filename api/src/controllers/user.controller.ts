@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { User } from "../models/user.model";
 import { AuthRequest } from "../middleware/auth.middleware";
-import { PresenceSlot, StudentPresence } from "../models/presence-slot.model";
+import { StudentPresence } from "../models/student-presence.model";
+import { PresenceSlot } from "../models/presence-slot.model";
 
 export async function changeUserData(req: Request, res: Response) {
     try {
@@ -9,16 +10,56 @@ export async function changeUserData(req: Request, res: Response) {
         if (!req.body.email) return res.status(400).json({ message: "Please provide username" });
         if (!req.body.role) return res.status(400).json({ message: "Please provide role" });
         if (!req.body.username) return res.status(400).json({ message: "Please provide username" });
+
+        await Promise.all([
+            StudentPresence.updateMany({ student_id: req.params.user_id }, {
+                $set: { student_name: req.body.username }
+            }),
+            User.updateOne({ _id: req.params.user_id, role: "student" }, {
+                $set: {
+                    classname: req.body.classname,
+                    created_at: req.body.created_at,
+                    email: req.body.email,
+                    role: req.body.role,
+                    username: req.body.username
+                }
+            })
+        ]);
         
-        await User.updateOne({ _id: req.params.user_id}, {
-            $set: {
-                classname: req.body.classname,
-                created_at: req.body.created_at,
-                email: req.body.email,
-                role: req.body.role,
-                username: req.body.username
-            }
-        });
+        res.status(200).json({ message: "User data updated successfully" });
+    } catch (error: any) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export async function changeMasterName(req: Request, res: Response) {
+    try {
+        if (!!req.body.email && !req.body.role && !req.body.username) return res.status(400).json({ message: "Please provide role and username" });
+        if (!req.body.email) return res.status(400).json({ message: "Please provide username" });
+        if (!req.body.role) return res.status(400).json({ message: "Please provide role" });
+        if (!req.body.username) return res.status(400).json({ message: "Please provide username" });
+
+        const presenceSlots = await PresenceSlot.find({ master_id: req.params.user_id });
+        const presenceSlotIds = presenceSlots.map(presenceSlot => presenceSlot._id);
+
+        await Promise.all([
+            StudentPresence.updateMany({ presence_slot_id: { $in: presenceSlotIds } }, {
+                $set: { presence_creator: req.body.username }
+            }),
+            PresenceSlot.updateMany({ master_id: req.params.user_id }, {
+                $set: { master_name: req.body.username }
+            }),
+            User.updateOne({ _id: req.params.user_id, role: "master" }, {
+                $set: {
+                    classname: req.body.classname,
+                    created_at: req.body.created_at,
+                    email: req.body.email,
+                    role: req.body.role,
+                    username: req.body.username
+                }
+            })
+        ]);
+        
         res.status(200).json({ message: "User data updated successfully" });
     } catch (error: any) {
         res.status(500).json({ message: "Something went wrong" });
@@ -47,8 +88,8 @@ export async function deleteAllStudentByClass(req: Request, res: Response) {
         if (getStudents.length === 0) return res.status(404).json({ message: "Student not found" });
 
         await Promise.all([
-            StudentPresence.deleteMany(),
-            User.deleteMany({ role: "student" })
+            StudentPresence.deleteMany({ classname: getStudents[0].classname }),
+            User.deleteMany({ classname: getStudents[0].classname, role: "student" })
         ]);
 
         res.status(200).json({ message: "All users deleted successfully" });

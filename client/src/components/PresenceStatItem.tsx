@@ -33,35 +33,35 @@ export default function PresenceStatItem(props: IStudentPresenceItem) {
                     <option value="Unexcused">Unexcused</option>
                     <option value="Sick">Sick</option>
                 </select>
-
-                <button
-                    type="submit"
-                    disabled={props.is_processing}
-                    onClick={saveEdit}
-                    className="text-orange-300 font-medium text-lg cursor-pointer hover:text-orange-200 transition-colors disabled:cursor-not-allowed"
-                >
-                    <Save/>
-                </button>
-
-                <button
-                    type="submit"
-                    disabled={props.is_processing}
-                    onClick={() => props.on_select(props.student_status._id)}
-                    className="text-blue-300 font-medium text-lg cursor-pointer hover:text-blue-200 transition-colors disabled:cursor-not-allowed"
-                >
-                    <X/>
-                </button>
+                <div className="flex gap-2.5">
+                    <button
+                        type="submit"
+                        disabled={props.is_processing}
+                        onClick={saveEdit}
+                        className="text-orange-300 font-medium text-lg cursor-pointer hover:text-orange-200 transition-colors disabled:cursor-not-allowed"
+                    >
+                        <Save/>
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={props.is_processing}
+                        onClick={() => props.on_select(props.student_status._id)}
+                        className="text-blue-300 font-medium text-lg cursor-pointer hover:text-blue-200 transition-colors disabled:cursor-not-allowed"
+                    >
+                        <X/>
+                    </button>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="bg-gray-800 text-violet-300 font-medium flex flex-col gap-2 font-mono p-2 rounded-md border border-violet-300">
-            <div>{props.student_status.student_name}</div>
-            <div>{props.student_status.classname}</div>
-            <div>{props.student_status.status}</div>
-            <div>{new Date(props.student_status.filled_at).toLocaleString()}</div>
-            <div>{props.student_status.presence_creator}</div>
+            <div>Student name: {props.student_status.student_name}</div>
+            <div>Student class: {props.student_status.classname}</div>
+            <div>Status: {props.student_status.status}</div>
+            <div>Filled at: {new Date(props.student_status.filled_at).toLocaleString()}</div>
+            <div>Master: {props.student_status.presence_creator}</div>
             <div className="flex gap-2.5">
                 <button
                     type="button"

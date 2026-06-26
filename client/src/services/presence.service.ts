@@ -3,11 +3,14 @@ import DataServices from "./data.service";
 import type { FillPresenceIntrf, PresenceFormIntrf, PresenceSericeIntrf, PresenceSlotIntrf } from "../models/presence-slot.model";
 import { usePresenceStore } from "../stores/presence.store";
 import AuthServices from "./auth.service";
+import type { StudentPresenceIntrf } from "../models/student-presence.model";
+import useSearch from "../hooks/useSearch";
 
 export default function PresenceServices(props?: PresenceSericeIntrf) {
     const queryClient = useQueryClient();
-    const { currentUserId } = AuthServices();
+    const { currentUserId, currentRole } = AuthServices();
     const { addData, deleteData, editData, getData, infiniteScroll } = DataServices();
+    const { search, setSearch, debouncedSearch } = useSearch();
     
     const editStudentStatus = usePresenceStore((state) => state.editStudentStatus);
     const editPresenceForm = usePresenceStore((state) => state.editPresenceForm);
@@ -33,7 +36,7 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
     
     const deleteAllPresencesMt = useMutation({
         mutationFn: async () => {
-            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/presence-forms/master/rm-all`);
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/presence-forms/rm-all`);
         },
         onError(error) {
             props?.setMessage!(error.message);
@@ -45,20 +48,19 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
                     if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
                         return queryKey[0].startsWith(`is-filled-${currentUserId}-`) ||
                         queryKey[0].startsWith(`all-presences-${currentUserId}`) ||
-                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`);
+                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`) ||
+                        queryKey[0].startsWith(`presence-details-${currentUserId}-${props?.form_id}`);
                     }
                     return false;
                 }
             });
-        },
-        onSettled: () => {
             resetEditPresenceForm();
         }
     });
     
     const deleteOnePresenceMt = useMutation({
         mutationFn: async (id: string) => {
-            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/presence-forms/master/rm/${id}`);
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/presence-forms/rm/${id}`);
         },
         onError(error) {
             props?.setMessage!(error.message);
@@ -70,13 +72,60 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
                     if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
                         return queryKey[0].startsWith(`is-filled-${currentUserId}-`) ||
                         queryKey[0].startsWith(`all-presences-${currentUserId}`) ||
-                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`);
+                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`) ||
+                        queryKey[0].startsWith(`presence-details-${currentUserId}-${props?.form_id}`);
                     }
                     return false;
                 }
             });
+            resetEditPresenceForm();
+        }
+    });
+    
+    const deleteAllStatusesesMt = useMutation({
+        mutationFn: async () => {
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/student-presences/rm-all/${props?.form_id}`);
         },
-        onSettled: () => {
+        onError(error) {
+            props?.setMessage!(error.message);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                        return queryKey[0].startsWith(`is-filled-${currentUserId}-`) ||
+                        queryKey[0].startsWith(`all-presences-${currentUserId}`) ||
+                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`) ||
+                        queryKey[0].startsWith(`presence-details-${currentUserId}-${props?.form_id}`);
+                    }
+                    return false;
+                }
+            });
+            resetEditPresenceForm();
+        }
+    });
+    
+    const deleteOneStatusMt = useMutation({
+        mutationFn: async (id: string) => {
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/student-presences/rm/${id}`);
+        },
+        onError(error) {
+            props?.setMessage!(error.message);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                        return queryKey[0].startsWith(`is-filled-${currentUserId}-`) ||
+                        queryKey[0].startsWith(`all-presences-${currentUserId}`) ||
+                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`) ||
+                        queryKey[0].startsWith(`presence-details-${currentUserId}-${props?.form_id}`);
+                    }
+                    return false;
+                }
+            });
             resetEditPresenceForm();
         }
     });
@@ -126,7 +175,8 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
                     const queryKey = query.queryKey;
                     if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
                         return queryKey[0].startsWith(`is-filled-${currentUserId}-`) ||
-                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`);
+                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`) ||
+                        queryKey[0].startsWith(`presence-details-${currentUserId}-${props?.form_id}`);
                     }
                     return false;
                 }
@@ -155,7 +205,8 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
                     const queryKey = query.queryKey;
                     if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
                         return queryKey[0].startsWith(`is-filled-${currentUserId}-`) ||
-                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`);
+                        queryKey[0].startsWith(`all-presences-form-${currentUserId}`) ||
+                        queryKey[0].startsWith(`presence-details-${currentUserId}-${props?.form_id}`);
                     }
                     return false;
                 }
@@ -191,7 +242,7 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
         isFetchingNextPage, 
         isLoading 
     } = infiniteScroll<PresenceSlotIntrf>({
-        api_url: `${import.meta.env.VITE_BASE_API_URL}/presence-forms/master/show-all`,
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/presence-forms/show-all`,
         enabled: !!currentUserId,
         limit: 12,
         query_key: [`all-presences-${currentUserId}`],
@@ -209,7 +260,7 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
         isLoading: isFetchingIsLoading 
     } = infiniteScroll<PresenceSlotIntrf>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/student-presences/show-all`,
-        enabled: !!currentUserId,
+        enabled: !!currentUserId && currentRole === "student",
         limit: 12,
         query_key: [`all-presences-form-${currentUserId}`],
         stale_time: Infinity
@@ -231,11 +282,14 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
         hasNextPage: presenceDetailHasNextage, 
         isFetchingNextPage: presenceDetailIsFetchingNextPage, 
         isLoading: presenceDetailIsLoading 
-    } = infiniteScroll<PresenceSlotIntrf>({
-        api_url: `${import.meta.env.VITE_BASE_API_URL}/presence-forms/master/show/${props?.form_id}`,
+    } = infiniteScroll<StudentPresenceIntrf>({
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/presence-forms/show-detail/${props?.form_id}`,
         enabled: !!currentUserId && !!props?.form_id,
         limit: 12,
-        query_key: [`all-presences-form-${currentUserId}`],
+        query_key: debouncedSearch ? 
+        [`presence-details-${currentUserId}-${props?.form_id}-${debouncedSearch}`] : 
+        [`presence-details-${currentUserId}-${props?.form_id}`],
+        searched: debouncedSearch,
         stale_time: Infinity
     });
 
@@ -253,8 +307,10 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
         allAvailablePresenceForms,
         currentUserId,
         deleteAllPresencesMt, 
+        deleteAllStatusesesMt,
         deleteOnePresenceMt, 
         editPresenceForm,
+        deleteOneStatusMt,
         editPresenceFormMt,
         editPresenceStatusMt,
         editStudentStatus,
@@ -265,12 +321,14 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
         makeNewPresenceMt, 
         presenceDetails,
         presenceForm,
+        search,
         selectedFormId,
         selectedPresenceStatusId,
         setEditPresenceForm,
         setEditStudentStatus,
-        setStudentStatus,
         setPresenceForm,
+        setSearch,
+        setStudentStatus,
         studentStatus
     }
 }

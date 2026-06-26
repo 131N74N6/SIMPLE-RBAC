@@ -13,9 +13,9 @@ export default function MakePresence() {
     }
 
     return (
-        <div className="flex md:flex-row flex-col h-screen relative z-10 font-mono">
-            <form className="flex flex-col gap-3 h-full md:w-3/4 w-full bg-white p-2.5" onSubmit={makeNewPresence}>
-                <label htmlFor="classname">classname</label>
+        <div className="flex md:flex-row flex-col h-screen relative z-10 font-mono bg-gray-950">
+            <form className="flex flex-col gap-3 h-full md:w-3/4 w-full p-2.5" onSubmit={makeNewPresence}>
+                <label className="text-blue-300" htmlFor="classname">classname</label>
                 <input 
                     type="text" 
                     placeholder="classname"
@@ -23,9 +23,9 @@ export default function MakePresence() {
                     name="classname"
                     value={presenceForm.classname}
                     onChange={(event) => setEditPresenceForm("classname", event.target.value)}
-                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                    className="w-full font-mono shadow-blue-300 shadow-[3px_3px_0px_0px] outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
-                <label htmlFor="start_time">Start Time</label>
+                <label className="text-blue-300" htmlFor="start_time">Start Time</label>
                 <input 
                     type="datetime-local" 
                     placeholder="start_time"
@@ -33,9 +33,9 @@ export default function MakePresence() {
                     name="start_time"
                     value={presenceForm.start_time}
                     onChange={(event) => setEditPresenceForm("start_time", event.target.value)}
-                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                    className="w-full font-mono shadow-blue-300 shadow-[3px_3px_0px_0px] outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
-                <label htmlFor="deadline">Deadline</label>
+                <label className="text-blue-300" htmlFor="deadline">Deadline</label>
                 <input 
                     type="datetime-local" 
                     placeholder="deadline"
@@ -43,13 +43,13 @@ export default function MakePresence() {
                     name="deadline"
                     value={presenceForm.deadline}
                     onChange={(event) => setEditPresenceForm("deadline", event.target.value)}
-                    className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
+                    className="w-full font-mono shadow-blue-300 shadow-[3px_3px_0px_0px] outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
                 <div>
                     <button 
                         type="submit"
                         disabled={makeNewPresenceMt.isPending}
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-medium font-mono py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="bg-blue-500 hover:bg-blue-600 cursor-pointer text-white font-medium font-mono py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                         Add Presence
                     </button>
