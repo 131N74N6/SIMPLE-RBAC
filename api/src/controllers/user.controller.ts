@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { User } from "../models/user.model";
 import { AuthRequest } from "../middleware/auth.middleware";
-import { PresenceSlot, StudentPresence } from "../models/presence.model";
+import { PresenceSlot, StudentPresence } from "../models/presence-slot.model";
 
 export async function changeUserData(req: Request, res: Response) {
     try {

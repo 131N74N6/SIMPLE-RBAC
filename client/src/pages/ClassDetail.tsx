@@ -1,26 +1,27 @@
-import { useEffect, useState } from "react";
 import AdminNavbar from "../components/AdminNavbar";
 import { useParams } from "react-router-dom";
 import UserServices from "../services/user.service";
 import AdminUserList from "../components/AdminUserList";
 import Loading from "../components/Loading";
 import { Trash2 } from "lucide-react";
+import useError from "../hooks/useError";
 
 export default function ClassDetail() {
     const { classname } = useParams();
-    const [error, setError] = useState<string | null>(null);
-    
-    useEffect(() =>{
-        if (error) {
-            const timer = setTimeout(() => setError(null), 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [error, setError]);
+    const { error, setError } = useError();
 
     const { 
-        changeUserDataMt, editUser, deleteAllStudentsMt, deleteStudentMt, getAllStudentsByClass, 
-        search, handleSelectedId, selectedId, setSearch, 
-        setEditUser, isoToLocalDateTime
+        changeUserDataMt, 
+        editUser, 
+        deleteAllStudentsMt, 
+        deleteStudentMt, 
+        getAllStudentsByClass, 
+        search, 
+        handleSelectedId, 
+        selectedId, 
+        setSearch, 
+        setEditUser, 
+        isoToLocalDateTime
     } = UserServices({ classname: classname, setMessage: setError });
 
     return (

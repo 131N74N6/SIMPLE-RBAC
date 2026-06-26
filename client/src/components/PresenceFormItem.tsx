@@ -1,9 +1,9 @@
-import type { PresenceStatusIntrf, PresencFormItemIntrf } from "../models/presence.model";
+import type { PresenceStatusIntrf, PresencFormItemIntrf } from "../models/presence-slot.model";
 import Loading from "./Loading";
 
 export default function PresenceFormItem(props: PresencFormItemIntrf) {
     const { data, isLoading, error } = props.getData<PresenceStatusIntrf>({
-        api_url: `${import.meta.env.VITE_BASE_API_URL}/presences/student/is-filled/${props.form._id}`,
+        api_url: `${import.meta.env.VITE_BASE_API_URL}/student-presences/is-filled/${props.form._id}`,
         enabled: !!props.form._id && !!props.currentUserId,
         query_key: [`is-filled-${props.currentUserId}-${props.form._id}`],
         stale_time: Infinity
@@ -30,7 +30,7 @@ export default function PresenceFormItem(props: PresencFormItemIntrf) {
                             <select 
                                 disabled={props.isExpired || props.fillPresenceMt.isPending}
                                 value={props.studentStatus[props.form._id] || ""}
-                                onChange={(event) => props.setStudentStatus({ ...props.studentStatus, [props.form._id]: event.target.value })}
+                                onChange={(event: React.ChangeEvent<HTMLSelectElement, HTMLSelectElement>) => props.setStudentStatus(props.form._id, event.target.value)}
                                 className="bg-gray-800 text-white border border-gray-600 p-2 rounded outline-none"
                             >
                                 <option value="">-- Choose Status --</option>
@@ -41,8 +41,10 @@ export default function PresenceFormItem(props: PresencFormItemIntrf) {
                             </select>
 
                             <button
+                                type="submit"
                                 disabled={props.isExpired || !props.studentStatus[props.form._id] || props.fillPresenceMt.isPending}
                                 onClick={() => props.fillPresenceMt.mutate({
+                                    creator_name: props.form.creator_name,
                                     presence_slot_id: props.form._id,
                                     status: props.studentStatus[props.form._id]
                                 })}

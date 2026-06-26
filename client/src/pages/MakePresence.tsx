@@ -1,18 +1,11 @@
-import { useEffect, useState } from "react";
 import PresenceServices from "../services/presence.service";
 import MasterNavbar from "../components/MasterNavbar";
+import useError from "../hooks/useError";
 
 export default function MakePresence() {
-    const [error, setError] = useState<string | null>(null);
-    
-    useEffect(() =>{
-        if (error) {
-            const timer = setTimeout(() => setError(null), 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [error, setError]);
+    const { error, setError } = useError();
 
-    const { makeNewPresenceMt, setPresence, presence } = PresenceServices({ setMessage: setError });
+    const { makeNewPresenceMt, setEditPresenceForm, presenceForm } = PresenceServices({ setMessage: setError });
 
     const makeNewPresence = (event: React.SyntheticEvent) => {
         event.preventDefault();
@@ -28,8 +21,8 @@ export default function MakePresence() {
                     placeholder="classname"
                     id="classname"
                     name="classname"
-                    value={presence.classname}
-                    onChange={(event) => setPresence("classname", event.target.value)}
+                    value={presenceForm.classname}
+                    onChange={(event) => setEditPresenceForm("classname", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <label htmlFor="start_time">Start Time</label>
@@ -38,8 +31,8 @@ export default function MakePresence() {
                     placeholder="start_time"
                     id="start_time"
                     name="start_time"
-                    value={presence.start_time}
-                    onChange={(event) => setPresence("start_time", event.target.value)}
+                    value={presenceForm.start_time}
+                    onChange={(event) => setEditPresenceForm("start_time", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <label htmlFor="deadline">Deadline</label>
@@ -48,8 +41,8 @@ export default function MakePresence() {
                     placeholder="deadline"
                     id="deadline"
                     name="deadline"
-                    value={presence.deadline}
-                    onChange={(event) => setPresence("deadline", event.target.value)}
+                    value={presenceForm.deadline}
+                    onChange={(event) => setEditPresenceForm("deadline", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px_rgba(0,0,0,0.8)] outline-0 border border-black flex flex-col gap-2.5 text-black font-medium p-2.5 rounded-[10px] bg-white"
                 />
                 <div>

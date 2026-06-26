@@ -3,17 +3,11 @@ import AdminNavbar from "../components/AdminNavbar";
 import ClassList from "../components/ClassList";
 import Loading from "../components/Loading";
 import ClassServices from "../services/class.service";
-import { useEffect, useState } from "react";
+import AddClass from "../components/AddClass";
+import useError from "../hooks/useError";
 
 export default function Classes() {
-    const [error, setError] = useState<string | null>(null);
-    
-    useEffect(() =>{
-        if (error) {
-            const timer = setTimeout(() => setError(null), 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [error, setError]);
+    const { error, setError } = useError();
     
     const { 
         addNewClass, 
@@ -37,20 +31,7 @@ export default function Classes() {
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10">
             {openForm ? (
-                <div className="flex justify-center items-center z-20 inset-0 fixed">
-                    <form onSubmit={addNewClass} className="flex flex-col gap-2.5 p-2.5">
-                        <input
-                            type="text"
-                            id="classname"
-                            value={newClassName}
-                            onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewClassName(event.target.value)}
-                        />
-                        <div className="grid grid-cols-2 gap-2.5">
-                            <button type="submit" className="cursor-pointer">Add</button>
-                            <button type="button" className="cursor-pointer" onClick={handleForm}>Close</button>
-                        </div>
-                    </form>
-                </div>
+                <AddClass addNewClass={addNewClass} error={error} handleForm={handleForm} newClassName={newClassName} setNewClassName={setNewClassName}/>
             ) : null}
             <div className="flex flex-col h-full w-full md:w-3/4 gap-3 p-2.5">
                 <div className='flex gap-2.5'>

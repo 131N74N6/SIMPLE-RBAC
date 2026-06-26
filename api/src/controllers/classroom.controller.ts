@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ClassRoom } from '../models/classroom.model';
-import { PresenceSlot, StudentPresence } from '../models/presence.model';
+import { PresenceSlot, StudentPresence } from '../models/presence-slot.model';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { User } from '../models/user.model';
 

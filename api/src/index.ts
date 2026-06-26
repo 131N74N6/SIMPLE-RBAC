@@ -15,7 +15,8 @@ import authRouters from "./routers/auth.router";
 import userRouters from "./routers/user.router";
 import cookieParser from 'cookie-parser';
 import classRouters from './routers/classroom.router';
-import presenceRouters from './routers/presence.router';
+import presenceSlotRouters from './routers/presence-slot.router';
+import studentPresenceRouters from './routers/student-presence.router';
 
 const app = express();
 
@@ -27,7 +28,8 @@ app.use(cors({
 }));
 app.use('/api/auth', authRouters);
 app.use('/api/classes', classRouters);
-app.use('/api/presences', presenceRouters);
+app.use('/api/presence-forms', presenceSlotRouters);
+app.use('/api/student-presences', studentPresenceRouters);
 app.use('/api/users', userRouters);
 
 if (process.env.NODE_ENV !== 'production') {

@@ -5,7 +5,6 @@ import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AddUser from "./pages/AddUser";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import UserDetail from "./pages/UserDetail";
 import MakePresence from "./pages/MakePresence";
 import FillPresence from "./pages/FillPresence";
 import Classes from "./pages/Classes";
@@ -30,7 +29,6 @@ export default function App() {
                     <Route path="/master/presences" element={<ProtectedRoute required_roles={['master']}><Presences/></ProtectedRoute>}/>
                     <Route path="/master/make-presence" element={<ProtectedRoute required_roles={['master']}><MakePresence/></ProtectedRoute>}/>
                     <Route path="/student/fill-presence" element={<ProtectedRoute required_roles={['student']}><FillPresence/></ProtectedRoute>}/>
-                    <Route path="/profile" element={<ProtectedRoute required_roles={['admin', 'master', 'student']}><UserDetail/></ProtectedRoute>}/>
                     <Route path="*" element={<Navigate to="/sign-in" replace/>}/>
                     <Route path="/" element={<Navigate to="/sign-in" replace/>}/>
                 </Routes>

@@ -1,4 +1,4 @@
-import type { PresencFormListIntrf } from "../models/presence.model";
+import type { PresencFormListIntrf } from "../models/presence-slot.model";
 import Loading from "./Loading";
 import PresenceFormItem from "./PresenceFormItem";
 

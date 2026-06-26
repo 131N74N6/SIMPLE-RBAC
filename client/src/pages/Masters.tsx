@@ -3,17 +3,10 @@ import AdminNavbar from "../components/AdminNavbar";
 import AdminUserList from "../components/AdminUserList";
 import Loading from "../components/Loading";
 import UserServices from "../services/user.service";
-import { useEffect, useState } from "react";
+import useError from "../hooks/useError";
 
 export default function Masters() {
-    const [error, setError] = useState<string | null>(null);
-    
-    useEffect(() =>{
-        if (error) {
-            const timer = setTimeout(() => setError(null), 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [error, setError]);
+    const { error, setError } = useError();
     
     const { 
         changeUserDataMt,

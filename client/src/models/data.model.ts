@@ -1,3 +1,11 @@
+export type AddClassIntrf = {
+    addNewClass: (event: React.SyntheticEvent<Element, Event>) => void;
+    error: string | null;
+    handleForm: () => void
+    newClassName: string;
+    setNewClassName: (newClassName: string) => void;
+}
+
 export type EditDataIntrf<T> = {
     api_url: string;
     data: Partial<Omit<T, "_id">>;

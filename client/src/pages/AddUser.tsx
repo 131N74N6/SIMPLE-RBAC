@@ -1,17 +1,9 @@
-import { useEffect, useState } from "react";
 import AdminNavbar from "../components/AdminNavbar";
 import UserServices from "../services/user.service";
+import useError from "../hooks/useError";
 
 export default function AddUser() {
-    const [error, setError] = useState<string | null>(null);
-    
-    useEffect(() =>{
-        if (error) {
-            const timer = setTimeout(() => setError(null), 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [error, setError]);
-    
+    const { error, setError } = useError();
     const { addUserMt, setNewUser, newUser } = UserServices({ setMessage: setError });
 
     function handleSubmit(event: React.SyntheticEvent) {
