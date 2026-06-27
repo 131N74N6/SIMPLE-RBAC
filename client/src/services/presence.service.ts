@@ -133,7 +133,7 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
     const editPresenceFormMt = useMutation({
         mutationFn: async (id: string) => {
             await editData<PresenceSlotIntrf>({
-                api_url: `${import.meta.env.VITE_BASE_API_URL}/presence-forms/master/remake-form/${id}`,
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/presence-forms/remake-form/${id}`,
                 data: {
                     classname: editPresenceForm.classname.trim(),
                     deadline: new Date(editPresenceForm.deadline).toISOString(),
@@ -160,10 +160,10 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
     });
 
     const editPresenceStatusMt = useMutation({
-        mutationFn: async (id: string) => {
+        mutationFn: async ({ id, presence_slot_id }: { id: string, presence_slot_id: string }) => {
             await editData<FillPresenceIntrf>({
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/student-presences/remake-status/${id}`,
-                data: { status: editStudentStatus[id] }
+                data: { status: editStudentStatus[presence_slot_id] }
             });
         },
         onError: (error) => {
@@ -217,7 +217,7 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
     const makeNewPresenceMt = useMutation({
         mutationFn: async () => {
             await addData<PresenceFormIntrf>({
-                api_url: `${import.meta.env.VITE_BASE_API_URL}/presence-forms/master/make`,
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/presence-forms/make-form`,
                 data: { 
                     start_time: new Date(presenceForm.start_time).toISOString(),
                     deadline: new Date(presenceForm.deadline).toISOString(),
@@ -243,7 +243,7 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
         isLoading 
     } = infiniteScroll<PresenceSlotIntrf>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/presence-forms/show-all`,
-        enabled: !!currentUserId,
+        enabled: !!currentUserId && (currentRole === "master" || currentRole === "admin"),
         limit: 12,
         query_key: [`all-presences-${currentUserId}`],
         stale_time: Infinity
@@ -284,7 +284,7 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
         isLoading: presenceDetailIsLoading 
     } = infiniteScroll<StudentPresenceIntrf>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/presence-forms/show-detail/${props?.form_id}`,
-        enabled: !!currentUserId && !!props?.form_id,
+        enabled: !!currentUserId && !!props?.form_id && (currentRole === "master" || currentRole === "admin"),
         limit: 12,
         query_key: debouncedSearch ? 
         [`presence-details-${currentUserId}-${props?.form_id}-${debouncedSearch}`] : 

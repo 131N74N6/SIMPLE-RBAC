@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { StudentPresence } from "../models/student-presence.model";
 import { PresenceSlot } from "../models/presence-slot.model";
 import { AuthRequest } from '../middleware/auth.middleware';
+import { io } from '../services/socket-io.service';
 
 export async function changePresenceForm(req: Request, res: Response) {
     try {
@@ -12,6 +13,13 @@ export async function changePresenceForm(req: Request, res: Response) {
                 start_time: req.body.start_time 
             }
         });
+
+        io.to(`class: ${req.body.classname}`).emit("presence:edited", {
+            classname: req.body.classname,
+            deadline: req.body.deadline,
+            start_time: req.body.start_time 
+        });
+
         res.status(200).json({ message: "Presence form changed" });
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
@@ -24,11 +32,17 @@ export async function deleteAllPresencesForMaster(req: AuthRequest, res: Respons
         if (presenceSlot.length === 0) return res.status(404).json({ message: "Presence not found" });
 
         const presenceSlotIds = presenceSlot.map((slot) => slot._id);
+        const presenceSlotClasses = presenceSlot.map((slot) => slot.classname);
 
         await Promise.all([
             StudentPresence.deleteMany({ presence_slot_id: { $in: presenceSlotIds } }),
             PresenceSlot.deleteMany({ master_id: req.user?.user_id })
         ]);
+
+        presenceSlotClasses.forEach(presenceSlotClass => {
+            io.to(`class: ${presenceSlotClass}`).emit("presence:all-deleted", { master_id: req.user?.user_id });
+        });
+
         res.status(200).json({ message: "All presences deleted" });
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
@@ -37,10 +51,15 @@ export async function deleteAllPresencesForMaster(req: AuthRequest, res: Respons
 
 export async function deleteOnePresenceForMaster(req: Request, res: Response) {
     try {
+        const presenceSlot = await PresenceSlot.find({ _id: req.params.id });
+
         await Promise.all([
             StudentPresence.deleteMany({ presence_slot_id: req.params.id }),
             PresenceSlot.deleteOne({ _id: req.params.id })
         ]);
+
+        io.to(`class: ${presenceSlot[0].classname}`).emit("presence:deleted", { presence_slot_id: req.params.id });
+
         res.status(200).json({ message: "Presence deleted" });
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
@@ -97,6 +116,15 @@ export async function makePresence(req: AuthRequest, res: Response) {
         if (!classname || !deadline || !start_time) return res.status(400).json({ message: "All fields are required" });
 
         const newSlot = new PresenceSlot({
+            classname,
+            created_at: new Date().toISOString(),
+            deadline,
+            master_id,
+            master_name,
+            start_time
+        });
+
+        io.to(`class: ${classname}`).emit("presence:created", {
             classname,
             created_at: new Date().toISOString(),
             deadline,

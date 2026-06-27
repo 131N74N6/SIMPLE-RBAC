@@ -15,6 +15,12 @@ export async function changeClass(req: Request, res: Response) {
             User.updateMany({ classname: targetClass?.classname }, {
                 $set: { classname: req.body.classname }
             }),
+            PresenceSlot.updateMany({ classname: targetClass?.classname }, {
+                $set: { classname: req.body.classname }
+            }),
+            StudentPresence.updateMany({ classname: targetClass?.classname }, {
+                $set: { classname: req.body.classname }
+            }),
             ClassRoom.updateOne({ _id: req.params.id }, {
                 $set: { classname: req.body.classname }
             })

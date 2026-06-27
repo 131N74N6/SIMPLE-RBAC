@@ -28,19 +28,19 @@ export default function PresenceDetail() {
         <section className="flex md:flex-row flex-col h-screen relative z-10 font-mono">
             {error ? <Notification message={error}/> : null}
             <div className="flex flex-col gap-3 h-full md:w-3/4 w-full bg-gray-950 p-2.5">
-                <div className="flex gap-1.5">
+                <div className="flex items-center gap-1.5">
                     <input
                         type="text"
                         value={search}
                         disabled={editPresenceStatusMt.isPending || deleteAllStatusesesMt.isPending}
                         onChange={(event) => setSearch(event.target.value)}
-                        className="text-violet-400 font-medium disabled:cursor-not-allowed border-violet-400 p-2 text-[14px] rounded-md outline-0"
+                        className="text-violet-400 border w-[95%] font-medium disabled:cursor-not-allowed border-violet-400 p-2 text-[14px] rounded-md outline-0"
                     />
                     <button
                         type="button"
                         disabled={editPresenceStatusMt.isPending || deleteAllStatusesesMt.isPending}
                         onClick={() => deleteAllStatusesesMt.mutate()}
-                        className="text-violet-400 font-medium cursor-pointer hover:text-violet-300 transition-colors disabled:cursor-not-allowed"
+                        className="text-violet-400 w-[5%] flex justify-center font-medium cursor-pointer hover:text-violet-300 transition-colors disabled:cursor-not-allowed"
                     >
                         <Trash2/>
                     </button>

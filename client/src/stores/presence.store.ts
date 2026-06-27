@@ -29,12 +29,20 @@ export const usePresenceStore = create<PresenceState>((set) => ({
     studentStatus: {},
 
     handleSelectedFormId: (id) => set((state) => ({ selectedFormId: state.selectedFormId === id ? null : id })),
+    
     handleSelectedPresenceStatusId: (id) => set((state) => ({ selectedPresenceStatusId: state.selectedPresenceStatusId === id ? null : id })),
-    resetEditPresenceForm: () => set({ presenceForm: { classname: "", deadline: "", start_time: "" }, selectedFormId: null }),
+
+    resetEditPresenceForm: () => set({ editPresenceForm: { classname: "", deadline: "", start_time: "" }, selectedFormId: null }),
+
     resetPresenceForm: () => set({ presenceForm: { classname: "", deadline: "", start_time: "" } }),
+
     resetPresenceStatus: () => set({ studentStatus: {}, selectedPresenceStatusId: null }),
-    setEditPresenceForm: (field, value) => set((state) => ({ presenceForm: { ...state.presenceForm, [field]: value } })),
+
+    setEditPresenceForm: (field, value) => set((state) => ({ editPresenceForm: { ...state.editPresenceForm, [field]: value } })),
+
     setPresenceForm: (field, value) => set((state) => ({ presenceForm: { ...state.presenceForm, [field]: value } })),
-    setEditStudentStatus: (key, value) => set((state) => ({ ...state.studentStatus, [key]: value })),
-    setStudentStatus: (key, value) => set((state) => ({ ...state.studentStatus, [key]: value }))
+
+    setEditStudentStatus: (key, value) => set((state) => ({ editStudentStatus: { ...state.editStudentStatus, [key]: value } })),
+
+    setStudentStatus: (key, value) => set((state) => ({ studentStatus: { ...state.studentStatus, [key]: value } }))
 }));

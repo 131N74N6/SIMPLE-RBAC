@@ -2,7 +2,7 @@ import type { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult, U
 
 export type StudentPresenceIntrf = {
     _id: string;
-    presence_creator: string;
+    creator_name: string;
     presence_slot_id: string;
     student_id: string;
     student_name: string;
@@ -14,7 +14,7 @@ export type StudentPresenceIntrf = {
 export type IStudentPresenceItem = {
     is_selected: boolean;
     is_processing: boolean;
-    on_edit: UseMutationResult<void, Error, string, unknown>;
+    on_edit: UseMutationResult<void, Error, { id: string; presence_slot_id: string; }, unknown>;
     on_select: (id: string) => void;
     on_delete: UseMutationResult<void, Error, string, unknown>;
     set_edit_status: (key: string, value: string) => void;
@@ -27,7 +27,7 @@ export type IStudentPresenceList = {
     has_next_page: boolean;
     is_fetching_next_page: boolean;
     is_processing: boolean;
-    on_edit: UseMutationResult<void, Error, string, unknown>;
+    on_edit: UseMutationResult<void, Error, { id: string; presence_slot_id: string; }, unknown>;
     on_select: (id: string) => void;
     on_delete: UseMutationResult<void, Error, string, unknown>;
     selected_id: string | null;

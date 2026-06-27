@@ -24,7 +24,7 @@ export default function Presences() {
         <section className="flex md:flex-row flex-col h-screen relative z-10 font-mono">
             {error ? <div>{error}</div> : null}
             <div className="flex flex-col gap-3 h-full md:w-3/4 w-full bg-gray-950 p-2.5">
-                <div className='flex gap-2.5'>
+                <div className='flex items-center gap-2.5'>
                     <button 
                         type='button' 
                         onClick={() => deleteAllPresencesMt.mutate()} 

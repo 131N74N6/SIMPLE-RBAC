@@ -3,6 +3,14 @@ import Loading from "./Loading";
 import PresenceFormItem from "./PresenceFormItem";
 
 export default function PresenceFormList(props: PresencFormListIntrf) {
+    if (props.forms.length === 0) {
+        return (
+            <div className="flex justify-center items-center h-full">
+                <div className="text-amber-300 font-medium text-3xl">Data not found...</div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col gap-4 overflow-y-auto px-2.5 pt-2.5">
             <div className="flex flex-col gap-2.5">

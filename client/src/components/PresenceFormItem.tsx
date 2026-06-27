@@ -13,8 +13,9 @@ export default function PresenceFormItem(props: PresencFormItemIntrf) {
         <div className="p-4 border border-gray-600 rounded-lg bg-gray-900 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h3 className="font-semibold text-lg text-blue-400">{props.form.classname}</h3>
-                <p className="text-sm text-gray-400">Opened: {new Date(props.form.start_time).toLocaleString()}</p>
-                <p className="text-sm text-red-400 font-medium">Deadline: {new Date(props.form.deadline).toLocaleString()}</p>
+                <p className="text-md text-gray-400">Opened: {new Date(props.form.start_time).toLocaleString()}</p>
+                <p className="text-md text-red-400 font-medium">Deadline: {new Date(props.form.deadline).toLocaleString()}</p>
+                <p className="text-md text-red-400 font-medium">Master: {props.form.master_name}</p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -44,7 +45,7 @@ export default function PresenceFormItem(props: PresencFormItemIntrf) {
                                 type="submit"
                                 disabled={props.isExpired || !props.studentStatus[props.form._id] || props.fillPresenceMt.isPending}
                                 onClick={() => props.fillPresenceMt.mutate({
-                                    creator_name: props.form.creator_name,
+                                    creator_name: props.form.master_name,
                                     presence_slot_id: props.form._id,
                                     status: props.studentStatus[props.form._id]
                                 })}

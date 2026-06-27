@@ -20,7 +20,7 @@ export type PresenceSlotIntrf = {
     deadline: string;
     start_time: string;
     master_id: String;
-    creator_name: string;
+    master_name: string;
 }
 
 export type PresencFormListIntrf = {
