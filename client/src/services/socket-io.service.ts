@@ -6,7 +6,7 @@ export default function SocketServices() {
     function connect(currentUserId: string) {
         if (socket?.connected) return;
 
-        socket = io(import.meta.env.VITE_BASE_API_URL, {
+        socket = io(new URL(import.meta.env.VITE_BASE_API_URL).origin, {
             auth: { currentUserId },
             transports: ["websocket"]
         });
