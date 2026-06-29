@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AuthServices from "../services/auth.service";
 import { useNavigate } from "react-router";
-import { CheckCircleIcon } from "lucide-react";
+import { SquareCheck } from "lucide-react";
 
 export default function SignIn() {
     const navigate = useNavigate();
@@ -12,9 +12,9 @@ export default function SignIn() {
 
     useEffect(() => {
         if (currentUserId && !userLoading) {
-            if (currentRole === 'admin') navigate('/admin/students');
-            else if (currentRole === 'master') navigate('/master/presences');
-            else if (currentRole === 'student') navigate('/student/fill-presence');
+            if (currentRole === 'admin') navigate('/admin/home');
+            else if (currentRole === 'master') navigate('/master/home');
+            else if (currentRole === 'student') navigate('/student/home');
             else navigate('/sign-in');
         }
     }, [currentUserId, currentRole, navigate, userLoading]);
@@ -34,7 +34,7 @@ export default function SignIn() {
     return (
         <div className="flex justify-center items-center p-4 h-screen bg-gray-950">
             <form className="border border-blue-300 text-blue-300 font-medium p-4 rounded-2xl w-90 flex flex-col gap-4" onSubmit={handleSubmit}>
-                <h3 className="flex justify-center"><CheckCircleIcon size={38}/></h3>
+                <h3 className="flex justify-center"><SquareCheck size={38}/></h3>
                 <div className="relative flex flex-col gap-2">
                     <label htmlFor="username">Username</label>
                     <input 

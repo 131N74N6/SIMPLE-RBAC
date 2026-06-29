@@ -1,7 +1,6 @@
 import { Eye, Pen, Save, Trash, X } from "lucide-react";
 import type { PresenceItemIntrf } from "../models/presence-slot.model";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 
 export default function PresenceSlotItem(props: PresenceItemIntrf) {
     const navigate = useNavigate();
@@ -17,8 +16,11 @@ export default function PresenceSlotItem(props: PresenceItemIntrf) {
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
 
-    useEffect(() => {
-        if (props.is_selected) {
+    const handleSelect = () => {
+        const isSelected = !props.is_selected;
+        props.on_select(props.slot._id);
+        
+        if (isSelected) {
             props.set_edit_form("classname", props.slot.classname);
             props.set_edit_form("deadline", isoToLocalDateTime(props.slot.deadline));
             props.set_edit_form("start_time", isoToLocalDateTime(props.slot.start_time));
@@ -27,7 +29,7 @@ export default function PresenceSlotItem(props: PresenceItemIntrf) {
             props.set_edit_form("deadline", "");
             props.set_edit_form("start_time", "");
         }
-    }, [props.is_selected, props.slot._id]);
+    }
 
     const editPresenceForm = (event: React.SyntheticEvent) => {
         event.preventDefault();
@@ -67,7 +69,7 @@ export default function PresenceSlotItem(props: PresenceItemIntrf) {
                     onChange={(event) => props.set_edit_form("deadline", event.target.value)}
                     className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-blue-300 outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
-                <div className="flex gap-3">
+                <div className="flex mt-1 gap-3">
                     <button 
                         type="submit"
                         disabled={props.on_edit.isPending}
@@ -91,13 +93,14 @@ export default function PresenceSlotItem(props: PresenceItemIntrf) {
     return (
         <div className="bg-gray-800 font-mono border-blue-300 flex flex-col gap-2.5 p-2.5 rounded-[10px]">
             <div className="font-medium text-blue-300">Class: {props.slot.classname}</div>
+            <div className="font-medium text-blue-300">Master: {props.slot.master_name}</div>
             <div className="text-blue-300">Created At: {new Date(props.slot.created_at).toLocaleString()}</div>
             <div className="text-blue-300">Start Time: {new Date(props.slot.start_time).toLocaleString()}</div>
             <div className="text-blue-300">Deadline: {new Date(props.slot.deadline).toLocaleString()}</div>
             <div className="flex gap-3">
                 <button 
                     type="button"
-                    onClick={() => props.on_select(props.slot._id)}
+                    onClick={handleSelect}
                     className="font-medium cursor-pointer text-[12px] text-blue-400 hover:text-blue-300 transition-colors disabled:cursor-not-allowed"
                 >
                     <Pen/>

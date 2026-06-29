@@ -50,8 +50,8 @@ export async function signIn(req: Request, res: Response) {
         }, process.env.JWT_SECRET || 'your_jwt_key', { expiresIn: '1d' });
 
         res.cookie('token', userToken, {
-            httpOnly: true,                         // 🚫 Kebal XSS (JS tidak bisa baca)
-            secure: process.env.NODE_ENV === 'production', // Hanya lewat HTTPS di production
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', 
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 24 * 60 * 60 * 1000
         });

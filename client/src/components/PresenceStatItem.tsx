@@ -1,23 +1,16 @@
 import { Pen, Save, Trash, X } from "lucide-react";
 import type { IStudentPresenceItem } from "../models/student-presence.model";
-import { useEffect } from "react";
 
 export default function PresenceStatItem(props: IStudentPresenceItem) {
-    useEffect(() => {
-        if (props.is_selected) {
+    const handleSelect = () => {
+        const isSelected = !props.is_selected;
+        props.on_select(props.student_status._id);
+        
+        if (isSelected) {
             props.set_edit_status(props.student_status.presence_slot_id, props.student_status.status);
         } else {
             props.set_edit_status(props.student_status.presence_slot_id, "");
         }
-    }, [props.is_selected, props.student_status._id]);
-
-    const saveEdit = (event: React.SyntheticEvent) => {
-        event.preventDefault();
-        
-        props.on_edit.mutate({ 
-            id: props.student_status._id, 
-            presence_slot_id: props.student_status.presence_slot_id 
-        });
     }
 
     if (props.is_selected) {
@@ -37,10 +30,13 @@ export default function PresenceStatItem(props: IStudentPresenceItem) {
                 </select>
                 <div className="flex gap-3">
                     <button
-                        type="button"
-                        disabled={props.is_processing}
-                        onClick={saveEdit}
                         className="text-orange-300 font-medium text-lg cursor-pointer hover:text-orange-200 transition-colors disabled:cursor-not-allowed"
+                        disabled={props.is_processing}
+                        onClick={() => props.on_edit.mutate({ 
+                            _id: props.student_status._id, 
+                            status: props.status[props.student_status.presence_slot_id]
+                        })}
+                        type="submit"
                     >
                         <Save/>
                     </button>
@@ -76,7 +72,7 @@ export default function PresenceStatItem(props: IStudentPresenceItem) {
                 <button
                     type="button"
                     disabled={props.is_processing}
-                    onClick={() => props.on_select(props.student_status._id)}
+                    onClick={handleSelect}
                     className="text-blue-300 font-medium text-lg cursor-pointer hover:text-blue-200 transition-colors disabled:cursor-not-allowed"
                 >
                     <Pen/>

@@ -40,6 +40,7 @@ export type PresencFormItemIntrf = {
     fillPresenceMt: UseMutationResult<void, Error, FillPresenceIntrf, unknown>;
     form: PresenceSlotIntrf;
     getData: <X>(props: GetDataIntrf) => { data: X | undefined; error: Error | null; isLoading: boolean };
+    hasStarted: boolean;
     isExpired: boolean;
     setStudentStatus: (key: string, value: string) => void;
     studentStatus: { [key: string]: string; };

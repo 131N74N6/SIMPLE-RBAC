@@ -3,23 +3,23 @@ import { io, type Socket } from "socket.io-client"
 export default function SocketServices() {
     let socket: Socket | null = null;
 
-    function connect(token: string) {
+    function connect(currentUserId: string) {
         if (socket?.connected) return;
 
         socket = io(import.meta.env.VITE_BASE_API_URL, {
-            auth: { token },
+            auth: { currentUserId },
             transports: ["websocket"]
         });
 
-        socket.on("connected", () => {
+        socket.on("connect", () => {
             console.log(`socket connected: ${socket?.id}`);
         });
 
-        socket.on("disconnected", () => {
+        socket.on("disconnect", () => {
             console.log(`socket disconnected: ${socket?.id}`);
         });
 
-        socket.on("connection error", (error) => {
+        socket.on("connect_error", (error) => {
             console.log(`socket connection error: ${error.message}`);
         });
     }
@@ -30,6 +30,10 @@ export default function SocketServices() {
 
     function joinMaster(master_id: string) {
         socket?.emit("join:master", master_id);
+    }
+
+    function joinAdmin() {
+        socket?.emit("join:admin");
     }
 
     function onPresenceCreated(callback: (data: any) => void) {
@@ -56,6 +60,26 @@ export default function SocketServices() {
         socket?.on("presence-status:changed", callback);
     }
 
+    function onPresenceStatusDeletedAll(callback: (data: any) => void) {
+        socket?.on("presence-status:all-deleted", callback);
+    }
+
+    function onPresenceStatusDeleted(callback: (data: any) => void) {
+        socket?.on("presence-status:deleted", callback);
+    }
+
+    function onUserChanged(callback: (data: any) => void) {
+        socket?.on("user:changed", callback);
+    }
+
+    function onDeleteAllUsers(callback: (data: any) => void) {
+        socket?.on("user:all-deleted", callback);
+    }
+
+    function onDeleteUser(callback: (data: any) => void) {
+        socket?.on("user:deleted", callback);
+    }
+
     function removeAllListeners() {
         socket?.removeAllListeners();
     }
@@ -65,17 +89,27 @@ export default function SocketServices() {
         socket = null;
     }
 
+    function getSocket() {
+        return socket;
+    }
+
     return { connect, 
-        disconnect, 
+        disconnect,
+        getSocket, 
+        joinAdmin, 
         joinClass, 
         joinMaster, 
         onPresenceChanged, 
         onPresenceCreated, 
         onPresenceDeleted, 
         onPresenceDeletedAll, 
-        onPresenceStatusChanged,
         onPresenceFilled, 
-        removeAllListeners, 
-        socket 
+        onPresenceStatusChanged,
+        onPresenceStatusDeletedAll,
+        onPresenceStatusDeleted,
+        onUserChanged,
+        onDeleteAllUsers,
+        onDeleteUser,
+        removeAllListeners
     }
 }

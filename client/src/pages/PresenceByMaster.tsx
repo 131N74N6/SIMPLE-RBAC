@@ -4,7 +4,7 @@ import Loading from '../components/Loading';
 import useError from '../hooks/useError';
 import PresenceSlotList from '../components/PresenceSlotList';
 
-export default function Presences() {
+export default function PresenceByMaster() {
     const { error, setError } = useError();
 
     const { 

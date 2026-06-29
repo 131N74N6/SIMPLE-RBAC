@@ -4,6 +4,7 @@ import AdminUserList from "../components/AdminUserList";
 import Loading from "../components/Loading";
 import UserServices from "../services/user.service";
 import useError from "../hooks/useError";
+import Notification from "../components/Notification";
 
 export default function Students() {
     const { error, setError } = useError();
@@ -20,10 +21,11 @@ export default function Students() {
         setSearch, 
         setEditUser, 
         isoToLocalDateTime
-    } = UserServices();
+    } = UserServices({ setMessage: setError });
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10 bg-gray-950">
+            {error ? <Notification message={error}/> : null}
             <div className="flex flex-col h-full w-full md:w-3/4 gap-3 p-2.5">
                 <div className='flex gap-2.5'>
                     <input
@@ -54,7 +56,6 @@ export default function Students() {
                 ) : (
                     <AdminUserList 
                         change_user_data_mt={changeUserDataMt}
-                        data_error={error}
                         edit_user={editUser}
                         fetch_next_page={paginatedStudentsData.fetchNextStudentsData}
                         has_next_page={paginatedStudentsData.stuentHasNextPage}
@@ -64,7 +65,6 @@ export default function Students() {
                         on_delete={deleteStudentMt}
                         on_select={handleSelectedId}
                         selected_id={selectedId}
-                        set_data_error={setError}
                         set_edit_user={setEditUser}
                         users={paginatedStudentsData.flatennedStudentsData}
                     />

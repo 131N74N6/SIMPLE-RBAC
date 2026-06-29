@@ -1,10 +1,10 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { Query, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import SocketServices from "../services/socket-io.service";
 
 type UsePresenceSocketProps = {
-    token: string;
-    role: "master" | "student";
+    user_id: string;
+    role: string;
     identifier: string;
 }
 
@@ -12,50 +12,195 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
     const queryClient = useQueryClient();
     const { 
         connect, 
+        joinAdmin,
         joinClass, 
         joinMaster, 
         onPresenceChanged, 
+        onPresenceStatusChanged,
+        onPresenceStatusDeletedAll,
+        onPresenceStatusDeleted,
         onPresenceCreated, 
         onPresenceDeleted, 
         onPresenceDeletedAll, 
         onPresenceFilled, 
+        onDeleteUser,
+        onDeleteAllUsers,
+        onUserChanged,
         removeAllListeners 
     } = SocketServices();
 
     useEffect(() => {
-        if (!props.token || !props.identifier) return;
-        connect(props.token);
+        if (!props.user_id || !props.identifier) return;
+        connect(props.user_id);
 
         if (props.role === "master") {
             joinMaster(props.identifier);
+        } else if (props.role === "admin") {
+            joinAdmin();
         } else {
             joinClass(props.identifier);
         }
 
-        if (props.role === "student") {
+        if (props.role === "admin") {
+            onPresenceFilled(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceChanged(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`all-presences-form`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceStatusChanged(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
             onPresenceCreated(() => {
                 queryClient.invalidateQueries({
-                    predicate: (query) => {
-                        const key = query.queryKey;
-                        return Array.isArray(key) && typeof key[0] === "string" && key[0].startsWith("all-presences");
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceStatusDeletedAll(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceStatusDeleted(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
                     }
                 });
             });
 
             onPresenceDeleted(() => {
                 queryClient.invalidateQueries({
-                    predicate: (query) => {
-                        const key = query.queryKey;
-                        return Array.isArray(key) && typeof key[0] === "string" && key[0].startsWith("all-presences");
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
                     }
                 });
             });
 
             onPresenceDeletedAll(() => {
                 queryClient.invalidateQueries({
-                    predicate: (query) => {
-                        const key = query.queryKey;
-                        return Array.isArray(key) && typeof key[0] === "string" && key[0].startsWith("all-presences");
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+            
+            onDeleteAllUsers(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters') || 
+                            queryKey[0].startsWith('all-students') || 
+                            queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onDeleteUser(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters') || 
+                            queryKey[0].startsWith('all-students') || 
+                            queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onUserChanged(() => {
+                queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters') || 
+                            queryKey[0].startsWith('all-students') || 
+                            queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
                     }
                 });
             });
@@ -64,20 +209,300 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
         if (props.role === "master") {
             onPresenceFilled(() => {
                 queryClient.invalidateQueries({
-                    predicate: (query) => {
-                        const key = query.queryKey;
-                        return Array.isArray(key) && typeof key[0] === "string" && 
-                            (key[0].startsWith("presence-detail") || key[0].startsWith("all-presences"));
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
                     }
                 });
             });
 
             onPresenceChanged(() => {
                 queryClient.invalidateQueries({
-                    predicate: (query) => {
-                        const key = query.queryKey;
-                        return Array.isArray(key) && typeof key[0] === "string" && 
-                            (key[0].startsWith("presence-detail") || key[0].startsWith("all-presences"));
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`all-presences-form`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceStatusChanged(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceStatusDeletedAll(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceStatusDeleted(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceDeleted(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceDeletedAll(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+            
+            onDeleteAllUsers(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters') || 
+                            queryKey[0].startsWith('all-students') || 
+                            queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onDeleteUser(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters') || 
+                            queryKey[0].startsWith('all-students') || 
+                            queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onUserChanged(() => {
+                queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters') || 
+                            queryKey[0].startsWith('all-students') || 
+                            queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
+                    }
+                });
+            });
+        }
+
+        if (props.role === "student") {
+            onPresenceCreated(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceChanged(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`all-presences-form`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceStatusChanged(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceStatusDeletedAll(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceStatusDeleted(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceDeleted(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onPresenceDeletedAll(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                            return queryKey[0].startsWith(`is-filled`) ||
+                            queryKey[0].startsWith(`all-presences-form`) ||
+                            queryKey[0].startsWith(`all-presences-for-admin`) ||
+                            queryKey[0].startsWith(`all-presences-for-master`) ||
+                            queryKey[0].startsWith(`presence-details`);
+                        }
+                        return false;
+                    }
+                });
+            });
+            
+            onDeleteAllUsers(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters') || 
+                            queryKey[0].startsWith('all-students') || 
+                            queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onDeleteUser(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters') || 
+                            queryKey[0].startsWith('all-students') || 
+                            queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onUserChanged(() => {
+                queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters') || 
+                            queryKey[0].startsWith('all-students') || 
+                            queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
                     }
                 });
             });
@@ -85,5 +510,5 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
 
         return () => removeAllListeners();
 
-    }, [props.identifier, props.role, props.token, queryClient]);
+    }, [props.identifier, props.role, props.user_id, queryClient]);
 }

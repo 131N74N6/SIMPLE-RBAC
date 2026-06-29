@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { SignInIntrf, UserInfoIntrf } from "../models/user.model";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import SocketServices from "./socket-io.service";
 
 export default function AuthServices() {
     const navigate = useNavigate();
@@ -30,6 +31,12 @@ export default function AuthServices() {
     const currentUserId = currentUserData ? currentUserData.user_id : null;
     const currentUserName = currentUserData ? currentUserData.username : null;
     const currentRole = currentUserData ? currentUserData.role : null;
+
+    useEffect(() => {
+        if (currentUserId) {
+            SocketServices().connect(currentUserId);
+        }
+    }, [currentUserId]);
 
     const signIn = useMutation({
         mutationFn: async (props: SignInIntrf) => {
@@ -64,11 +71,11 @@ export default function AuthServices() {
             await queryClient.invalidateQueries({ queryKey: ['auth-user'] });
 
             if (response.role === 'admin') {
-                navigate('/admin/students');
+                navigate('/admin/home');
             } else if (response.role === 'master') {
-                navigate('/master/presences');
+                navigate('/master/home');
             } else if (response.role === 'student') {
-                navigate('/student/fill-presence');
+                navigate('/student/home');
             } else {
                 navigate('/sign-in');
             }
@@ -87,6 +94,7 @@ export default function AuthServices() {
         } finally {
             queryClient.setQueryData(['auth-user'], null);
             queryClient.clear();
+            SocketServices().disconnect();
             navigate('/sign-in');
         }
     }

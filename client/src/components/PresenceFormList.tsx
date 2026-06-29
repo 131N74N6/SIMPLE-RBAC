@@ -16,6 +16,7 @@ export default function PresenceFormList(props: PresencFormListIntrf) {
             <div className="flex flex-col gap-2.5">
                 {props.forms.map(form => {
                     const isExpired = new Date().toISOString() > form.deadline;
+                    const hasStarted = new Date().toISOString() === form.start_time;
 
                     return (
                         <PresenceFormItem
@@ -23,6 +24,7 @@ export default function PresenceFormList(props: PresencFormListIntrf) {
                             fillPresenceMt={props.fillPresenceMt}
                             form={form}
                             getData={props.getData}
+                            hasStarted={hasStarted}
                             isExpired={isExpired}
                             key={`${form._id}`}
                             setStudentStatus={props.setStudentStatus}

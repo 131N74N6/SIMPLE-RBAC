@@ -65,13 +65,12 @@ export default function Classes() {
                         <div className='font-mono font-medium text-2xl'>{allClassData.classError.message}</div>
                     </div>
                 ) : allClassData.classIsLoading ? (
-                    <div className='flex justify-center bg-white items-center h-full'>
+                    <div className='flex justify-center items-center h-full'>
                         <Loading/>
                     </div>
                 ) : (
                     <ClassList 
                         class_data={allClassData.classFlattendedData}
-                        data_error={error}
                         fetch_next_page={allClassData.classFetchNextPage}
                         edit_classname={editClassName}
                         has_next_page={allClassData.classHasNextPage}
@@ -80,7 +79,6 @@ export default function Classes() {
                         on_delete={deleteOneClassMt}
                         on_edit={changeClassMt}
                         on_select={handleSelectedId}
-                        set_data_error={setError}
                         set_edit_classname={setEditClassName}
                         selected_id={selectedId}
                     />

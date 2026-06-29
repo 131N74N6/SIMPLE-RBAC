@@ -16,6 +16,11 @@ io.on("connection", (socket) => {
         console.log(`class: ${classname}`);
     });
 
+    socket.on("join:admin", () => {
+        socket.join(`admin`);
+        console.log(`admin`);
+    });
+
     socket.on("join:master", (master_id: string) => {
         socket.join(`master: ${master_id}`);
         console.log(`master: ${master_id}`);

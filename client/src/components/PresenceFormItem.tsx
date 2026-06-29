@@ -29,7 +29,7 @@ export default function PresenceFormItem(props: PresencFormItemIntrf) {
                     ) : (
                         <>
                             <select 
-                                disabled={props.isExpired || props.fillPresenceMt.isPending}
+                                disabled={props.isExpired || props.hasStarted || props.fillPresenceMt.isPending}
                                 value={props.studentStatus[props.form._id] || ""}
                                 onChange={(event: React.ChangeEvent<HTMLSelectElement, HTMLSelectElement>) => props.setStudentStatus(props.form._id, event.target.value)}
                                 className="bg-gray-800 text-white border border-gray-600 p-2 rounded outline-none"

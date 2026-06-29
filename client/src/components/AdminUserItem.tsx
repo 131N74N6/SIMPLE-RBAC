@@ -1,15 +1,7 @@
 import { PencilIcon, Save, Trash, X } from "lucide-react";
 import type { UserItemIntrf } from "../models/user.model";
-import { useEffect } from "react";
 
 export default function AdminUserItem(props: UserItemIntrf) {
-    useEffect(() => {
-        if (props.data_error) {
-            const timer = setTimeout(() => props.set_data_error(null), 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [props.data_error, props.set_data_error]);
-    
     const handleSelect = () => {
         const isSelected = !props.is_selected;
         props.on_select(props.user._id);
@@ -27,14 +19,12 @@ export default function AdminUserItem(props: UserItemIntrf) {
             props.set_edit_user("role", "");
             props.set_edit_user("username", "");
         }
-    };
+    }
     
-    function saveChanges(event: React.SyntheticEvent) {
+    const saveChanges = (event: React.SyntheticEvent) => {
         event.preventDefault();
         props.change_user_data_mt.mutate(props.user._id);
     }
-    
-    const cancelEdit = () => props.on_select(props.user._id);
 
     if (props.is_selected) {
         return (
@@ -107,14 +97,13 @@ export default function AdminUserItem(props: UserItemIntrf) {
                     </button>
                     <button 
                         type="button"
-                        onClick={cancelEdit}
+                        onClick={() => props.on_select(props.user._id)}
                         disabled={props.is_processing}
                         className=" hover:text-blue-300 text-blue-400 transition-colors duration-300 disabled:cursor-not-allowed cursor-pointer flex justify-center"
                     >
                         <X/>
                     </button>
                 </div>
-                {props.data_error ? <div className="text-center text-red-500 font-medium">{props.data_error}</div> : null}
             </form>
         );
     }

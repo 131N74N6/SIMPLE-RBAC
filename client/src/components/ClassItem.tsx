@@ -1,17 +1,9 @@
 import { PencilIcon, Save, Trash, X } from "lucide-react";
 import type { ClassItemIntrf } from "../models/class.model";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function ClassItem(props: ClassItemIntrf) {
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (props.data_error) {
-            const x = setTimeout(() => props.set_data_error(null), 3000);
-            return () => clearTimeout(x);
-        }
-    }, [props.data_error]);
 
     const handleSelect = () => {
         const isSelected = !props.is_selected;
@@ -28,8 +20,6 @@ export default function ClassItem(props: ClassItemIntrf) {
         event.preventDefault();
         props.on_edit.mutate(props.class_detail._id);
     }
-    
-    const cancelEdit = () => props.on_select(props.class_detail._id);
 
     if (props.is_selected) {
         return (
@@ -58,14 +48,13 @@ export default function ClassItem(props: ClassItemIntrf) {
                     </button>
                     <button 
                         type="button"
-                        onClick={cancelEdit}
+                        onClick={() => props.on_select(props.class_detail._id)}
                         disabled={props.is_processing}
                         className="text-cyan-300 hover:text-cyan-400 transition-colors duration-300 disabled:cursor-not-allowed cursor-pointer flex justify-center"
                     >
                         <X/>
                     </button>
                 </div>
-                {props.data_error ? <div className="text-center text-red-500 font-medium">{props.data_error}</div> : null}
             </form>
         );
     }

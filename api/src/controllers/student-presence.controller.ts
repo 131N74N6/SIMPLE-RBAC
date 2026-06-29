@@ -8,11 +8,11 @@ export async function changeStudentPresence(req: Request, res: Response) {
     try {
         const presenceStatuses = await StudentPresence.find({ _id: req.params._id });
 
-        await StudentPresence.updateOne({ _id: req.params.id }, {
+        await StudentPresence.updateOne({ _id: req.params._id }, {
             $set: { status: req.body.status }
         });
 
-        io.to(`class: ${presenceStatuses[0].classname}`).emit("presence-status:changed", {
+        io.to(`class: ${presenceStatuses[0].classname}`).to("admin").emit("presence-status:changed", {
             status: req.body.status
         });
 
@@ -28,12 +28,12 @@ export async function deleteAllStatuses(req: Request, res: Response) {
         const presenceStatuses = await StudentPresence.find({ presence_slot_id: presenceSlotId });
         if (presenceStatuses.length === 0) return res.status(404).json({ message: "data not found" });
 
-        const presenceStatusClasses = presenceStatuses.map(presenceStatus => presenceStatus.classname);
+        const presenceStatusClasses = Array.from(new Set(presenceStatuses.map(presenceStatus => presenceStatus.classname)));
 
         await StudentPresence.deleteMany({ presence_slot_id: req.params.presence_slot_id });
 
         presenceStatusClasses.forEach(presenceStatus => {
-            io.to(`class: ${presenceStatus}`).emit("presence-status:all-deleted", { presence_slot_id: presenceSlotId });
+            io.to(`class: ${presenceStatus}`).to("admin").emit("presence-status:all-deleted", { presence_slot_id: presenceSlotId });
         });
 
         res.status(200).json({ message: "all presence status deleted" });
@@ -47,7 +47,7 @@ export async function deleteStatus(req: Request, res: Response) {
 
         await StudentPresence.deleteOne({ _id: presenceStatuses[0]._id });
 
-        io.to(`class: ${presenceStatuses[0].classname}`).emit("presence-status:deleted", { _id: req.params._id });
+        io.to(`class: ${presenceStatuses[0].classname}`).to("admin").emit("presence-status:deleted", { _id: req.params._id });
 
         res.status(200).json({ message: "1 presence status deleted" });
     } catch (error) {
@@ -67,9 +67,6 @@ export async function fillPresenceForStudent(req: AuthRequest, res: Response) {
         const targetSlot = await PresenceSlot.find({ _id: presence_slot_id });
         if (targetSlot.length === 0) return res.status(404).json({ message: "Presence form not found" });
 
-        // const now = new Date().toISOString();
-        // const deadlineTime = targetSlot[0].deadline;
-
         const newAttendance = new StudentPresence({
             presence_creator,
             presence_slot_id,
@@ -80,7 +77,7 @@ export async function fillPresenceForStudent(req: AuthRequest, res: Response) {
             filled_at: new Date().toISOString()
         });
 
-        io.to(`master: ${targetSlot[0].master_id.toString()}`).emit("presence:filled", {
+        io.to(`master: ${targetSlot[0].master_id.toString()}`).to("admin").emit("presence:filled", {
             presence_creator,
             presence_slot_id,
             student_id,

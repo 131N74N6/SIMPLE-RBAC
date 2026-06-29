@@ -17,7 +17,6 @@ export default function AdminUserList(props: UserListIntrf) {
                 {props.users.map((user) => (
                     <AdminUserItem 
                         change_user_data_mt={props.change_user_data_mt}
-                        data_error={props.data_error}
                         edit_user={props.edit_user}
                         is_processing={props.is_processing}
                         is_selected={user._id === props.selected_id}
@@ -25,7 +24,6 @@ export default function AdminUserList(props: UserListIntrf) {
                         key={`${user._id}`}
                         on_delete={props.on_delete}
                         on_select={props.on_select}
-                        set_data_error={props.set_data_error}
                         set_edit_user={props.set_edit_user}
                         user={user}
                     />

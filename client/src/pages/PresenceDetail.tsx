@@ -6,12 +6,14 @@ import PresenceStatList from "../components/PresenceStatList";
 import useError from "../hooks/useError";
 import Notification from "../components/Notification";
 import { Trash2 } from "lucide-react";
+import AdminNavbar from "../components/AdminNavbar";
 
 export default function PresenceDetail() {
     const { _id } = useParams();
     const { error, setError } = useError();
     
     const { 
+        currentRole,
         deleteAllStatusesesMt,
         deleteOneStatusMt,
         editPresenceStatusMt,
@@ -69,7 +71,10 @@ export default function PresenceDetail() {
                     />
                 )}
             </div>
-            {MasterNavbar(editPresenceStatusMt.isPending || deleteAllStatusesesMt.isPending)}
+            {currentRole === "admin" ? 
+                AdminNavbar(deleteOneStatusMt.isPending || editPresenceStatusMt.isPending || deleteAllStatusesesMt.isPending) :
+                MasterNavbar(deleteOneStatusMt.isPending || editPresenceStatusMt.isPending || deleteAllStatusesesMt.isPending)
+            }
         </section>
     );
 }

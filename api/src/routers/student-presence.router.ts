@@ -12,6 +12,6 @@ studentPresenceRouters.get('/is-filled/:presence_slot_id', verifyToken, checkRol
 
 studentPresenceRouters.post('/fill', verifyToken, checkRole("student"), fillPresenceForStudent);
 
-studentPresenceRouters.put('/remake-status/:id', verifyToken, checkRole("admin", "master"), changeStudentPresence);
+studentPresenceRouters.put('/remake-status/:_id', verifyToken, checkRole("admin", "master"), changeStudentPresence);
 
 export default studentPresenceRouters;

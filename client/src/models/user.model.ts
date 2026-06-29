@@ -17,7 +17,6 @@ export type SignInIntrf = {
 
 export type UserListIntrf = {
     change_user_data_mt: UseMutationResult<void, Error, string, unknown>;
-    data_error: string | null;
     edit_user: EditUserIntrf;
     fetch_next_page: (options?: FetchNextPageOptions | undefined) => Promise<InfiniteQueryObserverResult<InfiniteData<any, unknown>, Error>>;
     has_next_page: boolean;
@@ -27,21 +26,18 @@ export type UserListIntrf = {
     on_delete: UseMutationResult<void, Error, string, unknown>;
     on_select: (id: string) => void;
     selected_id: string | null;
-    set_data_error: React.Dispatch<React.SetStateAction<string | null>>;
     set_edit_user: (field: "classname" | "email" | "role" | "username" | "created_at", value: string) => void;
     users: UserInfoIntrf[];
 }
 
 export type UserItemIntrf = {
     change_user_data_mt: UseMutationResult<void, Error, string, unknown>;
-    data_error: string | null;
     edit_user: EditUserIntrf;
     is_processing: boolean;
     is_selected: boolean;
     iso_to_local: (isoString: string) => string;
     on_delete: UseMutationResult<void, Error, string, unknown>;
     on_select: (id: string) => void;
-    set_data_error: React.Dispatch<React.SetStateAction<string | null>>;
     set_edit_user: (field: "classname" | "email" | "role" | "username" | "created_at", value: string) => void;
     user: UserInfoIntrf;
 }

@@ -1,13 +1,15 @@
 import { Router } from "express";
 import { checkRole, verifyToken } from "../middleware/auth.middleware";
-import { changePresenceForm, deleteAllPresencesForMaster, deleteOnePresenceForMaster, getPresenceDetailForMaster, getAllPresencesForMaster, makePresence } from "../controllers/presence-slot.controller";
+import { changePresenceForm, deleteAllPresencesForMaster, deleteOnePresence, getPresenceDetailForMaster, getAllPresencesForMaster, makePresence, getAllPresencesForAdmin, deleteAllPresencesForAdmin } from "../controllers/presence-slot.controller";
 
 const presenceSlotRouters = Router();
 
-presenceSlotRouters.delete('/rm-all', verifyToken, checkRole("master"), deleteAllPresencesForMaster);
-presenceSlotRouters.delete('/rm/:id', verifyToken, checkRole("master"), deleteOnePresenceForMaster);
+presenceSlotRouters.delete('/admin/rm-all', verifyToken, checkRole("admin"), deleteAllPresencesForAdmin);
+presenceSlotRouters.delete('/rm-all', verifyToken, checkRole("admin", "master"), deleteAllPresencesForMaster);
+presenceSlotRouters.delete('/rm/:id', verifyToken, checkRole("admin", "master"), deleteOnePresence);
 
-presenceSlotRouters.get('/show-all', verifyToken, checkRole("admin", "master"), getAllPresencesForMaster);
+presenceSlotRouters.get('/master/show-all', verifyToken, checkRole("master"), getAllPresencesForMaster);
+presenceSlotRouters.get('/admin/show-all', verifyToken, checkRole("admin"), getAllPresencesForAdmin);
 presenceSlotRouters.get('/show-detail/:presence_slot_id', verifyToken, checkRole("admin", "master"), getPresenceDetailForMaster);
 
 presenceSlotRouters.post('/make-form', verifyToken, checkRole("master"), makePresence);

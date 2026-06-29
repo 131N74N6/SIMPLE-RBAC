@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { changeUserData, deleteAllMasters, deleteAllStudents, deleteMaster, deleteStudent, getAllMasters, getAllStudents, getUser } from "../controllers/user.controller";
+import { changeMasterData, changeStudentData, deleteAllMasters, deleteAllStudents, deleteMaster, deleteStudent, getAllMasters, getAllStudents, getUser } from "../controllers/user.controller";
 import { checkRole, verifyToken } from "../middleware/auth.middleware";
 import { makeClass } from "../controllers/classroom.controller";
 
@@ -16,6 +16,7 @@ userRouters.get('/show', verifyToken, checkRole('admin', 'master', 'student'), g
 
 userRouters.post('/admin/make', verifyToken, checkRole('admin'), makeClass);
 
-userRouters.put('/admin/remake/:user_id', verifyToken, checkRole('admin'), changeUserData);
+userRouters.put('/admin/remake-master/:user_id', verifyToken, checkRole('admin'), changeMasterData);
+userRouters.put('/admin/remake-student/:user_id', verifyToken, checkRole('admin'), changeStudentData);
 
 export default userRouters;

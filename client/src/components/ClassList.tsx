@@ -17,7 +17,6 @@ export default function ClassList(props: ClassListIntrf) {
                 {props.class_data.map((each_class) => (
                     <ClassItem 
                         class_detail={each_class}
-                        data_error={props.data_error}
                         edit_classname={props.edit_classname}
                         is_processing={props.is_processing}
                         is_selected={each_class._id === props.selected_id}
@@ -25,7 +24,6 @@ export default function ClassList(props: ClassListIntrf) {
                         on_delete={props.on_delete}
                         on_edit={props.on_edit}
                         on_select={props.on_select}
-                        set_data_error={props.set_data_error}
                         set_edit_classname={props.set_edit_classname}
                     />
                 ))}

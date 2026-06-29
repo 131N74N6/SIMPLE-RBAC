@@ -5,6 +5,7 @@ import AdminUserList from "../components/AdminUserList";
 import Loading from "../components/Loading";
 import { Trash2 } from "lucide-react";
 import useError from "../hooks/useError";
+import Notification from "../components/Notification";
 
 export default function ClassDetail() {
     const { classname } = useParams();
@@ -25,7 +26,8 @@ export default function ClassDetail() {
     } = UserServices({ classname: classname, setMessage: setError });
 
     return (
-        <section className="flex md:flex-row flex-col h-screen relative z-10">
+        <section className="flex md:flex-row flex-col h-screen relative bg-gray-950 z-10">
+            {error ? <Notification message={error}/> : null}
             <div className="flex flex-col h-full w-full md:w-3/4 gap-3 p-2.5">
                 <div className='flex gap-2.5'>
                     <input
@@ -34,13 +36,13 @@ export default function ClassDetail() {
                         name='search_user'
                         onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setSearch(event.target.value)}
                         placeholder='find username here...'
-                        className='shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] w-[90%] font-medium p-1.5 text-base border border-black outline-0 font-mono text-black'
+                        className='shadow-[6px_6px_0px_0px] shadow-violet-300 w-[90%] font-medium p-1.5 text-base border border-violet-300 outline-0 font-mono text-violet-300'
                     />
                     <button
                         type='button'
                         disabled={changeUserDataMt.isPending || deleteStudentMt.isPending}
                         onClick={() => deleteAllStudentsMt.mutate()}
-                        className='shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] w-[10%] cursor-pointer disabled:cursor-not-allowed font-medium p-1.5 text-base border border-black outline-0 font-mono text-black'
+                        className='shadow-[6px_6px_0px_0px] shadow-violet-300 w-[10%] cursor-pointer disabled:cursor-not-allowed font-medium p-1.5 text-base border border-violet-300 outline-0 font-mono text-violet-300'
                     >
                         <div className='flex justify-center'><Trash2/></div>
                     </button>
@@ -50,13 +52,12 @@ export default function ClassDetail() {
                         <div className='font-mono font-medium text-2xl'>{getAllStudentsByClass.studentError2.message}</div>
                     </div>
                 ) : getAllStudentsByClass.isStudentsLoading2 ? (
-                    <div className='flex justify-center bg-white items-center h-full'>
+                    <div className='flex justify-center items-center h-full'>
                         <Loading/>
                     </div>
                 ) : (
                     <AdminUserList 
                         change_user_data_mt={changeUserDataMt}
-                        data_error={error}
                         edit_user={editUser}
                         fetch_next_page={getAllStudentsByClass.fetchNextStudentsData2}
                         has_next_page={getAllStudentsByClass.stuentHasNextPage2}
@@ -66,7 +67,6 @@ export default function ClassDetail() {
                         on_delete={deleteStudentMt}
                         on_select={handleSelectedId}
                         selected_id={selectedId}
-                        set_data_error={setError}
                         set_edit_user={setEditUser}
                         users={getAllStudentsByClass.flatennedStudentsData2}
                     />

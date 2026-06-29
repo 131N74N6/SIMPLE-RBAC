@@ -11,10 +11,15 @@ export type StudentPresenceIntrf = {
     filled_at: string;
 }
 
+export type IEditStudentPresence = {
+    _id: string; 
+    status: string;
+}
+
 export type IStudentPresenceItem = {
     is_selected: boolean;
     is_processing: boolean;
-    on_edit: UseMutationResult<void, Error, { id: string; presence_slot_id: string; }, unknown>;
+    on_edit: UseMutationResult<void, Error, IEditStudentPresence, unknown>;
     on_select: (id: string) => void;
     on_delete: UseMutationResult<void, Error, string, unknown>;
     set_edit_status: (key: string, value: string) => void;
@@ -27,7 +32,7 @@ export type IStudentPresenceList = {
     has_next_page: boolean;
     is_fetching_next_page: boolean;
     is_processing: boolean;
-    on_edit: UseMutationResult<void, Error, { id: string; presence_slot_id: string; }, unknown>;
+    on_edit: UseMutationResult<void, Error, IEditStudentPresence, unknown>;
     on_select: (id: string) => void;
     on_delete: UseMutationResult<void, Error, string, unknown>;
     selected_id: string | null;
