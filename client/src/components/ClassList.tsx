@@ -6,7 +6,7 @@ export default function ClassList(props: ClassListIntrf) {
     if (props.class_data.length === 0) {
         return (
             <div className="flex items-center justify-center h-full">
-                <h2 className="text-2xl text-gray-500">No class found.</h2>
+                <h2 className="text-2xl text-center text-orange-500">No class found...</h2>
             </div>
         );
     }

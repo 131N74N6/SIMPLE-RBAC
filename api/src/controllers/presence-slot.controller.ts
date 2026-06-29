@@ -94,11 +94,25 @@ export async function getAllPresencesForMaster(req: AuthRequest, res: Response) 
         const limit = parseInt(req.query.limit as string) || 12;
         const skip = (page - 1) * limit;
 
+        const searched = req.query.search as string | undefined;
         const presenceTotal = await PresenceSlot.find({ master_id: req.user?.user_id }).countDocuments();
         if (presenceTotal === 0) return res.status(404).json({ message: "Presence not found" });
 
-        const presenceData = await PresenceSlot.find({ master_id: req.user?.user_id }).limit(limit).skip(skip);
-        res.status(200).json(presenceData);
+        if (searched === undefined) {
+            const presenceData = await PresenceSlot.find({ master_id: req.user?.user_id }).limit(limit).skip(skip);
+            
+            res.status(200).json(presenceData);
+        } else {
+            const presenceData = await PresenceSlot.find({
+                $or: [
+                    { classname: { $regex: new RegExp(searched, 'i') } },
+                    { created_at: { $regex: new RegExp(searched, 'i') } },
+                ],
+                master_id: req.user?.user_id
+            }).limit(limit).skip(skip);
+
+            res.status(200).json(presenceData);
+        }
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
     }

@@ -45,7 +45,7 @@ export default function PresenceFormItem(props: PresencFormItemIntrf) {
                                 type="submit"
                                 disabled={props.isExpired || !props.studentStatus[props.form._id] || props.fillPresenceMt.isPending}
                                 onClick={() => props.fillPresenceMt.mutate({
-                                    creator_name: props.form.master_name,
+                                    presence_creator: props.form.master_name,
                                     presence_slot_id: props.form._id,
                                     status: props.studentStatus[props.form._id]
                                 })}

@@ -221,7 +221,7 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
             await addData<FillPresenceIntrf>({
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/student-presences/fill`,
                 data: { 
-                    creator_name: props.creator_name,
+                    presence_creator: props.presence_creator,
                     presence_slot_id: props.presence_slot_id,
                     status: props.status.trim()
                 }
@@ -286,7 +286,8 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
         api_url: `${import.meta.env.VITE_BASE_API_URL}/presence-forms/master/show-all`,
         enabled: !!currentUserId && currentRole === "master",
         limit: 12,
-        query_key: [`all-presences-for-master-${currentUserId}`],
+        query_key: debouncedSearch ? [`all-presences-for-master-${currentUserId}-${debouncedSearch}`] : [`all-presences-for-master-${currentUserId}`],
+        searched: debouncedSearch,
         stale_time: Infinity
     });
 
@@ -361,6 +362,20 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
         presenceDetailIsLoading
     };
 
+    const isProcessing = allPresenceSlots.isLoading || 
+    allPresencesForAdmin.isLoading2 ||
+    allAvailablePresenceForms.isFetchingIsLoading ||
+    editPresenceFormMt.isPending ||
+    editPresenceStatusMt.isPending ||
+    deleteAllPresencesMt.isPending || 
+    deleteOnePresenceMt.isPending || 
+    deleteAllPresencesForAdminMt.isPending ||
+    deleteAllStatusesesMt.isPending ||
+    deleteOneStatusMt.isPending ||
+    fillPresenceMt.isPending ||
+    presenceDetails.presenceDetailIsLoading ||
+    makeNewPresenceMt.isPending;
+
     return { 
         allPresencesForAdmin,
         allPresenceSlots,
@@ -380,6 +395,7 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
         getData,
         handleSelectedFormId,
         handleSelectedPresenceStatusId,
+        isProcessing,
         makeNewPresenceMt, 
         presenceDetails,
         presenceForm,

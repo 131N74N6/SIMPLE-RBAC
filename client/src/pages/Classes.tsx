@@ -62,7 +62,7 @@ export default function Classes() {
                 </div>
                 {allClassData.classError ? (
                     <div className='flex justify-center items-center h-full'>
-                        <div className='font-mono font-medium text-2xl'>{allClassData.classError.message}</div>
+                        <div className='font-mono text-amber-400 text-center font-medium text-3xl'>{allClassData.classError.message}</div>
                     </div>
                 ) : allClassData.classIsLoading ? (
                     <div className='flex justify-center items-center h-full'>

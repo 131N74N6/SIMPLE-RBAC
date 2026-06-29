@@ -1,22 +1,23 @@
 import AdminNavbar from "../components/AdminNavbar";
 import { useParams } from "react-router-dom";
 import UserServices from "../services/user.service";
-import AdminUserList from "../components/AdminUserList";
 import Loading from "../components/Loading";
 import { Trash2 } from "lucide-react";
 import useError from "../hooks/useError";
 import Notification from "../components/Notification";
+import StudentList from "../components/StudentList";
 
 export default function ClassDetail() {
     const { classname } = useParams();
     const { error, setError } = useError();
 
     const { 
-        changeUserDataMt, 
+        changeStudentDataMt, 
         editUser, 
         deleteAllStudentsMt, 
         deleteStudentMt, 
         getAllStudentsByClass, 
+        isProcessing,
         search, 
         handleSelectedId, 
         selectedId, 
@@ -40,7 +41,7 @@ export default function ClassDetail() {
                     />
                     <button
                         type='button'
-                        disabled={changeUserDataMt.isPending || deleteStudentMt.isPending}
+                        disabled={isProcessing}
                         onClick={() => deleteAllStudentsMt.mutate()}
                         className='shadow-[6px_6px_0px_0px] shadow-violet-300 w-[10%] cursor-pointer disabled:cursor-not-allowed font-medium p-1.5 text-base border border-violet-300 outline-0 font-mono text-violet-300'
                     >
@@ -49,21 +50,21 @@ export default function ClassDetail() {
                 </div>
                 {getAllStudentsByClass.studentError2 ? (
                     <div className='flex justify-center items-center h-full'>
-                        <div className='font-mono font-medium text-2xl'>{getAllStudentsByClass.studentError2.message}</div>
+                        <div className='font-mono font-medium text-3xl text-amber-400 text-center'>{getAllStudentsByClass.studentError2.message}</div>
                     </div>
                 ) : getAllStudentsByClass.isStudentsLoading2 ? (
                     <div className='flex justify-center items-center h-full'>
                         <Loading/>
                     </div>
                 ) : (
-                    <AdminUserList 
-                        change_user_data_mt={changeUserDataMt}
+                    <StudentList 
+                        change_user_data_mt={changeStudentDataMt}
                         edit_user={editUser}
                         fetch_next_page={getAllStudentsByClass.fetchNextStudentsData2}
                         has_next_page={getAllStudentsByClass.stuentHasNextPage2}
                         is_fetching_next_page={getAllStudentsByClass.iStudentFetchingNextPage2}
                         iso_to_local={isoToLocalDateTime}
-                        is_processing={changeUserDataMt.isPending}
+                        is_processing={isProcessing}
                         on_delete={deleteStudentMt}
                         on_select={handleSelectedId}
                         selected_id={selectedId}
@@ -72,7 +73,7 @@ export default function ClassDetail() {
                     />
                 )}
             </div>
-            {AdminNavbar(changeUserDataMt.isPending || deleteAllStudentsMt.isPending || deleteStudentMt.isPending)}
+            {AdminNavbar(isProcessing)}
         </section>
     );
 }

@@ -1,11 +1,13 @@
 import { Query, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AddUserIntrf, EditUserIntrf, UserInfoIntrf, UserServiceIntrf } from "../models/user.model";
+import type { AddUserIntrf, IMaster, IStudent, UserServiceIntrf } from "../models/user.model";
 import DataServices from "./data.service";
 import useSearch from "../hooks/useSearch";
 import { useUserStore } from "../stores/user.store";
+import AuthServices from "./auth.service";
 
 export default function UserServices(props?: UserServiceIntrf) {
     const queryClient = useQueryClient();
+    const { currentUserId } = AuthServices();
     const { addData, deleteData, editData, infiniteScroll } = DataServices();
     const { debouncedSearch, search, setSearch } = useSearch();
 
@@ -36,7 +38,7 @@ export default function UserServices(props?: UserServiceIntrf) {
         hasNextPage: masterHasNextPage, 
         isFetchingNextPage: isMasterFetchingNextPage, 
         isLoading: isMasterLoading 
-    } = infiniteScroll<UserInfoIntrf>({
+    } = infiniteScroll<IMaster>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/users/show-all-masters`,
         limit: 16,
         searched: debouncedSearch,
@@ -56,7 +58,7 @@ export default function UserServices(props?: UserServiceIntrf) {
         hasNextPage: stuentHasNextPage, 
         isFetchingNextPage: iStudentFetchingNextPage, 
         isLoading: isStudentsLoading 
-    } = infiniteScroll<UserInfoIntrf>({
+    } = infiniteScroll<IStudent>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/users/show-all-students`,
         limit: 16,
         searched: debouncedSearch,
@@ -76,7 +78,7 @@ export default function UserServices(props?: UserServiceIntrf) {
         hasNextPage: stuentHasNextPage2, 
         isFetchingNextPage: iStudentFetchingNextPage2, 
         isLoading: isStudentsLoading2 
-    } = infiniteScroll<UserInfoIntrf>({
+    } = infiniteScroll<IStudent>({
         api_url: `${import.meta.env.VITE_BASE_API_URL}/classes/students/${props?.classname}`,
         enabled: !!props?.classname,
         limit: 16,
@@ -124,10 +126,39 @@ export default function UserServices(props?: UserServiceIntrf) {
         }
     });
 
-    const changeUserDataMt = useMutation({
+    const changeMasterDataMt = useMutation({
         mutationFn: async (id: string) => {
-            await editData<EditUserIntrf>({
-                api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin/remake/${id}`,
+            await editData<IMaster>({
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/admin/remake-master/${id}`,
+                data: {
+                    created_at: new Date(editUser.created_at!).toISOString(),
+                    email: editUser.email?.trim(),
+                    username: editUser.username?.trim(),
+                    role: editUser.role?.trim()
+                }
+            });
+        },
+        onError: (error) => {
+            props?.setMessage!(error.message);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-masters');
+                    }
+                    return false;
+                }
+            });
+            resetEditUser();
+        }
+    });
+
+    const changeStudentDataMt = useMutation({
+        mutationFn: async (id: string) => {
+            await editData<IStudent>({
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/admin/remake-student/${id}`,
                 data: {
                     classname: editUser.classname.trim(),
                     created_at: new Date(editUser.created_at!).toISOString(),
@@ -145,8 +176,7 @@ export default function UserServices(props?: UserServiceIntrf) {
                 predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
                     const queryKey = query.queryKey;
                     if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                        return queryKey[0].startsWith('all-masters') || 
-                        queryKey[0].startsWith('all-students') || 
+                        return queryKey[0].startsWith('all-students') || 
                         queryKey[0].startsWith('all-students-class');
                     }
                     return false;
@@ -239,7 +269,8 @@ export default function UserServices(props?: UserServiceIntrf) {
     });
 
     const isProcessing = addUserMt.isPending || 
-    changeUserDataMt.isPending || 
+    changeMasterDataMt.isPending ||
+    changeStudentDataMt.isPending || 
     deleteAllMastersMt.isPending || 
     deleteAllStudentsMt.isPending ||
     deleteMasterMt.isPending || 
@@ -247,7 +278,9 @@ export default function UserServices(props?: UserServiceIntrf) {
 
     return { 
         addUserMt, 
-        changeUserDataMt, 
+        changeMasterDataMt,
+        changeStudentDataMt, 
+        currentUserId,
         deleteAllMastersMt, 
         deleteMasterMt, 
         deleteAllStudentsMt, 

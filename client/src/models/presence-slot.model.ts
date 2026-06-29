@@ -2,7 +2,7 @@ import type { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult, U
 import type { GetDataIntrf } from "./data.model";
 
 export type FillPresenceIntrf = {
-    creator_name: string;
+    presence_creator: string;
     presence_slot_id: string;
     status: string;
 }

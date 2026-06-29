@@ -5,7 +5,7 @@ import useError from "../hooks/useError";
 export default function MakePresence() {
     const { error, setError } = useError();
 
-    const { makeNewPresenceMt, setEditPresenceForm, presenceForm } = PresenceServices({ setMessage: setError });
+    const {isProcessing, makeNewPresenceMt, setPresenceForm, presenceForm } = PresenceServices({ setMessage: setError });
 
     const makeNewPresence = (event: React.SyntheticEvent) => {
         event.preventDefault();
@@ -22,7 +22,7 @@ export default function MakePresence() {
                     id="classname"
                     name="classname"
                     value={presenceForm.classname}
-                    onChange={(event) => setEditPresenceForm("classname", event.target.value)}
+                    onChange={(event) => setPresenceForm("classname", event.target.value)}
                     className="w-full font-mono shadow-blue-300 shadow-[3px_3px_0px_0px] outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
                 <label className="text-blue-300" htmlFor="start_time">Start Time</label>
@@ -32,7 +32,7 @@ export default function MakePresence() {
                     id="start_time"
                     name="start_time"
                     value={presenceForm.start_time}
-                    onChange={(event) => setEditPresenceForm("start_time", event.target.value)}
+                    onChange={(event) => setPresenceForm("start_time", event.target.value)}
                     className="w-full font-mono shadow-blue-300 shadow-[3px_3px_0px_0px] outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
                 <label className="text-blue-300" htmlFor="deadline">Deadline</label>
@@ -42,13 +42,13 @@ export default function MakePresence() {
                     id="deadline"
                     name="deadline"
                     value={presenceForm.deadline}
-                    onChange={(event) => setEditPresenceForm("deadline", event.target.value)}
+                    onChange={(event) => setPresenceForm("deadline", event.target.value)}
                     className="w-full font-mono shadow-blue-300 shadow-[3px_3px_0px_0px] outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
                 <div>
                     <button 
                         type="submit"
-                        disabled={makeNewPresenceMt.isPending}
+                        disabled={isProcessing}
                         className="bg-blue-500 hover:bg-blue-600 cursor-pointer text-white font-medium font-mono py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                         Add Presence
@@ -56,7 +56,7 @@ export default function MakePresence() {
                 </div>
                 {error && <p className="text-red-500 mt-2">{error}</p>}
             </form>
-            {MasterNavbar(makeNewPresenceMt.isPending)}
+            {MasterNavbar(isProcessing)}
         </div>
     );
 }

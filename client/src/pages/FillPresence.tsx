@@ -3,6 +3,7 @@ import StudentNavbar from "../components/StudentNavbar";
 import Loading from "../components/Loading";
 import PresenceFormList from "../components/PresenceFormList";
 import useError from "../hooks/useError";
+import useSocketIo from "../hooks/useSocketIo";
 
 export default function FillPresence() {
     const { error, setError } = useError();
@@ -15,6 +16,12 @@ export default function FillPresence() {
         studentStatus, 
         setStudentStatus 
     } = PresenceServices({ setMessage: setError });
+    
+    useSocketIo({
+        user_id: currentUserId,
+        role: "student",
+        identifier: currentUserId
+    });
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10 font-mono">
@@ -26,7 +33,7 @@ export default function FillPresence() {
                     </div>
                 ) : allAvailablePresenceForms.availablePresenceError ? (
                     <div className="flex justify-center items-center h-full">
-                        <div className="text-gray-200 font-medium text-3xl">{allAvailablePresenceForms.availablePresenceError.message}</div>
+                        <div className="text-amber-400 text-center font-medium text-3xl">{allAvailablePresenceForms.availablePresenceError.message}</div>
                     </div>
                 ) : (
                     <PresenceFormList

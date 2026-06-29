@@ -4,24 +4,31 @@ import useError from '../hooks/useError';
 import PresenceSlotList from '../components/PresenceSlotList';
 import AdminNavbar from '../components/AdminNavbar';
 import { Trash2 } from "lucide-react";
+import useSocketIo from "../hooks/useSocketIo";
 
 export default function PresenceForAdmin() {
   const { error, setError } = useError();
   
     const { 
         allPresencesForAdmin, 
+        currentUserId,
         deleteAllPresencesForAdminMt, 
         deleteOnePresenceMt, 
         editPresenceForm,
         editPresenceFormMt,
         handleSelectedFormId,
+        isProcessing,
         search,
         selectedFormId,
         setEditPresenceForm,
         setSearch
     } = PresenceServices({ setMessage: setError });
     
-    const isProcessing = allPresencesForAdmin.isLoading2 || deleteAllPresencesForAdminMt.isPending || deleteOnePresenceMt.isPending;
+    useSocketIo({
+        user_id: currentUserId,
+        role: "admin",
+        identifier: ""
+    });
       
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10 font-mono">
@@ -46,7 +53,7 @@ export default function PresenceForAdmin() {
                 </div>
                 {allPresencesForAdmin.error2 ? (
                     <div className="flex justify-center items-center h-full">
-                        <div>{allPresencesForAdmin.error2.message}</div>
+                        <div className="text-3xl font-medium text-amber-400 text-center">{allPresencesForAdmin.error2.message}</div>
                     </div>
                 ): allPresencesForAdmin.isLoading2 ? (
                     <div className='flex justify-center items-center h-full'>

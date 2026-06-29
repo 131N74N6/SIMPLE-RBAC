@@ -7,6 +7,7 @@ import useError from "../hooks/useError";
 import Notification from "../components/Notification";
 import { Trash2 } from "lucide-react";
 import AdminNavbar from "../components/AdminNavbar";
+import useSocketIo from "../hooks/useSocketIo";
 
 export default function PresenceDetail() {
     const { _id } = useParams();
@@ -14,17 +15,31 @@ export default function PresenceDetail() {
     
     const { 
         currentRole,
+        currentUserId,
         deleteAllStatusesesMt,
         deleteOneStatusMt,
         editPresenceStatusMt,
         editStudentStatus,
         handleSelectedPresenceStatusId,
+        isProcessing,
         presenceDetails,
         search,
         selectedPresenceStatusId,
         setEditStudentStatus,
         setSearch
     } = PresenceServices({ form_id: _id, setMessage: setError });
+
+    useSocketIo({
+        user_id: currentUserId,
+        role: "master",
+        identifier: currentUserId
+    });
+
+    useSocketIo({
+        user_id: currentUserId,
+        role: "admin",
+        identifier: ""
+    });
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10 font-mono">
@@ -60,7 +75,7 @@ export default function PresenceDetail() {
                         fetch_next_page={presenceDetails.presenceDetailNextPage}
                         has_next_page={presenceDetails.presenceDetailHasNextage}
                         is_fetching_next_page={presenceDetails.presenceDetailIsFetchingNextPage}
-                        is_processing={editPresenceStatusMt.isPending || deleteAllStatusesesMt.isPending}
+                        is_processing={isProcessing}
                         on_delete={deleteOneStatusMt}
                         on_edit={editPresenceStatusMt}
                         on_select={handleSelectedPresenceStatusId}
@@ -72,8 +87,8 @@ export default function PresenceDetail() {
                 )}
             </div>
             {currentRole === "admin" ? 
-                AdminNavbar(deleteOneStatusMt.isPending || editPresenceStatusMt.isPending || deleteAllStatusesesMt.isPending) :
-                MasterNavbar(deleteOneStatusMt.isPending || editPresenceStatusMt.isPending || deleteAllStatusesesMt.isPending)
+                AdminNavbar(isProcessing) :
+                MasterNavbar(isProcessing)
             }
         </section>
     );

@@ -1,19 +1,22 @@
 import { Trash2 } from "lucide-react";
 import AdminNavbar from "../components/AdminNavbar";
-import AdminUserList from "../components/AdminUserList";
 import Loading from "../components/Loading";
 import UserServices from "../services/user.service";
 import useError from "../hooks/useError";
 import Notification from "../components/Notification";
+import MasterList from "../components/MasterList";
+import useSocketIo from "../hooks/useSocketIo";
 
 export default function Masters() {
     const { error, setError } = useError();
     
     const { 
-        changeUserDataMt,
+        changeMasterDataMt,
+        currentUserId,
         editUser,
         deleteAllMastersMt,
         deleteMasterMt,
+        isProcessing,
         paginatedMastersData,
         search,
         handleSelectedId,
@@ -22,6 +25,12 @@ export default function Masters() {
         setEditUser, 
         isoToLocalDateTime
     } = UserServices({ setMessage: setError });
+    
+    useSocketIo({
+        user_id: currentUserId,
+        role: "admin",
+        identifier: ""
+    });
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10 bg-gray-950">
@@ -38,7 +47,7 @@ export default function Masters() {
                     />
                     <button
                         type='button'
-                        disabled={changeUserDataMt.isPending || deleteMasterMt.isPending}
+                        disabled={isProcessing}
                         onClick={() => deleteAllMastersMt.mutate()}
                         className='shadow-[6px_6px_0px_0px] shadow-red-300 cursor-pointer disabled:cursor-not-allowed font-medium p-1.5 text-base border border-red-300 outline-0 font-mono text-red-300 w-[10%]'
                     >
@@ -47,21 +56,21 @@ export default function Masters() {
                 </div>
                 {paginatedMastersData.masterError ? (
                     <div className='flex justify-center items-center h-full'>
-                        <div className='font-mono font-medium text-2xl'>{paginatedMastersData.masterError.message}</div>
+                        <div className='font-mono font-medium text-3xl text-amber-400 text-center'>{paginatedMastersData.masterError.message}</div>
                     </div>
                 ) : paginatedMastersData.isMasterLoading ? (
                     <div className='flex justify-center items-center h-full'>
                         <Loading/>
                     </div>
                 ) : (
-                    <AdminUserList 
-                        change_user_data_mt={changeUserDataMt}
+                    <MasterList 
+                        change_user_data_mt={changeMasterDataMt}
                         edit_user={editUser}
                         fetch_next_page={paginatedMastersData.fetchNextMasterData}
                         has_next_page={paginatedMastersData.masterHasNextPage}
                         is_fetching_next_page={paginatedMastersData.isMasterFetchingNextPage}
                         iso_to_local={isoToLocalDateTime}
-                        is_processing={changeUserDataMt.isPending}
+                        is_processing={isProcessing}
                         on_delete={deleteMasterMt}
                         on_select={handleSelectedId}
                         selected_id={selectedId}
@@ -70,7 +79,7 @@ export default function Masters() {
                     />
                 )}
             </div>
-            {AdminNavbar(changeUserDataMt.isPending || deleteAllMastersMt.isPending || deleteMasterMt.isPending)}
+            {AdminNavbar(isProcessing)}
         </section>
     );
 }

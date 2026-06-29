@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 
 export default function MasterNavbar(is_processing?: boolean) {
     const navigate = useNavigate();
-    const { currentUserName, quit } = AuthServices();
+    const { quit } = AuthServices();
 
     return (
         <nav className="p-2.5 flex md:flex-col gap-2.5 md:w-1/4 w-full flex-row font-mono bg-gray-900 text-white font-medium">
-            <div className="p-1.5 md:flex hidden">Hello, {currentUserName}</div>
             <button 
                 type="button"
                 disabled={is_processing}
