@@ -5,6 +5,7 @@ import Loading from "../components/Loading";
 import ClassServices from "../services/class.service";
 import AddClass from "../components/AddClass";
 import useError from "../hooks/useError";
+import useSocketIo from "../hooks/useSocketIo";
 
 export default function Classes() {
     const { error, setError } = useError();
@@ -12,6 +13,7 @@ export default function Classes() {
     const { 
         addNewClass, 
         allClassData,
+        currentUserId,
         newClassName, 
         editClassName,
         changeClassMt,
@@ -27,6 +29,11 @@ export default function Classes() {
         setNewClassName,
         setSearch
     } = ClassServices({ setMessage: setError });
+
+    useSocketIo({
+        user_id: currentUserId!,
+        role: "admin"
+    });
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10 bg-gray-950">

@@ -25,16 +25,15 @@ export default function PresenceForAdmin() {
     } = PresenceServices({ setMessage: setError });
     
     useSocketIo({
-        user_id: currentUserId,
-        role: "admin",
-        identifier: ""
+        user_id: currentUserId!,
+        role: "admin"
     });
       
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10 font-mono">
             {error ? <div>{error}</div> : null}
             <div className="flex flex-col gap-3 h-full md:w-3/4 w-full bg-gray-950 p-2.5">
-                <div className='flex items-center gap-2.5'>
+                <div className='flex items-center gap-2.5 pb-2.5'>
                     <input
                         type='text'
                         value={search}

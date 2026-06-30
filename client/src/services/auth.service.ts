@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { SignInIntrf, UserInfoIntrf } from "../models/user.model";
+import type { SignInIntrf, IStudent } from "../models/user.model";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import SocketServices from "./socket-io.service";
@@ -9,7 +9,7 @@ export default function AuthServices() {
     const queryClient = useQueryClient();
     const [userError, setUserError] = useState<string | null>(null);
     
-    const { data: currentUserData, isLoading: userLoading } = useQuery<UserInfoIntrf | null>({
+    const { data: currentUserData, isLoading: userLoading } = useQuery<IStudent | null>({
         queryKey: ['auth-user'],
         queryFn: async () => {
             try {
@@ -30,6 +30,7 @@ export default function AuthServices() {
 
     const currentUserId = currentUserData ? currentUserData.user_id : null;
     const currentUserName = currentUserData ? currentUserData.username : null;
+    const currentClassName = currentUserData ? currentUserData.classname : null;
     const currentRole = currentUserData ? currentUserData.role : null;
 
     useEffect(() => {
@@ -99,5 +100,16 @@ export default function AuthServices() {
         }
     }
 
-    return { currentRole, currentUserData, currentUserName, currentUserId, quit, setUserError, signIn, userLoading, userError }
+    return { 
+        currentRole, 
+        currentUserData, 
+        currentUserName, 
+        currentClassName,
+        currentUserId, 
+        quit, 
+        setUserError, 
+        signIn, 
+        userLoading, 
+        userError 
+    }
 }

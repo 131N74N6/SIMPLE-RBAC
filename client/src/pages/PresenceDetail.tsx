@@ -30,15 +30,14 @@ export default function PresenceDetail() {
     } = PresenceServices({ form_id: _id, setMessage: setError });
 
     useSocketIo({
-        user_id: currentUserId,
+        user_id: currentUserId!,
         role: "master",
-        identifier: currentUserId
+        identifier: currentUserId!
     });
 
     useSocketIo({
-        user_id: currentUserId,
-        role: "admin",
-        identifier: ""
+        user_id: currentUserId!,
+        role: "admin"
     });
 
     return (

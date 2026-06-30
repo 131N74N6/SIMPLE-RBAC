@@ -25,9 +25,9 @@ export default function PresenceByMaster() {
     } = PresenceServices({ setMessage: setError });
 
     useSocketIo({
-        user_id: currentUserId,
+        user_id: currentUserId!,
         role: "master",
-        identifier: currentUserId
+        identifier: currentUserId!
     });
     
     return (

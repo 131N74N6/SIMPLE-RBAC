@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 import useError from "../hooks/useError";
 import Notification from "../components/Notification";
 import StudentList from "../components/StudentList";
+import useSocketIo from "../hooks/useSocketIo";
 
 export default function ClassDetail() {
     const { classname } = useParams();
@@ -13,6 +14,7 @@ export default function ClassDetail() {
 
     const { 
         changeStudentDataMt, 
+        currentUserId,
         editUser, 
         deleteAllStudentsByClassMt, 
         deleteStudentMt, 
@@ -25,6 +27,11 @@ export default function ClassDetail() {
         setEditUser, 
         isoToLocalDateTime
     } = UserServices({ classname: classname, setMessage: setError });
+
+    useSocketIo({
+        user_id: currentUserId!,
+        role: "admin"
+    });
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative bg-gray-950 z-10">

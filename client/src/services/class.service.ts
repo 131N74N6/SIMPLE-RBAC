@@ -3,11 +3,13 @@ import DataServices from "./data.service";
 import type { ClassIntrf, ClassServiceIntrf } from "../models/class.model";
 import useSearch from "../hooks/useSearch";
 import { useClassStore } from "../stores/class.store";
+import AuthServices from "../services/auth.service";
 
 export default function ClassServices(props?: ClassServiceIntrf) {
     const queryClient = useQueryClient();
     const { addData, deleteData, editData, infiniteScroll } = DataServices();
     const { debouncedSearch, search, setSearch } = useSearch();
+    const { currentUserId } = AuthServices();
     
     const editClassName = useClassStore((state) => state.editClassName);
     const handleSelectedId = useClassStore((state) => state.handleSelectedId);
@@ -171,6 +173,7 @@ export default function ClassServices(props?: ClassServiceIntrf) {
         addNewClass, 
         allClassData,
         allStudentsInClass,
+        currentUserId,
         newClassName,
         editClassName,
         changeClassMt,

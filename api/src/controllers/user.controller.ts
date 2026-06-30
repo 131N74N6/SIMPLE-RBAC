@@ -228,7 +228,7 @@ export async function getUser(req: AuthRequest, res: Response) {
         if (!user) return res.status(404).json({ message: "user not found" });
 
         res.status(200).json({
-            clasname: user.classname,
+            classname: user.classname,
             created_at: user.created_at,
             role: user.role,
             user_id: user._id,

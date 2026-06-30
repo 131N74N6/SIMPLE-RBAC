@@ -11,6 +11,7 @@ export default function FillPresence() {
     const { 
         allAvailablePresenceForms, 
         currentUserId, 
+        currentClassName,
         fillPresenceMt, 
         getData, 
         studentStatus, 
@@ -18,10 +19,12 @@ export default function FillPresence() {
     } = PresenceServices({ setMessage: setError });
     
     useSocketIo({
-        user_id: currentUserId,
+        user_id: currentUserId!,
         role: "student",
-        identifier: currentUserId
+        identifier: currentClassName!
     });
+
+    console.log(currentClassName);
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10 font-mono">

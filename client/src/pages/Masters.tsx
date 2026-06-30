@@ -27,9 +27,8 @@ export default function Masters() {
     } = UserServices({ setMessage: setError });
     
     useSocketIo({
-        user_id: currentUserId,
-        role: "admin",
-        identifier: ""
+        user_id: currentUserId!,
+        role: "admin"
     });
 
     return (

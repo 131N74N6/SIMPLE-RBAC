@@ -5,7 +5,7 @@ import SocketServices from "../services/socket-io.service";
 type UsePresenceSocketProps = {
     user_id: string;
     role: string;
-    identifier: string;
+    identifier?: string;
 }
 
 export default function useSocketIo(props: UsePresenceSocketProps) {

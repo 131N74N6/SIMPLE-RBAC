@@ -8,7 +8,7 @@ import useSearch from "../hooks/useSearch";
 
 export default function PresenceServices(props?: PresenceSericeIntrf) {
     const queryClient = useQueryClient();
-    const { currentUserId, currentRole } = AuthServices();
+    const { currentUserId, currentClassName, currentRole } = AuthServices();
     const { addData, deleteData, editData, getData, infiniteScroll } = DataServices();
     const { search, setSearch, debouncedSearch } = useSearch();
     
@@ -380,6 +380,7 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
         allPresencesForAdmin,
         allPresenceSlots,
         allAvailablePresenceForms,
+        currentClassName,
         currentRole,
         currentUserId,
         deleteAllPresencesMt, 
