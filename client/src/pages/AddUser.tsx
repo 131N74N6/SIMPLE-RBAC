@@ -1,10 +1,17 @@
 import AdminNavbar from "../components/AdminNavbar";
 import UserServices from "../services/user.service";
 import useError from "../hooks/useError";
+import { useState } from "react";
+import { Eye, EyeClosed } from "lucide-react";
 
 export default function AddUser() {
     const { error, setError } = useError();
     const { addUserMt, setNewUser, newUser } = UserServices({ setMessage: setError });
+    const [showPassword, setShowPassword] = useState(false);
+
+    function passwordToggle() {
+        setShowPassword(!showPassword);
+    }
 
     function handleSubmit(event: React.SyntheticEvent) {
         event.preventDefault();
@@ -45,15 +52,25 @@ export default function AddUser() {
                     className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-blue-300 outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
                 />
                 <label className="text-blue-300" htmlFor="Password">Password</label>
-                <input 
-                    type="password" 
-                    placeholder="Password"
-                    id="Password"
-                    name="password"
-                    value={newUser.password}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("password", event.target.value)}
-                    className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-blue-300 outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
-                />
+                <div className="relative">
+                    <input 
+                        type={showPassword ? "text" : "password"} 
+                        placeholder="Password"
+                        id="Password"
+                        name="password"
+                        value={newUser.password}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setNewUser("password", event.target.value)}
+                        className="w-full font-mono shadow-[3px_3px_0px_0px] shadow-blue-300 outline-0 border border-blue-300 flex flex-col gap-2.5 text-blue-300 font-medium p-2.5 rounded-[10px]"
+                    />
+                    <button
+                        type="button"
+                        onClick={passwordToggle}
+                        disabled={addUserMt.isPending}
+                        className="text-blue-300 disabled:cursor-not-allowed absolute inset-y-0 right-0 flex cursor-pointer items-center px-3 hover:text-blue-400 transition-colors"
+                    >
+                        {showPassword ? <EyeClosed/> : <Eye/>}
+                    </button>
+                </div>
                 <label className="text-blue-300" htmlFor="Role">Role</label>
                 <input 
                     type="text" 

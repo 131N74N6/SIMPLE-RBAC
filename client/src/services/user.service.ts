@@ -129,7 +129,7 @@ export default function UserServices(props?: UserServiceIntrf) {
     const changeMasterDataMt = useMutation({
         mutationFn: async (id: string) => {
             await editData<IMaster>({
-                api_url: `${import.meta.env.VITE_BASE_API_URL}/admin/remake-master/${id}`,
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin/remake-master/${id}`,
                 data: {
                     created_at: new Date(editUser.created_at!).toISOString(),
                     email: editUser.email?.trim(),
@@ -158,7 +158,7 @@ export default function UserServices(props?: UserServiceIntrf) {
     const changeStudentDataMt = useMutation({
         mutationFn: async (id: string) => {
             await editData<IStudent>({
-                api_url: `${import.meta.env.VITE_BASE_API_URL}/admin/remake-student/${id}`,
+                api_url: `${import.meta.env.VITE_BASE_API_URL}/users/admin/remake-student/${id}`,
                 data: {
                     classname: editUser.classname.trim(),
                     created_at: new Date(editUser.created_at!).toISOString(),
@@ -247,6 +247,27 @@ export default function UserServices(props?: UserServiceIntrf) {
         }
     });
 
+    const deleteAllStudentsByClassMt = useMutation({
+        mutationFn: async () => {
+            await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin/rm-students-by-class`);
+        },
+        onError: (error) => {
+            props?.setMessage!(error.message);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                        return queryKey[0].startsWith('all-students') || 
+                        queryKey[0].startsWith('all-students-class');
+                    }
+                    return false;
+                }
+            });
+        }
+    });
+
     const deleteStudentMt = useMutation({
         mutationFn: async (id: string) => {
             await deleteData(`${import.meta.env.VITE_BASE_API_URL}/users/admin/rm-student/${id}`);
@@ -284,6 +305,7 @@ export default function UserServices(props?: UserServiceIntrf) {
         deleteAllMastersMt, 
         deleteMasterMt, 
         deleteAllStudentsMt, 
+        deleteAllStudentsByClassMt,
         deleteStudentMt, 
         editUser, 
         getAllStudentsByClass,

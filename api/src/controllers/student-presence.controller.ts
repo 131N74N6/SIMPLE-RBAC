@@ -8,12 +8,13 @@ export async function changeStudentPresence(req: Request, res: Response) {
     try {
         const presenceStatuses = await StudentPresence.find({ _id: req.params._id });
 
-        await StudentPresence.updateOne({ _id: req.params._id }, {
+        const updatedStatus = await StudentPresence.findOneAndUpdate({ _id: req.params._id }, {
             $set: { status: req.body.status }
         });
 
-        io.to(`class: ${presenceStatuses[0].classname}`).to("admin").emit("presence-status:changed", {
-            status: req.body.status
+        io.to(`class:${presenceStatuses[0].classname}`).to("admin").emit("presence-status:changed", {
+            _id: updatedStatus?._id,
+            status: updatedStatus?.status
         });
 
         res.status(200).json({ message: "Presence status changed" });
@@ -33,7 +34,7 @@ export async function deleteAllStatuses(req: Request, res: Response) {
         await StudentPresence.deleteMany({ presence_slot_id: req.params.presence_slot_id });
 
         presenceStatusClasses.forEach(presenceStatus => {
-            io.to(`class: ${presenceStatus}`).to("admin").emit("presence-status:all-deleted", { presence_slot_id: presenceSlotId });
+            io.to(`class:${presenceStatus}`).to("admin").emit("presence-status:all-deleted", { presence_slot_id: presenceSlotId });
         });
 
         res.status(200).json({ message: "all presence status deleted" });
@@ -47,7 +48,7 @@ export async function deleteStatus(req: Request, res: Response) {
 
         await StudentPresence.deleteOne({ _id: presenceStatuses[0]._id });
 
-        io.to(`class: ${presenceStatuses[0].classname}`).to("admin").emit("presence-status:deleted", { _id: req.params._id });
+        io.to(`class:${presenceStatuses[0].classname}`).to("admin").emit("presence-status:deleted", { _id: req.params._id });
 
         res.status(200).json({ message: "1 presence status deleted" });
     } catch (error) {
@@ -77,17 +78,19 @@ export async function fillPresenceForStudent(req: AuthRequest, res: Response) {
             filled_at: new Date().toISOString()
         });
 
-        io.to(`master: ${targetSlot[0].master_id.toString()}`).to("admin").emit("presence:filled", {
-            presence_creator,
-            presence_slot_id,
-            student_id,
-            student_name,
-            classname,
-            status: status,
+        await newAttendance.save();
+
+        io.to(`master:${targetSlot[0].master_id.toString()}`).to("admin").emit("presence:filled", {
+            _id: newAttendance._id,
+            presence_creator: newAttendance.presence_creator,
+            presence_slot_id: newAttendance.presence_slot_id,
+            student_id: newAttendance.student_id,
+            student_name: newAttendance.student_name,
+            classname: newAttendance.classname,
+            status: newAttendance.status,
             filled_at: new Date().toISOString()
         });
 
-        await newAttendance.save();
         res.status(200).json({ message: "Presence successfully recorded!" });
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });

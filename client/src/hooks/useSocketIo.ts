@@ -15,6 +15,9 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
         joinAdmin,
         joinClass, 
         joinMaster, 
+        onMasterChanged,
+        onDeleteAllMasters,
+        onDeleteMaster,
         onPresenceChanged, 
         onPresenceStatusChanged,
         onPresenceStatusDeletedAll,
@@ -23,9 +26,10 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
         onPresenceDeleted, 
         onPresenceDeletedAll, 
         onPresenceFilled, 
-        onDeleteUser,
-        onDeleteAllUsers,
-        onUserChanged,
+        onStudentChanged,
+        onDeleteAllStudents,
+        onDeleteAllStudentByClass,
+        onDeleteStudent,
         removeAllListeners 
     } = SocketServices();
 
@@ -162,14 +166,26 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
                     }
                 });
             });
+
+            onStudentChanged(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-students') || 
+                            queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
+                    }
+                });
+            });
             
-            onDeleteAllUsers(() => {
+            onDeleteAllStudentByClass(() => {
                 queryClient.invalidateQueries({
                     predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
                         const queryKey = query.queryKey;
                         if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters') || 
-                            queryKey[0].startsWith('all-students') || 
+                            return queryKey[0].startsWith('all-students') || 
                             queryKey[0].startsWith('all-students-class');
                         }
                         return false;
@@ -177,13 +193,12 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
                 });
             });
 
-            onDeleteUser(() => {
+            onDeleteAllStudents(() => {
                 queryClient.invalidateQueries({
                     predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
                         const queryKey = query.queryKey;
                         if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters') || 
-                            queryKey[0].startsWith('all-students') || 
+                            return queryKey[0].startsWith('all-students') || 
                             queryKey[0].startsWith('all-students-class');
                         }
                         return false;
@@ -191,14 +206,49 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
                 });
             });
 
-            onUserChanged(() => {
+            onDeleteStudent(() => {
                 queryClient.invalidateQueries({
-                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                    const queryKey = query.queryKey;
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
                         if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters') || 
-                            queryKey[0].startsWith('all-students') || 
+                            return queryKey[0].startsWith('all-students') || 
                             queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onMasterChanged(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onDeleteAllMasters(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onDeleteMaster(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters');
                         }
                         return false;
                     }
@@ -314,13 +364,48 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
                 });
             });
             
-            onDeleteAllUsers(() => {
+            onMasterChanged(() => {
                 queryClient.invalidateQueries({
                     predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
                         const queryKey = query.queryKey;
                         if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters') || 
-                            queryKey[0].startsWith('all-students') || 
+                            return queryKey[0].startsWith('all-masters');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onDeleteAllMasters(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onDeleteMaster(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onDeleteAllStudentByClass(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-students') || 
                             queryKey[0].startsWith('all-students-class');
                         }
                         return false;
@@ -328,13 +413,12 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
                 });
             });
 
-            onDeleteUser(() => {
+            onDeleteAllStudents(() => {
                 queryClient.invalidateQueries({
                     predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
                         const queryKey = query.queryKey;
                         if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters') || 
-                            queryKey[0].startsWith('all-students') || 
+                            return queryKey[0].startsWith('all-students') || 
                             queryKey[0].startsWith('all-students-class');
                         }
                         return false;
@@ -342,14 +426,25 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
                 });
             });
 
-            onUserChanged(() => {
+            onDeleteStudent(() => {
                 queryClient.invalidateQueries({
-                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                    const queryKey = query.queryKey;
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
                         if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters') || 
-                            queryKey[0].startsWith('all-students') || 
+                            return queryKey[0].startsWith('all-students') || 
                             queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onMasterChanged(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-masters');
                         }
                         return false;
                     }
@@ -465,13 +560,12 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
                 });
             });
             
-            onDeleteAllUsers(() => {
+            onDeleteAllStudentByClass(() => {
                 queryClient.invalidateQueries({
                     predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
                         const queryKey = query.queryKey;
                         if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters') || 
-                            queryKey[0].startsWith('all-students') || 
+                            return queryKey[0].startsWith('all-students') || 
                             queryKey[0].startsWith('all-students-class');
                         }
                         return false;
@@ -479,13 +573,12 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
                 });
             });
 
-            onDeleteUser(() => {
+            onDeleteAllStudents(() => {
                 queryClient.invalidateQueries({
                     predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
                         const queryKey = query.queryKey;
                         if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters') || 
-                            queryKey[0].startsWith('all-students') || 
+                            return queryKey[0].startsWith('all-students') || 
                             queryKey[0].startsWith('all-students-class');
                         }
                         return false;
@@ -493,13 +586,25 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
                 });
             });
 
-            onUserChanged(() => {
+            onDeleteStudent(() => {
                 queryClient.invalidateQueries({
-                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                    const queryKey = query.queryKey;
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
                         if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters') || 
-                            queryKey[0].startsWith('all-students') || 
+                            return queryKey[0].startsWith('all-students') || 
+                            queryKey[0].startsWith('all-students-class');
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            onStudentChanged(() => {
+                queryClient.invalidateQueries({
+                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                        const queryKey = query.queryKey;
+                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
+                            return queryKey[0].startsWith('all-students') || 
                             queryKey[0].startsWith('all-students-class');
                         }
                         return false;

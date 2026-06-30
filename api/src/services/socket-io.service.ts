@@ -12,8 +12,8 @@ io.on("connection", (socket) => {
     console.log("user connected");
 
     socket.on("join:class", (classname: string) => {
-        socket.join(`class: ${classname}`);
-        console.log(`class: ${classname}`);
+        socket.join(`class:${classname}`);
+        console.log(`class:${classname}`);
     });
 
     socket.on("join:admin", () => {
@@ -22,8 +22,8 @@ io.on("connection", (socket) => {
     });
 
     socket.on("join:master", (master_id: string) => {
-        socket.join(`master: ${master_id}`);
-        console.log(`master: ${master_id}`);
+        socket.join(`master:${master_id}`);
+        console.log(`master:${master_id}`);
     });
 
     socket.on("disconnect", () => {

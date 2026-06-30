@@ -27,7 +27,7 @@ export async function changeStudentData(req: Request, res: Response) {
             })
         ]);
 
-        io.to(`class: ${req.body.classname}`).to("admin").emit("user:student-changed", {  
+        io.to(`class:${req.body.classname}`).to("admin").emit("user:student-changed", {  
             classname: req.body.classname,
             created_at: req.body.created_at,
             email: req.body.email,
@@ -68,7 +68,7 @@ export async function changeMasterData(req: Request, res: Response) {
             })
         ]);
 
-        io.to(`master: ${req.params.user_id}`).to("admin").emit("user:master-changed", {
+        io.to(`master:${req.params.user_id}`).to("admin").emit("user:master-changed", {
             created_at: req.body.created_at,
             email: req.body.email,
             role: req.body.role,
@@ -94,7 +94,7 @@ export async function deleteAllStudents(_: Request, res: Response) {
         ]);
 
         getStudentClasses.forEach(getStudentClass => {
-            io.to(`class: ${getStudentClass}`).to("admin").emit("user:all-student-deleted", { classname: getStudentClass });
+            io.to(`class:${getStudentClass}`).to("admin").emit("user:all-student-deleted", { classname: getStudentClass });
         });
 
         res.status(200).json({ message: "All users deleted successfully" });
@@ -113,7 +113,7 @@ export async function deleteAllStudentByClass(req: Request, res: Response) {
             User.deleteMany({ classname: getStudents[0].classname, role: "student" })
         ]);
 
-        io.to(`class: ${req.params.classname}`).to("admin").emit("user:all-student-deleted", { classname: req.params.classname });
+        io.to(`class:${req.params.classname}`).to("admin").emit("user:all-student-in-class-deleted", { classname: req.params.classname });
 
         res.status(200).json({ message: "All users deleted successfully" });
     } catch (error: any) {
@@ -130,7 +130,7 @@ export async function deleteStudent(req: Request, res: Response) {
             User.deleteOne({ _id: req.params.id, role: "student" })
         ]);
 
-        io.to(`class: ${getStudents[0].classname}`).to("admin").emit("user:student-deleted", { classname: getStudents[0].classname });
+        io.to(`class:${getStudents[0].classname}`).to("admin").emit("user:student-deleted", { classname: getStudents[0].classname });
 
         res.status(200).json({ message: "All users deleted successfully" });
     } catch (error: any) {
@@ -153,7 +153,7 @@ export async function deleteAllMasters(_: Request, res: Response) {
         ]);
 
         presenceSlotsClassNames.forEach(presenceSlotsClassName => {
-            io.to(`class: ${presenceSlotsClassName}`).to("admin").emit("user:all-master-deleted", { classname: presenceSlotsClassName });
+            io.to(`class:${presenceSlotsClassName}`).to("admin").emit("user:all-master-deleted", { classname: presenceSlotsClassName });
         });
 
         res.status(200).json({ message: "User deleted successfully" });
@@ -175,7 +175,7 @@ export async function deleteMaster(req: Request, res: Response) {
         ]);
 
         presenceSlotsClassNames.forEach(presenceSlotsClassName => {
-            io.to(`class: ${presenceSlotsClassName}`).to("admin").emit("user:master-deleted", { classname: presenceSlotsClassName });
+            io.to(`class:${presenceSlotsClassName}`).to("admin").emit("user:master-deleted", { classname: presenceSlotsClassName });
         });
 
         res.status(200).json({ message: "User deleted successfully" });

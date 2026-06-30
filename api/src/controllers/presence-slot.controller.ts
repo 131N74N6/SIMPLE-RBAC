@@ -6,7 +6,7 @@ import { io } from '../services/socket-io.service';
 
 export async function changePresenceForm(req: Request, res: Response) {
     try {
-        await PresenceSlot.updateOne({ _id: req.params.id }, {
+        const updatedForm = await PresenceSlot.findOneAndUpdate({ _id: req.params.id }, {
             $set: { 
                 classname: req.body.classname,
                 deadline: req.body.deadline,
@@ -14,10 +14,11 @@ export async function changePresenceForm(req: Request, res: Response) {
             }
         });
 
-        io.to(`class: ${req.body.classname}`).to("admin").emit("presence:edited", {
-            classname: req.body.classname,
-            deadline: req.body.deadline,
-            start_time: req.body.start_time 
+        io.to(`class:${req.body.classname}`).to("admin").emit("presence:edited", {
+            _id: updatedForm?._id,
+            classname: updatedForm?.classname,
+            deadline: updatedForm?.deadline,
+            start_time: updatedForm?.start_time 
         });
 
         res.status(200).json({ message: "Presence form changed" });
@@ -39,7 +40,7 @@ export async function deleteAllPresencesForAdmin(req: AuthRequest, res: Response
         ]);
 
         presenceSlotClasses.forEach(presenceSlotClass => {
-            io.to(`class: ${presenceSlotClass}`).to("admin").emit("presence:all-deleted", presenceSlotClass);
+            io.to(`class:${presenceSlotClass}`).to("admin").emit("presence:all-deleted", presenceSlotClass);
         });
 
         res.status(200).json({ message: "All presences deleted" });
@@ -62,7 +63,7 @@ export async function deleteAllPresencesForMaster(req: AuthRequest, res: Respons
         ]);
 
         presenceSlotClasses.forEach(presenceSlotClass => {
-            io.to(`class: ${presenceSlotClass}`).to("admin").emit("presence:all-deleted", { master_id: req.user?.user_id });
+            io.to(`class:${presenceSlotClass}`).to("admin").emit("presence:all-deleted", { master_id: req.user?.user_id });
         });
 
         res.status(200).json({ message: "All presences deleted" });
@@ -187,17 +188,19 @@ export async function makePresence(req: AuthRequest, res: Response) {
             master_name,
             start_time
         });
-
-        io.to(`class: ${classname}`).to("admin").emit("presence:created", {
-            classname,
-            created_at: new Date().toISOString(),
-            deadline,
-            master_id,
-            master_name,
-            start_time
-        });
         
         await newSlot.save();
+
+        io.to(`class:${classname}`).to("admin").emit("presence:created", {
+            _id: newSlot._id,
+            classname: newSlot.classname,
+            created_at: new Date().toISOString(),
+            deadline: newSlot.deadline,
+            master_id: newSlot.master_id,
+            master_name: newSlot.master_name,
+            start_time: newSlot.start_time
+        });
+
         res.status(200).json({ message: "Presence form successfully created for " + classname });
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });

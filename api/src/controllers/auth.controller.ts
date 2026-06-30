@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { User } from '../models/user.model';
+import { io } from '../services/socket-io.service';
 
 export async function register(req: Request, res: Response) {
     try {
@@ -20,8 +21,18 @@ export async function register(req: Request, res: Response) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const created_at = new Date().toISOString();
+        
         const newUser = new User({ classname, created_at, email, password: hashedPassword, role, username });
         await newUser.save();
+
+        io.to("admin").emit("user:added", {
+            _id: newUser._id,
+            classname: newUser.classname,
+            email: newUser.email,
+            password: newUser.password,
+            role: newUser.role,
+            username: newUser.username
+        });
 
         res.status(200).json({ message: "User created successfully" });
     } catch (error: any) {

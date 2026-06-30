@@ -68,16 +68,32 @@ export default function SocketServices() {
         socket?.on("presence-status:deleted", callback);
     }
 
-    function onUserChanged(callback: (data: any) => void) {
-        socket?.on("user:changed", callback);
+    function onMasterChanged(callback: (data: any) => void) {
+        socket?.on("user:master-changed", callback);
     }
 
-    function onDeleteAllUsers(callback: (data: any) => void) {
-        socket?.on("user:all-deleted", callback);
+    function onDeleteAllMasters(callback: (data: any) => void) {
+        socket?.on("user:all-master-deleted", callback);
     }
 
-    function onDeleteUser(callback: (data: any) => void) {
-        socket?.on("user:deleted", callback);
+    function onDeleteMaster(callback: (data: any) => void) {
+        socket?.on("user:master-deleted", callback);
+    }
+
+    function onStudentChanged(callback: (data: any) => void) {
+        socket?.on("user:student-changed", callback);
+    }
+
+    function onDeleteAllStudents(callback: (data: any) => void) {
+        socket?.on("user:all-student-deleted", callback);
+    }
+
+    function onDeleteStudent(callback: (data: any) => void) {
+        socket?.on("user:student-deleted", callback);
+    }
+
+    function onDeleteAllStudentByClass(callback: (data: any) => void) {
+        socket?.on("user:all-student-in-class-deleted", callback);
     }
 
     function removeAllListeners() {
@@ -107,9 +123,13 @@ export default function SocketServices() {
         onPresenceStatusChanged,
         onPresenceStatusDeletedAll,
         onPresenceStatusDeleted,
-        onUserChanged,
-        onDeleteAllUsers,
-        onDeleteUser,
+        onMasterChanged,
+        onDeleteAllMasters,
+        onDeleteMaster,
+        onStudentChanged,
+        onDeleteAllStudents,
+        onDeleteAllStudentByClass,
+        onDeleteStudent,
         removeAllListeners
     }
 }

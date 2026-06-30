@@ -1,14 +1,15 @@
 import { Router } from "express";
-import { changeMasterData, changeStudentData, deleteAllMasters, deleteAllStudents, deleteMaster, deleteStudent, getAllMasters, getAllStudents, getUser } from "../controllers/user.controller";
+import { changeMasterData, changeStudentData, deleteAllMasters, deleteAllStudentByClass, deleteAllStudents, deleteMaster, deleteStudent, getAllMasters, getAllStudents, getUser } from "../controllers/user.controller";
 import { checkRole, verifyToken } from "../middleware/auth.middleware";
 import { makeClass } from "../controllers/classroom.controller";
 
 const userRouters = Router();
 
-userRouters.delete('/admin/rm-master/id', verifyToken, checkRole('admin'), deleteMaster);
+userRouters.delete('/admin/rm-master/:id', verifyToken, checkRole('admin'), deleteMaster);
 userRouters.delete('/admin/rm-all-masters', verifyToken, checkRole('admin'), deleteAllMasters);
-userRouters.delete('/admin/rm-student/id', verifyToken, checkRole('admin'), deleteStudent);
+userRouters.delete('/admin/rm-student/:id', verifyToken, checkRole('admin'), deleteStudent);
 userRouters.delete('/admin/rm-all-students', verifyToken, checkRole('admin'), deleteAllStudents);
+userRouters.delete('/admin/rm-students-by-class', verifyToken, checkRole('admin'), deleteAllStudentByClass);
 
 userRouters.get('/show-all-students', verifyToken, checkRole('admin'), getAllStudents);
 userRouters.get('/show-all-masters', verifyToken, checkRole('admin'), getAllMasters);

@@ -59,7 +59,7 @@ export default function PresenceStatItem(props: IStudentPresenceItem) {
             <div>Student class: {props.student_status.classname}</div>
             <div>Status: {props.student_status.status}</div>
             <div>Filled at: {new Date(props.student_status.filled_at).toLocaleString()}</div>
-            <div>Master: {props.student_status.creator_name}</div>
+            <div>Master: {props.student_status.presence_creator}</div>
             <div className="flex gap-3">
                 <button
                     type="button"

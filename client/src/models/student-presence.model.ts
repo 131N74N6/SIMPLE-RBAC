@@ -2,7 +2,7 @@ import type { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult, U
 
 export type StudentPresenceIntrf = {
     _id: string;
-    creator_name: string;
+    presence_creator: string;
     presence_slot_id: string;
     student_id: string;
     student_name: string;

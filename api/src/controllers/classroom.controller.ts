@@ -3,6 +3,7 @@ import { ClassRoom } from '../models/classroom.model';
 import { PresenceSlot } from '../models/presence-slot.model';
 import { StudentPresence } from "../models/student-presence.model";
 import { User } from '../models/user.model';
+import { io } from '../services/socket-io.service';
 
 export async function changeClass(req: Request, res: Response) {
     try {
@@ -25,6 +26,11 @@ export async function changeClass(req: Request, res: Response) {
                 $set: { classname: req.body.classname }
             })
         ]);
+
+        io.to(`class:${req.body.classname}`).to("admin").emit("classroom:changed", {
+            _id: req.params.id,
+            classname: req.body.classname
+        });
 
         return res.status(200).json({ message: 'class changed' });
     } catch (error) {
@@ -59,6 +65,11 @@ export async function deleteOneClass(req: Request, res: Response) {
             ClassRoom.deleteOne({ classname: getClassName }),
             User.updateMany({ role: "student", classname: getClassName }, { $set: { classname: "-" } })
         ]);
+
+        io.to(`class:${req.params.classname}`).to("admin").emit("classroom:changed", {
+            _id: req.params.id,
+            classname: req.params.classname
+        });
 
         return res.status(200).json({ message: 'class deleted' });
     } catch (error) {
@@ -106,6 +117,11 @@ export async function makeClass(req: Request, res: Response) {
 
         const newClass = new ClassRoom({ created_at, classname });
         await newClass.save();
+
+        io.to("admin").emit("classroom:created", {
+            created_at, classname
+        });
+
         res.status(200).json({ message: 'new classroom created' });
     } catch (error) {
         res.status(500).json({ message: 'something went wrong' });

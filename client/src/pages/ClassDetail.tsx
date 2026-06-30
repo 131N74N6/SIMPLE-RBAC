@@ -14,7 +14,7 @@ export default function ClassDetail() {
     const { 
         changeStudentDataMt, 
         editUser, 
-        deleteAllStudentsMt, 
+        deleteAllStudentsByClassMt, 
         deleteStudentMt, 
         getAllStudentsByClass, 
         isProcessing,
@@ -42,7 +42,7 @@ export default function ClassDetail() {
                     <button
                         type='button'
                         disabled={isProcessing}
-                        onClick={() => deleteAllStudentsMt.mutate()}
+                        onClick={() => deleteAllStudentsByClassMt.mutate()}
                         className='shadow-[6px_6px_0px_0px] shadow-violet-300 w-[10%] cursor-pointer disabled:cursor-not-allowed font-medium p-1.5 text-base border border-violet-300 outline-0 font-mono text-violet-300'
                     >
                         <div className='flex justify-center'><Trash2/></div>
