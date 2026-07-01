@@ -83,10 +83,26 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
         }
 
         if (props.role.includes("admin")) {
-            onClassChanged(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
-            onClassCreated(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
-            onDeletedAllClasses(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
-            onDeleteClass(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
+            onClassChanged(() => invalidations([
+                ...queryNamesForClass, 
+                ...queryNamesForStudent, 
+                ...queryNamesForPresenceForm, 
+                ...queryNamesForPresenceStatus]));
+            onClassCreated(() => invalidations([
+                ...queryNamesForClass, 
+                ...queryNamesForStudent, 
+                ...queryNamesForPresenceForm, 
+                ...queryNamesForPresenceStatus]));
+            onDeletedAllClasses(() => invalidations([
+                ...queryNamesForClass, 
+                ...queryNamesForStudent, 
+                ...queryNamesForPresenceForm, 
+                ...queryNamesForPresenceStatus]));
+            onDeleteClass(() => invalidations([
+                ...queryNamesForClass, 
+                ...queryNamesForStudent, 
+                ...queryNamesForPresenceForm, 
+                ...queryNamesForPresenceStatus]));
 
             onMasterChanged(() => invalidations(queryNamesForMaster));
             onDeleteAllMasters(() => invalidations(queryNamesForMaster));
@@ -109,9 +125,21 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
         }
 
         if (props.role.includes("master")) {
-            onClassChanged(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
-            onDeletedAllClasses(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
-            onDeleteClass(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
+            onClassChanged(() => invalidations([
+                ...queryNamesForClass, 
+                ...queryNamesForStudent, 
+                ...queryNamesForPresenceForm, 
+                ...queryNamesForPresenceStatus]));
+            onDeletedAllClasses(() => invalidations([
+                ...queryNamesForClass, 
+                ...queryNamesForStudent, 
+                ...queryNamesForPresenceForm, 
+                ...queryNamesForPresenceStatus]));
+            onDeleteClass(() => invalidations([
+                ...queryNamesForClass, 
+                ...queryNamesForStudent, 
+                ...queryNamesForPresenceForm, 
+                ...queryNamesForPresenceStatus]));
 
             onMasterChanged(() => invalidations(queryNamesForMaster));
             onDeleteAllMasters(() => invalidations(queryNamesForMaster));
@@ -133,9 +161,21 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
         }
 
         if (props.role.includes("student")) {
-            onClassChanged(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
-            onDeletedAllClasses(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
-            onDeleteClass(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
+            onClassChanged(() => invalidations([
+                ...queryNamesForClass, 
+                ...queryNamesForStudent, 
+                ...queryNamesForPresenceForm, 
+                ...queryNamesForPresenceStatus]));
+            onDeletedAllClasses(() => invalidations([
+                ...queryNamesForClass, 
+                ...queryNamesForStudent, 
+                ...queryNamesForPresenceForm, 
+                ...queryNamesForPresenceStatus]));
+            onDeleteClass(() => invalidations([
+                ...queryNamesForClass, 
+                ...queryNamesForStudent, 
+                ...queryNamesForPresenceForm, 
+                ...queryNamesForPresenceStatus]));
 
             onPresenceCreated(() => invalidations(queryNamesForPresenceForm));
             onPresenceChanged(() => invalidations(queryNamesForPresenceForm));

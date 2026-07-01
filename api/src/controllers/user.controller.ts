@@ -27,7 +27,8 @@ export async function changeStudentData(req: Request, res: Response) {
             })
         ]);
 
-        io.to(`class:${req.body.classname}`).to("admin").emit("user:student-changed", {  
+        io.to(`student:${req.params.user_id}`).to("admin").emit("user:student-changed", {
+            _id: req.params.user_id,
             classname: req.body.classname,
             created_at: req.body.created_at,
             email: req.body.email,

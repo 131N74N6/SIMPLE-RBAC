@@ -37,19 +37,19 @@ export default function SocketServices() {
     }
 
     function onClassCreated(callback: (data: any) => void) {
-        socket?.on("class:created", callback);
+        socket?.on("classroom:created", callback);
     }
 
     function onClassChanged(callback: (data: any) => void) {
-        socket?.on("class:changed", callback);
+        socket?.on("classroom:changed", callback);
     }
 
     function onDeletedAllClasses(callback: (data: any) => void) {
-        socket?.on("class:deleted-all", callback);
+        socket?.on("classroom:deleted-all", callback);
     }
 
     function onDeleteClass(callback: (data: any) => void) {
-        socket?.on("class:deleted", callback);
+        socket?.on("classroom:deleted", callback);
     }
 
     function onPresenceCreated(callback: (data: any) => void) {

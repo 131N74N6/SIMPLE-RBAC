@@ -42,10 +42,9 @@ export async function changeClass(req: Request, res: Response) {
             });
         });
 
-        io.to(`class:${req.body.classname}`)
+        io.to(`class:${targetClass?.classname}`)
         .to("admin")
         .emit("classroom:changed", {
-            _id: req.params.id,
             classname: req.body.classname
         });
 

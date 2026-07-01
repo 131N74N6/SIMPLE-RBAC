@@ -14,7 +14,7 @@ export async function changePresenceForm(req: Request, res: Response) {
             }
         });
 
-        io.to(`class:${req.body.classname}`)
+        io.to(`class:${updatedForm?.classname}`)
         .to(`master:${updatedForm?.master_id}`)
         .to("admin")
         .emit("presence:edited", {
@@ -102,7 +102,7 @@ export async function deleteOnePresence(req: Request, res: Response) {
             PresenceSlot.deleteOne({ _id: req.params.id })
         ]);
 
-        io.to(`class: ${presenceSlot[0].classname}`)
+        io.to(`class:${presenceSlot[0].classname}`)
         .to(`master:${presenceSlot[0].master_id}`)
         .to("admin")
         .emit("presence:deleted", { presence_slot_id: req.params.id });

@@ -134,8 +134,7 @@ export async function getAvailablePresencesForStudent(req: AuthRequest, res: Res
         if (totalAvailableSlots === 0) return res.status(404).json({ message: "No presence forms available for your class" });
 
         const availableSlots = await PresenceSlot.find(
-            { classname: req.user?.classname }, 
-            { master_id: 0 }
+            { classname: req.user?.classname }
         ).sort({ created_at: -1 }).limit(dataLimit).skip(skip);
 
         res.status(200).json(availableSlots);
