@@ -8,8 +8,16 @@ import { io } from '../services/socket-io.service';
 export async function changeClass(req: Request, res: Response) {
     try {
         const targetClass = await ClassRoom.findOne({ _id: req.params.id });
+        const presenceSlots = await PresenceSlot.find({ classname: targetClass?.classname });
+        const presenceSlotMasterIds = Array.from(new Set(
+            presenceSlots.map(presenceSlot => presenceSlot.master_id)
+        ));
 
-        const isClassExist = await ClassRoom.findOne({ classname: req.body.classname });
+        const isClassExist = await ClassRoom.findOne({ 
+            classname: req.body.classname, 
+            _id: { $ne: req.params.id } 
+        });
+        
         if (isClassExist) return res.status(409).json({ message: "class name already exist" });
         
         await Promise.all([
@@ -27,7 +35,16 @@ export async function changeClass(req: Request, res: Response) {
             })
         ]);
 
-        io.to(`class:${req.body.classname}`).to("admin").emit("classroom:changed", {
+        presenceSlotMasterIds.forEach(presenceSlotMasterId => {
+            io.to(`master:${presenceSlotMasterId}`)
+            .emit("classroom:changed", {
+                classname: req.body.classname
+            });
+        });
+
+        io.to(`class:${req.body.classname}`)
+        .to("admin")
+        .emit("classroom:changed", {
             _id: req.params.id,
             classname: req.body.classname
         });
@@ -40,8 +57,15 @@ export async function changeClass(req: Request, res: Response) {
 
 export async function deleteAllClasses(_: Request, res: Response) {
     try {
-        const totalClass = await ClassRoom.find().countDocuments();
-        if (totalClass === 0) return res.status(404).json({ message: 'no class found' });
+        const classes = await ClassRoom.find();
+        if (classes.length === 0) return res.status(404).json({ message: 'no class found' });
+
+        const classnames = classes.map(target => target.classname);
+        const presenceSlotClasses = await PresenceSlot.find({ classname: { $in: classnames } });
+
+        const presenceSlotMasterIds = Array.from(new Set(
+            presenceSlotClasses.map(presenceSlotClass => presenceSlotClass.master_id)
+        ));
 
         await Promise.all([
             StudentPresence.deleteMany(),
@@ -50,6 +74,17 @@ export async function deleteAllClasses(_: Request, res: Response) {
             User.updateMany({ role: "student" }, { $set: { classname: "-" } })
         ]);
 
+        presenceSlotMasterIds.forEach(presenceSlotMasterId => {
+            io.to(`master:${presenceSlotMasterId}`)
+            .emit("classroom:deleted-all", presenceSlotMasterId)
+        });
+
+        classnames.forEach(classname => {
+            io.to(`class:${classname}`)
+            .to("admin")
+            .emit("classroom:deleted-all", classname)
+        });
+
         return res.status(200).json({ message: 'class deleted' });
     } catch (error) {
         res.status(500).json({ message: 'something went wrong' });
@@ -57,8 +92,14 @@ export async function deleteAllClasses(_: Request, res: Response) {
 }
 
 export async function deleteOneClass(req: Request, res: Response) {
-    const getClassName = req.params.classname;
     try {
+        const getClassName = req.params.classname;
+        const presenceSlotClasses = await PresenceSlot.find({ classname: getClassName });
+
+        const presenceSlotMasterIds = Array.from(new Set(
+            presenceSlotClasses.map(presenceSlotClass => presenceSlotClass.master_id)
+        ));
+
         await Promise.all([
             StudentPresence.deleteMany({ classname: getClassName }),
             PresenceSlot.deleteMany({ classname: getClassName }),
@@ -66,9 +107,15 @@ export async function deleteOneClass(req: Request, res: Response) {
             User.updateMany({ role: "student", classname: getClassName }, { $set: { classname: "-" } })
         ]);
 
-        io.to(`class:${req.params.classname}`).to("admin").emit("classroom:changed", {
-            _id: req.params.id,
-            classname: req.params.classname
+        presenceSlotMasterIds.forEach(presenceSlotMasterId => {
+            io.to(`master:${presenceSlotMasterId}`)
+            .emit("classroom:deleted", presenceSlotMasterId)
+        });
+
+        io.to(`class:${getClassName}`)
+        .to("admin").
+        emit("classroom:deleted", {
+            classname: getClassName
         });
 
         return res.status(200).json({ message: 'class deleted' });

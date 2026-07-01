@@ -110,7 +110,7 @@ export default function StudentItem(props: IStudentItem) {
 
     return (
         <div className="bg-gray-800 font-mono shadow-[6px_6px_0px_0px] shadow-violet-300 border border-violet-300 flex flex-col gap-2.5 text-violet-300 font-medium p-2.5 rounded-[10px] ">
-            <div>Created At: {props.user.created_at}</div>
+            <div>Created At: {new Date(props.user.created_at).toLocaleString()}</div>
             <div>Email: {props.user.email}</div>
             <div>Role: {props.user.role}</div>
             <div>Username: {props.user.username}</div>

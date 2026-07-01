@@ -26,7 +26,7 @@ export default function PresenceForAdmin() {
     
     useSocketIo({
         user_id: currentUserId!,
-        role: "admin"
+        role: ["admin"]
     });
       
     return (

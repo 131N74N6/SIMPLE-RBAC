@@ -28,7 +28,7 @@ export default function Students() {
 
     useSocketIo({
         user_id: currentUserId!,
-        role: "admin"
+        role: ["admin"]
     });
 
     return (

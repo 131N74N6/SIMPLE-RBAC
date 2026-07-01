@@ -26,7 +26,7 @@ export default function PresenceByMaster() {
 
     useSocketIo({
         user_id: currentUserId!,
-        role: "master",
+        role: ["master"],
         identifier: currentUserId!
     });
     

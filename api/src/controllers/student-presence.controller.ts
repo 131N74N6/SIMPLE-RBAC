@@ -12,7 +12,10 @@ export async function changeStudentPresence(req: Request, res: Response) {
             $set: { status: req.body.status }
         });
 
-        io.to(`class:${presenceStatuses[0].classname}`).to("admin").emit("presence-status:changed", {
+        io.to(`class:${presenceStatuses[0].classname}`)
+        .to("admin")
+        .to(`master:${presenceStatuses[0].presence_creator_id}`)
+        .emit("presence-status:changed", {
             _id: updatedStatus?._id,
             status: updatedStatus?.status
         });
@@ -29,12 +32,25 @@ export async function deleteAllStatuses(req: Request, res: Response) {
         const presenceStatuses = await StudentPresence.find({ presence_slot_id: presenceSlotId });
         if (presenceStatuses.length === 0) return res.status(404).json({ message: "data not found" });
 
-        const presenceStatusClasses = Array.from(new Set(presenceStatuses.map(presenceStatus => presenceStatus.classname)));
+        const presenceStatusClasses = Array.from(new Set(
+            presenceStatuses.map(presenceStatus => presenceStatus.classname)
+        ));
+
+        const presenceCreatorIds = Array.from(new Set(
+            presenceStatuses.map(presenceCreatorId => presenceCreatorId.presence_creator_id)
+        ));
 
         await StudentPresence.deleteMany({ presence_slot_id: req.params.presence_slot_id });
 
+        presenceCreatorIds.forEach(presenceCreatorId => {
+            io.to(`master:${presenceCreatorId}`)
+            .emit("presence-status:all-deleted", presenceCreatorId);
+        });
+
         presenceStatusClasses.forEach(presenceStatus => {
-            io.to(`class:${presenceStatus}`).to("admin").emit("presence-status:all-deleted", { presence_slot_id: presenceSlotId });
+            io.to(`class:${presenceStatus}`)
+            .to("admin")
+            .emit("presence-status:all-deleted", { presence_slot_id: presenceSlotId });
         });
 
         res.status(200).json({ message: "all presence status deleted" });
@@ -48,7 +64,10 @@ export async function deleteStatus(req: Request, res: Response) {
 
         await StudentPresence.deleteOne({ _id: presenceStatuses[0]._id });
 
-        io.to(`class:${presenceStatuses[0].classname}`).to("admin").emit("presence-status:deleted", { _id: req.params._id });
+        io.to(`class:${presenceStatuses[0].classname}`)
+        .to(`master:${presenceStatuses[0].presence_creator_id}`)
+        .to("admin")
+        .emit("presence-status:deleted", { _id: req.params._id });
 
         res.status(200).json({ message: "1 presence status deleted" });
     } catch (error) {
@@ -58,18 +77,19 @@ export async function deleteStatus(req: Request, res: Response) {
 
 export async function fillPresenceForStudent(req: AuthRequest, res: Response) {
     try {
-        const { presence_creator, presence_slot_id, status } = req.body;
+        const { presence_creator, presence_creator_id, presence_slot_id, status } = req.body;
+        if (!presence_slot_id || !presence_creator_id || !status) return res.status(400).json({ message: "Input field required" });
+
         const student_id = req.user?.user_id;
         const student_name = req.user?.username;
         const classname = req.user?.classname;
-
-        if (!presence_slot_id || !status) return res.status(400).json({ message: "Slot ID and Status are required" });
 
         const targetSlot = await PresenceSlot.find({ _id: presence_slot_id });
         if (targetSlot.length === 0) return res.status(404).json({ message: "Presence form not found" });
 
         const newAttendance = new StudentPresence({
             presence_creator,
+            presence_creator_id,
             presence_slot_id,
             student_id,
             student_name,
@@ -80,9 +100,12 @@ export async function fillPresenceForStudent(req: AuthRequest, res: Response) {
 
         await newAttendance.save();
 
-        io.to(`master:${targetSlot[0].master_id.toString()}`).to("admin").emit("presence:filled", {
+        io.to(`master:${targetSlot[0].master_id.toString()}`)
+        .to("admin")
+        .emit("presence:filled", {
             _id: newAttendance._id,
             presence_creator: newAttendance.presence_creator,
+            presence_creator_id: newAttendance.presence_creator_id,
             presence_slot_id: newAttendance.presence_slot_id,
             student_id: newAttendance.student_id,
             student_name: newAttendance.student_name,

@@ -4,7 +4,7 @@ import SocketServices from "../services/socket-io.service";
 
 type UsePresenceSocketProps = {
     user_id: string;
-    role: string;
+    role: string[];
     identifier?: string;
 }
 
@@ -15,6 +15,10 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
         joinAdmin,
         joinClass, 
         joinMaster, 
+        onClassChanged,
+        onClassCreated,
+        onDeletedAllClasses,
+        onDeleteClass,
         onMasterChanged,
         onDeleteAllMasters,
         onDeleteMaster,
@@ -34,583 +38,119 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
     } = SocketServices();
 
     useEffect(() => {
-        if (!props.user_id || !props.identifier) return;
+        if (!props.user_id) return;
         connect(props.user_id);
 
-        if (props.role === "master") {
-            joinMaster(props.identifier);
-        } else if (props.role === "admin") {
+        if (props.role.includes("master")) {
+            joinMaster(props.identifier!);
+        } else if (props.role.includes("admin")) {
             joinAdmin();
         } else {
-            joinClass(props.identifier);
+            joinClass(props.identifier!);
         }
 
-        if (props.role === "admin") {
-            onPresenceFilled(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
+        const queryNamesForClass = ['all-classes'];
 
-            onPresenceChanged(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`all-presences-form`);
-                        }
-                        return false;
-                    }
-                });
-            });
+        const queryNamesForMaster = ['all-masters'];
 
-            onPresenceStatusChanged(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
+        const queryNamesForPresenceForm = [
+            'is-filled',
+            'all-presences-for-admin',
+            'all-presences-for-master',
+            'all-presences-form',
+            'presence-details'
+        ];
 
-            onPresenceCreated(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`);
-                        }
-                        return false;
-                    }
-                });
-            });
+        const queryNamesForPresenceStatus = [
+            'is-filled',
+            'all-presences-for-admin',
+            'all-presences-for-master',
+            'all-presences-form',
+            'presence-details'
+        ];
+        const queryNamesForStudent = ['all-students', 'all-students-class'];
 
-            onPresenceStatusDeletedAll(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
+        function invalidations(queryNames: string[]) {
+            queryClient.invalidateQueries({
+                predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
+                    const queryKey = query.queryKey;
+                    if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
+                        return queryNames.some(queryName => queryKey[0].startsWith(queryName));
                     }
-                });
-            });
-
-            onPresenceStatusDeleted(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onPresenceDeleted(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onPresenceDeletedAll(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onStudentChanged(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-students') || 
-                            queryKey[0].startsWith('all-students-class');
-                        }
-                        return false;
-                    }
-                });
-            });
-            
-            onDeleteAllStudentByClass(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-students') || 
-                            queryKey[0].startsWith('all-students-class');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onDeleteAllStudents(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-students') || 
-                            queryKey[0].startsWith('all-students-class');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onDeleteStudent(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-students') || 
-                            queryKey[0].startsWith('all-students-class');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onMasterChanged(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onDeleteAllMasters(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onDeleteMaster(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters');
-                        }
-                        return false;
-                    }
-                });
+                    return false;
+                }
             });
         }
 
-        if (props.role === "master") {
-            onPresenceFilled(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
+        if (props.role.includes("admin")) {
+            onClassChanged(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
+            onClassCreated(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
+            onDeletedAllClasses(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
+            onDeleteClass(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
 
-            onPresenceChanged(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`all-presences-form`);
-                        }
-                        return false;
-                    }
-                });
-            });
+            onMasterChanged(() => invalidations(queryNamesForMaster));
+            onDeleteAllMasters(() => invalidations(queryNamesForMaster));
+            onDeleteMaster(() => invalidations(queryNamesForMaster));
 
-            onPresenceStatusChanged(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
+            onPresenceCreated(() => invalidations(queryNamesForPresenceForm));
+            onPresenceChanged(() => invalidations(queryNamesForPresenceForm));
+            onPresenceDeletedAll(() => invalidations(queryNamesForPresenceForm));
+            onPresenceDeleted(() => invalidations(queryNamesForPresenceForm));
+            onPresenceFilled(() => invalidations(queryNamesForPresenceForm));
 
-            onPresenceStatusDeletedAll(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
+            onPresenceStatusChanged(() => invalidations(queryNamesForPresenceStatus));
+            onPresenceStatusDeletedAll(() => invalidations(queryNamesForPresenceStatus));
+            onPresenceStatusDeleted(() => invalidations(queryNamesForPresenceStatus));
 
-            onPresenceStatusDeleted(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onPresenceDeleted(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onPresenceDeletedAll(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
-            
-            onMasterChanged(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onDeleteAllMasters(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onDeleteMaster(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onDeleteAllStudentByClass(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-students') || 
-                            queryKey[0].startsWith('all-students-class');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onDeleteAllStudents(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-students') || 
-                            queryKey[0].startsWith('all-students-class');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onDeleteStudent(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-students') || 
-                            queryKey[0].startsWith('all-students-class');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onMasterChanged(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-masters');
-                        }
-                        return false;
-                    }
-                });
-            });
+            onStudentChanged(() => invalidations(queryNamesForStudent));
+            onDeleteAllStudentByClass(() => invalidations(queryNamesForStudent));
+            onDeleteAllStudents(() => invalidations(queryNamesForStudent));
+            onDeleteStudent(() => invalidations(queryNamesForStudent));
         }
 
-        if (props.role === "student") {
-            onPresenceCreated(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`);
-                        }
-                        return false;
-                    }
-                });
-            });
+        if (props.role.includes("master")) {
+            onClassChanged(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
+            onDeletedAllClasses(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
+            onDeleteClass(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
 
-            onPresenceChanged(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`all-presences-form`);
-                        }
-                        return false;
-                    }
-                });
-            });
+            onMasterChanged(() => invalidations(queryNamesForMaster));
+            onDeleteAllMasters(() => invalidations(queryNamesForMaster));
+            onDeleteMaster(() => invalidations(queryNamesForMaster));
 
-            onPresenceStatusChanged(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
+            onPresenceChanged(() => invalidations(queryNamesForPresenceForm));
+            onPresenceDeletedAll(() => invalidations(queryNamesForPresenceForm));
+            onPresenceDeleted(() => invalidations(queryNamesForPresenceForm));
+            onPresenceFilled(() => invalidations(queryNamesForPresenceForm));
 
-            onPresenceStatusDeletedAll(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
+            onPresenceStatusChanged(() => invalidations(queryNamesForPresenceStatus));
+            onPresenceStatusDeletedAll(() => invalidations(queryNamesForPresenceStatus));
+            onPresenceStatusDeleted(() => invalidations(queryNamesForPresenceStatus));
 
-            onPresenceStatusDeleted(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
+            onStudentChanged(() => invalidations(queryNamesForStudent));
+            onDeleteAllStudentByClass(() => invalidations(queryNamesForStudent));
+            onDeleteAllStudents(() => invalidations(queryNamesForStudent));
+            onDeleteStudent(() => invalidations(queryNamesForStudent));
+        }
 
-            onPresenceDeleted(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
+        if (props.role.includes("student")) {
+            onClassChanged(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
+            onDeletedAllClasses(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
+            onDeleteClass(() => invalidations([...queryNamesForClass, ...queryNamesForStudent]));
 
-            onPresenceDeletedAll(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length > 0 && typeof queryKey[0] === 'string') {
-                            return queryKey[0].startsWith(`is-filled`) ||
-                            queryKey[0].startsWith(`all-presences-form`) ||
-                            queryKey[0].startsWith(`all-presences-for-admin`) ||
-                            queryKey[0].startsWith(`all-presences-for-master`) ||
-                            queryKey[0].startsWith(`presence-details`);
-                        }
-                        return false;
-                    }
-                });
-            });
+            onPresenceCreated(() => invalidations(queryNamesForPresenceForm));
+            onPresenceChanged(() => invalidations(queryNamesForPresenceForm));
+
+            onPresenceDeletedAll(() => invalidations(queryNamesForPresenceForm));
+            onPresenceDeleted(() => invalidations(queryNamesForPresenceForm));
+
+            onPresenceStatusChanged(() => invalidations(queryNamesForPresenceStatus));
+            onPresenceStatusDeletedAll(() => invalidations(queryNamesForPresenceStatus));
+            onPresenceStatusDeleted(() => invalidations(queryNamesForPresenceStatus));
             
-            onDeleteAllStudentByClass(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-students') || 
-                            queryKey[0].startsWith('all-students-class');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onDeleteAllStudents(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-students') || 
-                            queryKey[0].startsWith('all-students-class');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onDeleteStudent(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-students') || 
-                            queryKey[0].startsWith('all-students-class');
-                        }
-                        return false;
-                    }
-                });
-            });
-
-            onStudentChanged(() => {
-                queryClient.invalidateQueries({
-                    predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
-                        const queryKey = query.queryKey;
-                        if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                            return queryKey[0].startsWith('all-students') || 
-                            queryKey[0].startsWith('all-students-class');
-                        }
-                        return false;
-                    }
-                });
-            });
+            onStudentChanged(() => invalidations(queryNamesForStudent));
+            onDeleteAllStudentByClass(() => invalidations(queryNamesForStudent));
+            onDeleteAllStudents(() => invalidations(queryNamesForStudent));
+            onDeleteStudent(() => invalidations(queryNamesForStudent));
         }
 
         return () => removeAllListeners();

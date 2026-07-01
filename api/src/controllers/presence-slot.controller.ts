@@ -14,7 +14,10 @@ export async function changePresenceForm(req: Request, res: Response) {
             }
         });
 
-        io.to(`class:${req.body.classname}`).to("admin").emit("presence:edited", {
+        io.to(`class:${req.body.classname}`)
+        .to(`master:${updatedForm?.master_id}`)
+        .to("admin")
+        .emit("presence:edited", {
             _id: updatedForm?._id,
             classname: updatedForm?.classname,
             deadline: updatedForm?.deadline,
@@ -32,15 +35,28 @@ export async function deleteAllPresencesForAdmin(req: AuthRequest, res: Response
         const presenceSlots = await PresenceSlot.find();
         if (presenceSlots.length === 0) return res.status(404).json({ message: "Presence not found" });
 
-        const presenceSlotClasses = Array.from(new Set(presenceSlots.map(presenceSlot => presenceSlot.classname)));
+        const presenceSlotClasses = Array.from(new Set(
+            presenceSlots.map(presenceSlot => presenceSlot.classname)
+        ));
+
+        const presenceSlotMasterIds = Array.from(new Set(
+            presenceSlots.map(presenceSlot => presenceSlot.master_id)
+        ));
 
         await Promise.all([
             StudentPresence.deleteMany(),
             PresenceSlot.deleteMany()
         ]);
 
+        presenceSlotMasterIds.forEach(presenceSlotMasterId => {
+            io.to(`master:${presenceSlotMasterId}`)
+            .emit("presence:all-deleted", presenceSlotMasterId);
+        });
+
         presenceSlotClasses.forEach(presenceSlotClass => {
-            io.to(`class:${presenceSlotClass}`).to("admin").emit("presence:all-deleted", presenceSlotClass);
+            io.to(`class:${presenceSlotClass}`)
+            .to("admin")
+            .emit("presence:all-deleted", presenceSlotClass);
         });
 
         res.status(200).json({ message: "All presences deleted" });
@@ -62,8 +78,13 @@ export async function deleteAllPresencesForMaster(req: AuthRequest, res: Respons
             PresenceSlot.deleteMany({ master_id: req.user?.user_id })
         ]);
 
+        io.to(`master:${presenceSlot[0].master_id}`)
+        .emit("presence:all-deleted", { master_id: req.user?.user_id });
+
         presenceSlotClasses.forEach(presenceSlotClass => {
-            io.to(`class:${presenceSlotClass}`).to("admin").emit("presence:all-deleted", { master_id: req.user?.user_id });
+            io.to(`class:${presenceSlotClass}`)
+            .to("admin")
+            .emit("presence:all-deleted", presenceSlotClass);
         });
 
         res.status(200).json({ message: "All presences deleted" });
@@ -81,7 +102,10 @@ export async function deleteOnePresence(req: Request, res: Response) {
             PresenceSlot.deleteOne({ _id: req.params.id })
         ]);
 
-        io.to(`class: ${presenceSlot[0].classname}`).to("admin").emit("presence:deleted", { presence_slot_id: req.params.id });
+        io.to(`class: ${presenceSlot[0].classname}`)
+        .to(`master:${presenceSlot[0].master_id}`)
+        .to("admin")
+        .emit("presence:deleted", { presence_slot_id: req.params.id });
 
         res.status(200).json({ message: "Presence deleted" });
     } catch (error) {

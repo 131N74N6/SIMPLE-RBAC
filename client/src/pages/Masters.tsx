@@ -28,7 +28,7 @@ export default function Masters() {
     
     useSocketIo({
         user_id: currentUserId!,
-        role: "admin"
+        role: ["admin"]
     });
 
     return (

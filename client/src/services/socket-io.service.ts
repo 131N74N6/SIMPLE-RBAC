@@ -36,6 +36,22 @@ export default function SocketServices() {
         socket?.emit("join:admin");
     }
 
+    function onClassCreated(callback: (data: any) => void) {
+        socket?.on("class:created", callback);
+    }
+
+    function onClassChanged(callback: (data: any) => void) {
+        socket?.on("class:changed", callback);
+    }
+
+    function onDeletedAllClasses(callback: (data: any) => void) {
+        socket?.on("class:deleted-all", callback);
+    }
+
+    function onDeleteClass(callback: (data: any) => void) {
+        socket?.on("class:deleted", callback);
+    }
+
     function onPresenceCreated(callback: (data: any) => void) {
         socket?.on("presence:created", callback);
     }
@@ -115,6 +131,10 @@ export default function SocketServices() {
         joinAdmin, 
         joinClass, 
         joinMaster, 
+        onClassChanged,
+        onClassCreated,
+        onDeletedAllClasses,
+        onDeleteClass,
         onPresenceChanged, 
         onPresenceCreated, 
         onPresenceDeleted, 

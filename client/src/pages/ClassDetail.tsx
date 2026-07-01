@@ -30,7 +30,7 @@ export default function ClassDetail() {
 
     useSocketIo({
         user_id: currentUserId!,
-        role: "admin"
+        role: ["admin"]
     });
 
     return (

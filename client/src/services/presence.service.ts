@@ -221,6 +221,7 @@ export default function PresenceServices(props?: PresenceSericeIntrf) {
             await addData<FillPresenceIntrf>({
                 api_url: `${import.meta.env.VITE_BASE_API_URL}/student-presences/fill`,
                 data: { 
+                    presence_creator_id: props.presence_creator_id,
                     presence_creator: props.presence_creator,
                     presence_slot_id: props.presence_slot_id,
                     status: props.status.trim()

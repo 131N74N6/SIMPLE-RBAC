@@ -31,13 +31,8 @@ export default function PresenceDetail() {
 
     useSocketIo({
         user_id: currentUserId!,
-        role: "master",
+        role: ["admin", "master"],
         identifier: currentUserId!
-    });
-
-    useSocketIo({
-        user_id: currentUserId!,
-        role: "admin"
     });
 
     return (

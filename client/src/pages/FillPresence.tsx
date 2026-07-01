@@ -20,11 +20,9 @@ export default function FillPresence() {
     
     useSocketIo({
         user_id: currentUserId!,
-        role: "student",
+        role: ["student"],
         identifier: currentClassName!
     });
-
-    console.log(currentClassName);
 
     return (
         <section className="flex md:flex-row flex-col h-screen relative z-10 font-mono">

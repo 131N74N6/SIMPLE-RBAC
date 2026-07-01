@@ -167,7 +167,10 @@ export default function ClassServices(props?: ClassServiceIntrf) {
         studentClassHasNextPage, studentClassIsFetchingNextPage, studentClassIsLoading 
     };
 
-    const isProcessing = addNewClassMt.isPending || changeClassMt.isPending || deleteOneClassMt.isPending || deleteAllClassesMt.isPending;
+    const isProcessing = addNewClassMt.isPending || 
+    changeClassMt.isPending || 
+    deleteOneClassMt.isPending || 
+    deleteAllClassesMt.isPending;
 
     return { 
         addNewClass, 

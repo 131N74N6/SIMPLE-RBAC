@@ -2,6 +2,7 @@ import type { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult, U
 import type { GetDataIntrf } from "./data.model";
 
 export type FillPresenceIntrf = {
+    presence_creator_id: string;
     presence_creator: string;
     presence_slot_id: string;
     status: string;
@@ -19,7 +20,7 @@ export type PresenceSlotIntrf = {
     classname: string;
     deadline: string;
     start_time: string;
-    master_id: String;
+    master_id: string;
     master_name: string;
 }
 

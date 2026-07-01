@@ -46,6 +46,7 @@ export default function PresenceFormItem(props: PresencFormItemIntrf) {
                                 disabled={props.isExpired || !props.studentStatus[props.form._id] || props.fillPresenceMt.isPending}
                                 onClick={() => props.fillPresenceMt.mutate({
                                     presence_creator: props.form.master_name,
+                                    presence_creator_id: props.form.master_id,
                                     presence_slot_id: props.form._id,
                                     status: props.studentStatus[props.form._id]
                                 })}
@@ -57,7 +58,7 @@ export default function PresenceFormItem(props: PresencFormItemIntrf) {
                     )
                 ) : error ? (
                     <div className="flex justify-center items-center">
-                        <div className="text-white font-medium text-base">{error.message}</div>
+                        <div className="text-blue-300 font-medium text-base">{error.message}</div>
                     </div>
                 ) : null}
             </div>
