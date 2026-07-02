@@ -5,7 +5,7 @@ import useError from "../hooks/useError";
 export default function MakePresence() {
     const { error, setError } = useError();
 
-    const {isProcessing, makeNewPresenceMt, setPresenceForm, presenceForm } = PresenceServices({ setMessage: setError });
+    const { isProcessing, makeNewPresenceMt, setPresenceForm, presenceForm } = PresenceServices({ setMessage: setError });
 
     const makeNewPresence = (event: React.SyntheticEvent) => {
         event.preventDefault();

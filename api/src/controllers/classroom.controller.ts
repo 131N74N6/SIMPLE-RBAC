@@ -77,13 +77,13 @@ export async function deleteAllClasses(_: Request, res: Response) {
 
         presenceSlotMasterIds.forEach(presenceSlotMasterId => {
             io.to(`master:${presenceSlotMasterId}`)
-            .emit("classroom:deleted-all", presenceSlotMasterId)
+            .emit("classroom:deleted-all", { presence_creator_id: presenceSlotMasterId });
         });
 
         classnames.forEach(classname => {
             io.to(`class:${classname}`)
             .to("admin")
-            .emit("classroom:deleted-all", classname)
+            .emit("classroom:deleted-all", { classname: classname });
         });
 
         return res.status(200).json({ message: 'class deleted' });
@@ -110,14 +110,12 @@ export async function deleteOneClass(req: Request, res: Response) {
 
         presenceSlotMasterIds.forEach(presenceSlotMasterId => {
             io.to(`master:${presenceSlotMasterId}`)
-            .emit("classroom:deleted", presenceSlotMasterId)
+            .emit("classroom:deleted", { presence_creator_id: presenceSlotMasterId });
         });
 
         io.to(`class:${getClassName}`)
-        .to("admin").
-        emit("classroom:deleted", {
-            classname: getClassName
-        });
+        .to("admin")
+        .emit("classroom:deleted", { classname: getClassName });
 
         return res.status(200).json({ message: 'class deleted' });
     } catch (error) {
@@ -146,10 +144,21 @@ export async function getAllStudentsInClass(req: Request, res: Response) {
         const skip = (page - 1) * limit;
 
         if (searched === undefined || searched.trim() === "") {
-            const users = await User.find({ classname: req.params.classname }).skip(skip).limit(limit);
+            const users = await User
+            .find({ classname: req.params.classname })
+            .skip(skip)
+            .limit(limit);
+
             res.status(200).json(users);
         } else {
-            const users = await User.find({ classname: req.params.classname, username: { $regex: new RegExp(searched, 'i') } }).skip(skip).limit(limit);
+            const users = await User
+            .find({ 
+                classname: req.params.classname, 
+                username: { $regex: new RegExp(searched, 'i') } 
+            })
+            .skip(skip)
+            .limit(limit);
+
             res.status(200).json(users);
         }
     } catch (error) {
@@ -166,9 +175,8 @@ export async function makeClass(req: Request, res: Response) {
         const newClass = new ClassRoom({ created_at, classname });
         await newClass.save();
 
-        io.to("admin").emit("classroom:created", {
-            created_at, classname
-        });
+        io.to("admin")
+        .emit("classroom:created", { created_at, classname });
 
         res.status(200).json({ message: 'new classroom created' });
     } catch (error) {

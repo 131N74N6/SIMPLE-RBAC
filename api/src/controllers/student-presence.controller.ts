@@ -45,7 +45,7 @@ export async function deleteAllStatuses(req: Request, res: Response) {
 
         presenceCreatorIds.forEach(presenceCreatorId => {
             io.to(`master:${presenceCreatorId}`)
-            .emit("presence-status:all-deleted", presenceCreatorId);
+            .emit("presence-status:all-deleted", { presence_creator_id: presenceCreatorId });
         });
 
         presenceStatusClasses.forEach(presenceStatus => {

@@ -150,7 +150,7 @@ export async function deleteAllStudents(_: Request, res: Response) {
 
         getMasterIds.forEach(getMasterId => {
             io.to(`master:${getMasterId}`)
-            .emit("user:all-student-deleted", { master_id: getMasterId });
+            .emit("user:all-student-deleted", { presence_creator_id: getMasterId });
         });
 
         getStudentClasses.forEach(getStudentClass => {
@@ -183,7 +183,7 @@ export async function deleteAllStudentByClass(req: Request, res: Response) {
 
         getMasterIds.forEach(getMasterId => {
             io.to(`master:${getMasterId}`)
-            .emit("user:all-student-in-class-deleted", { master_id: getMasterId });
+            .emit("user:all-student-in-class-deleted", { presence_creator_id: getMasterId });
         });
 
         io.to(`class:${req.params.classname}`)
@@ -223,6 +223,7 @@ export async function deleteAllMasters(_: Request, res: Response) {
         const presenceSlots = await PresenceSlot.find({ master_id: getMasters[0]._id });
         if (getMasters.length === 0) return res.status(404).json({ message: "Master not found" });
 
+        const masterIds = getMasters.map(master => master._id);
         const presenceSlotsClassNames = Array.from(new Set(
             presenceSlots.map(presenceSlot => presenceSlot.classname)
         ));
@@ -232,6 +233,11 @@ export async function deleteAllMasters(_: Request, res: Response) {
             PresenceSlot.deleteMany(),
             User.deleteMany({ role: "master" })
         ]);
+
+        masterIds.forEach(masterId => {
+            io.to(`master${masterId}`)
+            .emit("user:all-master-deleted", { presence_creator_id: masterId });
+        });
 
         presenceSlotsClassNames.forEach(presenceSlotsClassName => {
             io.to(`class:${presenceSlotsClassName}`)
@@ -258,6 +264,9 @@ export async function deleteMaster(req: Request, res: Response) {
             PresenceSlot.deleteMany({ master_id: req.params.id }),
             User.deleteOne({ _id: req.params.id, role: "master" })
         ]);
+
+        io.to(`master:${req.params.id}`)
+        .emit("user:master-deleted", { presence_creator_id: req.params.id });
 
         presenceSlotsClassNames.forEach(presenceSlotsClassName => {
             io.to(`class:${presenceSlotsClassName}`)
