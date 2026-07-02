@@ -38,6 +38,7 @@ export async function changeClass(req: Request, res: Response) {
         presenceSlotMasterIds.forEach(presenceSlotMasterId => {
             io.to(`master:${presenceSlotMasterId}`)
             .emit("classroom:changed", {
+                _id: targetClass?._id,
                 classname: req.body.classname
             });
         });
@@ -45,6 +46,7 @@ export async function changeClass(req: Request, res: Response) {
         io.to(`class:${targetClass?.classname}`)
         .to("admin")
         .emit("classroom:changed", {
+            _id: targetClass?._id,
             classname: req.body.classname
         });
 

@@ -146,7 +146,12 @@ export default function UserServices(props?: UserServiceIntrf) {
                 predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
                     const queryKey = query.queryKey;
                     if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                        return queryKey[0].startsWith('all-masters');
+                        return queryKey[0].startsWith('all-masters') ||
+                        queryKey[0].startsWith(`is-filled-`) ||
+                        queryKey[0].startsWith(`all-presences-form-`) ||
+                        queryKey[0].startsWith(`all-presences-for-master-`) ||
+                        queryKey[0].startsWith('all-presences-for-admin-') ||
+                        queryKey[0].startsWith(`presence-details-`);
                     }
                     return false;
                 }
@@ -177,7 +182,10 @@ export default function UserServices(props?: UserServiceIntrf) {
                     const queryKey = query.queryKey;
                     if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
                         return queryKey[0].startsWith('all-students') || 
-                        queryKey[0].startsWith('all-students-class');
+                        queryKey[0].startsWith('all-students-class') ||
+                        queryKey[0].startsWith(`all-presences-for-master-`) ||
+                        queryKey[0].startsWith(`all-presences-form-`) ||
+                        queryKey[0].startsWith(`all-presences-for-admin-`);
                     }
                     return false;
                 }
@@ -198,7 +206,12 @@ export default function UserServices(props?: UserServiceIntrf) {
                 predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
                     const queryKey = query.queryKey;
                     if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                        return queryKey[0].startsWith('all-masters');
+                        return queryKey[0].startsWith('all-masters') ||
+                        queryKey[0].startsWith(`is-filled-`) ||
+                        queryKey[0].startsWith(`all-presences-form-`) ||
+                        queryKey[0].startsWith(`all-presences-for-master-`) ||
+                        queryKey[0].startsWith('all-presences-for-admin-') ||
+                        queryKey[0].startsWith(`presence-details-`);
                     }
                     return false;
                 }
@@ -218,7 +231,12 @@ export default function UserServices(props?: UserServiceIntrf) {
                 predicate: (query: Query<unknown, Error, unknown, readonly unknown[]>) => {
                     const queryKey = query.queryKey;
                     if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
-                        return queryKey[0].startsWith('all-masters');
+                        return queryKey[0].startsWith('all-masters') ||
+                        queryKey[0].startsWith(`is-filled-`) ||
+                        queryKey[0].startsWith(`all-presences-form-`) ||
+                        queryKey[0].startsWith(`all-presences-for-master-`) ||
+                        queryKey[0].startsWith('all-presences-for-admin-') ||
+                        queryKey[0].startsWith(`presence-details-`);
                     }
                     return false;
                 }
@@ -239,7 +257,11 @@ export default function UserServices(props?: UserServiceIntrf) {
                     const queryKey = query.queryKey;
                     if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
                         return queryKey[0].startsWith('all-students') || 
-                        queryKey[0].startsWith('all-students-class');
+                        queryKey[0].startsWith(`is-filled-`) ||
+                        queryKey[0].startsWith(`all-presences-form`) ||
+                        queryKey[0].startsWith(`all-presences-for-admin-`) ||
+                        queryKey[0].startsWith('all-students-class') ||
+                        queryKey[0].startsWith(`presence-details-`);
                     }
                     return false;
                 }
@@ -260,7 +282,11 @@ export default function UserServices(props?: UserServiceIntrf) {
                     const queryKey = query.queryKey;
                     if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
                         return queryKey[0].startsWith('all-students') || 
-                        queryKey[0].startsWith('all-students-class');
+                        queryKey[0].startsWith(`is-filled-`) ||
+                        queryKey[0].startsWith(`all-presences-form`) ||
+                        queryKey[0].startsWith(`all-presences-for-admin-`) ||
+                        queryKey[0].startsWith('all-students-class') ||
+                        queryKey[0].startsWith(`presence-details-`);
                     }
                     return false;
                 }
@@ -281,7 +307,11 @@ export default function UserServices(props?: UserServiceIntrf) {
                     const queryKey = query.queryKey;
                     if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
                         return queryKey[0].startsWith('all-students') || 
-                        queryKey[0].startsWith('all-students-class');
+                        queryKey[0].startsWith(`is-filled-`) ||
+                        queryKey[0].startsWith(`all-presences-form`) ||
+                        queryKey[0].startsWith(`all-presences-for-admin-`) ||
+                        queryKey[0].startsWith('all-students-class') ||
+                        queryKey[0].startsWith(`presence-details-`);
                     }
                     return false;
                 }

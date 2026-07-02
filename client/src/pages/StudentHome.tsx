@@ -1,7 +1,17 @@
 import StudentNavbar from "../components/StudentNavbar";
+import useSocketIo from "../hooks/useSocketIo";
 import AuthServices from "../services/auth.service";
+import PresenceServices from "../services/presence.service";
 
 export default function StudentHome() {
+    const { currentClassName, currentUserId } = PresenceServices();
+    
+    useSocketIo({
+        role: ["student"],
+        user_id: currentUserId!,
+        identifier: currentClassName!
+    });
+
     const { currentUserName } = AuthServices();
     const now = new Date().getHours();
         

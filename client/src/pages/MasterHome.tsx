@@ -1,7 +1,17 @@
 import MasterNavbar from "../components/MasterNavbar";
+import useSocketIo from "../hooks/useSocketIo";
 import AuthServices from "../services/auth.service";
+import PresenceServices from "../services/presence.service";
 
 export default function MasterHome() {
+    const { currentUserId } = PresenceServices();
+
+    useSocketIo({
+        role: ["master"],
+        user_id: currentUserId!,
+        identifier: currentUserId!
+    });
+    
     const { currentUserName } = AuthServices();
     const now = new Date().getHours();
             

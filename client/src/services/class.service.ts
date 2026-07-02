@@ -69,7 +69,11 @@ export default function ClassServices(props?: ClassServiceIntrf) {
                     if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
                         return queryKey[0].startsWith('all-classes') || 
                         queryKey[0].startsWith('all-students')|| 
-                        queryKey[0].startsWith('all-students-class');
+                        queryKey[0].startsWith('all-students-class') ||
+                        queryKey[0].startsWith(`all-presences-form-`) ||
+                        queryKey[0].startsWith(`all-presences-for-master-`) ||
+                        queryKey[0].startsWith('all-presences-for-admin-') ||
+                        queryKey[0].startsWith(`presence-details-`);
                     }
                     return false;
                 }
@@ -92,7 +96,11 @@ export default function ClassServices(props?: ClassServiceIntrf) {
                     if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
                         return queryKey[0].startsWith('all-classes') || 
                         queryKey[0].startsWith('all-students')|| 
-                        queryKey[0].startsWith('all-students-class');
+                        queryKey[0].startsWith('all-students-class') ||
+                        queryKey[0].startsWith(`all-presences-form-`) ||
+                        queryKey[0].startsWith(`all-presences-for-master-`) ||
+                        queryKey[0].startsWith('all-presences-for-admin-') ||
+                        queryKey[0].startsWith(`presence-details-`);
                     }
                     return false;
                 }
@@ -116,7 +124,11 @@ export default function ClassServices(props?: ClassServiceIntrf) {
                     if (Array.isArray(queryKey) && queryKey.length !== 0 && typeof queryKey[0] === "string") {
                         return queryKey[0].startsWith('all-classes') || 
                         queryKey[0].startsWith('all-students')|| 
-                        queryKey[0].startsWith('all-students-class');
+                        queryKey[0].startsWith('all-students-class') ||
+                        queryKey[0].startsWith(`all-presences-form-`) ||
+                        queryKey[0].startsWith(`all-presences-for-master-`) ||
+                        queryKey[0].startsWith('all-presences-for-admin-') ||
+                        queryKey[0].startsWith(`presence-details-`);
                     }
                     return false;
                 }

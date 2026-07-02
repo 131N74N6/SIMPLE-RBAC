@@ -28,12 +28,20 @@ export default function SocketServices() {
         socket?.emit("join:class", classname);
     }
 
+    function joinAdmin() {
+        socket?.emit("join:admin");
+    }
+
     function joinMaster(master_id: string) {
         socket?.emit("join:master", master_id);
     }
 
-    function joinAdmin() {
-        socket?.emit("join:admin");
+    function joinStudent(student_id: string) {
+        socket?.emit("join:student", student_id);
+    }
+
+    function newUserAdded(callback: (data: any) => void) {
+        socket?.emit("user:added", callback);
     }
 
     function onClassCreated(callback: (data: any) => void) {
@@ -130,7 +138,9 @@ export default function SocketServices() {
         getSocket, 
         joinAdmin, 
         joinClass, 
-        joinMaster, 
+        joinMaster,
+        joinStudent, 
+        newUserAdded,
         onClassChanged,
         onClassCreated,
         onDeletedAllClasses,

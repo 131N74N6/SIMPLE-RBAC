@@ -1,7 +1,16 @@
 import AdminNavbar from "../components/AdminNavbar";
+import useSocketIo from "../hooks/useSocketIo";
 import AuthServices from "../services/auth.service";
+import PresenceServices from "../services/presence.service";
 
 export default function AdminHome() {
+    const { currentUserId } = PresenceServices();
+        
+    useSocketIo({
+        role: ["admin"],
+        user_id: currentUserId!
+    });
+
     const { currentUserName } = AuthServices();
     const now = new Date().getHours();
     

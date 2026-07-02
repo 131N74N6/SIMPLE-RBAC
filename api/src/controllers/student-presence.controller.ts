@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { StudentPresence } from "../models/student-presence.model";
 import { PresenceSlot } from "../models/presence-slot.model";
 import { io } from "../services/socket-io.service";
+import { User } from "../models/user.model";
 
 export async function changeStudentPresence(req: Request, res: Response) {
     try {
@@ -78,11 +79,15 @@ export async function deleteStatus(req: Request, res: Response) {
 export async function fillPresenceForStudent(req: AuthRequest, res: Response) {
     try {
         const { presence_creator, presence_creator_id, presence_slot_id, status } = req.body;
-        if (!presence_slot_id || !presence_creator_id || !status) return res.status(400).json({ message: "Input field required" });
+        const currentUser = await User.findOne({ _id: req.user?.user_id, role: "student" });
 
-        const student_id = req.user?.user_id;
-        const student_name = req.user?.username;
-        const classname = req.user?.classname;
+        if (!presence_slot_id || !presence_creator_id || !status) {
+            return res.status(400).json({ message: "Input field required" });
+        }
+
+        const student_id = currentUser?._id;
+        const student_name = currentUser?.username;
+        const classname = currentUser?.classname;
 
         const targetSlot = await PresenceSlot.find({ _id: presence_slot_id });
         if (targetSlot.length === 0) return res.status(404).json({ message: "Presence form not found" });
@@ -127,14 +132,18 @@ export async function getAvailablePresencesForStudent(req: AuthRequest, res: Res
         const dataEachPage = parseInt(page as string) || 1;
         const skip = (dataEachPage - 1) * dataLimit;
 
+        const currentUser = await User.findOne({ _id: req.user?.user_id, role: "student" });
+
         const totalAvailableSlots = await PresenceSlot.find(
-            { classname: req.user?.classname }
+            { classname: currentUser?.classname }
         ).sort({ created_at: -1 }).countDocuments();
         
-        if (totalAvailableSlots === 0) return res.status(404).json({ message: "No presence forms available for your class" });
+        if (totalAvailableSlots === 0) {
+            return res.status(404).json({ message: "No presence forms available for your class" });
+        }
 
         const availableSlots = await PresenceSlot.find(
-            { classname: req.user?.classname }
+            { classname: currentUser?.classname }
         ).sort({ created_at: -1 }).limit(dataLimit).skip(skip);
 
         res.status(200).json(availableSlots);
@@ -148,7 +157,9 @@ export async function isPresenceFilled(req: AuthRequest, res: Response) {
         const { presence_slot_id } = req.params;
         const student_id = req.user?.user_id;
 
-        const alreadyFilled = await StudentPresence.findOne({ presence_slot_id, student_id: student_id });
+        const alreadyFilled = await StudentPresence
+        .findOne({ presence_slot_id, student_id: student_id });
+        
         res.status(200).json({ status: alreadyFilled?.status });
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });

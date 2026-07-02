@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { StudentPresence } from "../models/student-presence.model";
 import { PresenceSlot } from "../models/presence-slot.model";
 import { AuthRequest } from '../middleware/auth.middleware';
+import { User } from "../models/user.model";
 import { io } from '../services/socket-io.service';
 
 export async function changePresenceForm(req: Request, res: Response) {
@@ -118,23 +119,29 @@ export async function getAllPresencesForMaster(req: AuthRequest, res: Response) 
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 12;
         const skip = (page - 1) * limit;
-
         const searched = req.query.search as string | undefined;
-        const presenceTotal = await PresenceSlot.find({ master_id: req.user?.user_id }).countDocuments();
+
+        const presenceTotal = await PresenceSlot
+        .find({ master_id: req.user?.user_id })
+        .countDocuments();
+
         if (presenceTotal === 0) return res.status(404).json({ message: "Presence not found" });
 
         if (searched === undefined) {
-            const presenceData = await PresenceSlot.find({ master_id: req.user?.user_id }).limit(limit).skip(skip);
+            const presenceData = await PresenceSlot
+            .find({ master_id: req.user?.user_id })
+            .limit(limit)
+            .skip(skip);
             
             res.status(200).json(presenceData);
         } else {
-            const presenceData = await PresenceSlot.find({
-                $or: [
-                    { classname: { $regex: new RegExp(searched, 'i') } },
-                    { created_at: { $regex: new RegExp(searched, 'i') } },
-                ],
+            const presenceData = await PresenceSlot
+            .find({
+                classname: { $regex: new RegExp(searched, 'i') },
                 master_id: req.user?.user_id
-            }).limit(limit).skip(skip);
+            })
+            .limit(limit)
+            .skip(skip);
 
             res.status(200).json(presenceData);
         }
@@ -155,12 +162,15 @@ export async function getAllPresencesForAdmin(req: Request, res: Response) {
         if (presenceTotal === 0) return res.status(404).json({ message: "Presence not found" });
 
         if (searched !== undefined) {
-            presenceData = await PresenceSlot.find({ 
+            presenceData = await PresenceSlot
+            .find({ 
                 $or: [
                     { classname: { $regex: new RegExp(searched, 'i') } },
                     { master_name: { $regex: new RegExp(searched, 'i') } }
                 ] 
-            }).limit(limit).skip(skip);
+            })
+            .limit(limit)
+            .skip(skip);
         } else {
             presenceData = await PresenceSlot.find().limit(limit).skip(skip);
         }
@@ -179,16 +189,22 @@ export async function getPresenceDetailForMaster(req: Request, res: Response) {
         const skip = (page - 1) * limit;
         
         const searched = req.query.search as string | undefined;
-        const presenceTotal = await StudentPresence.find({ presence_slot_id: req.params.presence_slot_id }).countDocuments();
+        const presenceTotal = await StudentPresence
+        .find({ presence_slot_id: req.params.presence_slot_id })
+        .countDocuments();
+
         if (presenceTotal === 0) return res.status(404).json({ message: "Student not found" });
 
         if (searched === undefined || searched === "") {
             studentList = await StudentPresence.find({ presence_slot_id: req.params.presence_slot_id }).limit(limit).skip(skip);
         } else {
-            studentList = await StudentPresence.find({ 
+            studentList = await StudentPresence
+            .find({ 
                 student_name: { $regex: new RegExp(searched, 'i') }, 
                 presence_slot_id: req.params.presence_slot_id 
-            }).limit(limit).skip(skip);
+            })
+            .limit(limit)
+            .skip(skip);
         }
         res.status(200).json(studentList);
     } catch (error) {
@@ -199,10 +215,14 @@ export async function getPresenceDetailForMaster(req: Request, res: Response) {
 export async function makePresence(req: AuthRequest, res: Response) {
     try {
         const { classname, deadline, start_time } = req.body;
-        const master_id = req.user?.user_id;
-        const master_name = req.user?.username;
+        const currentUser = await User.findOne({ _id: req.user?.user_id, role: "master" });
 
-        if (!classname || !deadline || !start_time) return res.status(400).json({ message: "All fields are required" });
+        const master_id = currentUser?._id;
+        const master_name = currentUser?.username;
+
+        if (!classname || !deadline || !start_time) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
 
         const newSlot = new PresenceSlot({
             classname,

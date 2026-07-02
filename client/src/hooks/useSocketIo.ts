@@ -15,6 +15,7 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
         joinAdmin,
         joinClass, 
         joinMaster, 
+        newUserAdded,
         onClassChanged,
         onClassCreated,
         onDeletedAllClasses,
@@ -50,10 +51,10 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
         }
 
         const queryNamesForClass = ['all-classes'];
-
+        const queryNamesForAuthUser = ['auth-user'];
         const queryNamesForMaster = ['all-masters'];
 
-        const queryNamesForPresenceForm = [
+        const queryNamesForPresences = [
             'is-filled',
             'all-presences-for-admin',
             'all-presences-for-master',
@@ -61,13 +62,6 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
             'presence-details'
         ];
 
-        const queryNamesForPresenceStatus = [
-            'is-filled',
-            'all-presences-for-admin',
-            'all-presences-for-master',
-            'all-presences-form',
-            'presence-details'
-        ];
         const queryNamesForStudent = ['all-students', 'all-students-class'];
 
         function invalidations(queryNames: string[]) {
@@ -83,114 +77,159 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
         }
 
         if (props.role.includes("admin")) {
+            newUserAdded(() => invalidations([
+                ...queryNamesForMaster, ...queryNamesForStudent, ...queryNamesForAuthUser
+            ]));
+
             onClassChanged(() => invalidations([
                 ...queryNamesForClass, 
                 ...queryNamesForStudent, 
-                ...queryNamesForPresenceForm, 
-                ...queryNamesForPresenceStatus]));
+                ...queryNamesForPresences, 
+                ...queryNamesForAuthUser
+            ]));
             onClassCreated(() => invalidations([
                 ...queryNamesForClass, 
                 ...queryNamesForStudent, 
-                ...queryNamesForPresenceForm, 
-                ...queryNamesForPresenceStatus]));
+                ...queryNamesForPresences, 
+                ...queryNamesForAuthUser
+            ]));
             onDeletedAllClasses(() => invalidations([
                 ...queryNamesForClass, 
                 ...queryNamesForStudent, 
-                ...queryNamesForPresenceForm, 
-                ...queryNamesForPresenceStatus]));
+                ...queryNamesForPresences, 
+                ...queryNamesForAuthUser
+            ]));
             onDeleteClass(() => invalidations([
                 ...queryNamesForClass, 
                 ...queryNamesForStudent, 
-                ...queryNamesForPresenceForm, 
-                ...queryNamesForPresenceStatus]));
+                ...queryNamesForPresences, 
+                ...queryNamesForAuthUser
+            ]));
 
-            onMasterChanged(() => invalidations(queryNamesForMaster));
-            onDeleteAllMasters(() => invalidations(queryNamesForMaster));
-            onDeleteMaster(() => invalidations(queryNamesForMaster));
+            onMasterChanged(() => invalidations([
+                ...queryNamesForMaster, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteAllMasters(() => invalidations([
+                ...queryNamesForMaster, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteMaster(() => invalidations([
+                ...queryNamesForMaster, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
 
-            onPresenceCreated(() => invalidations(queryNamesForPresenceForm));
-            onPresenceChanged(() => invalidations(queryNamesForPresenceForm));
-            onPresenceDeletedAll(() => invalidations(queryNamesForPresenceForm));
-            onPresenceDeleted(() => invalidations(queryNamesForPresenceForm));
-            onPresenceFilled(() => invalidations(queryNamesForPresenceForm));
+            onPresenceCreated(() => invalidations(queryNamesForPresences));
+            onPresenceChanged(() => invalidations(queryNamesForPresences));
+            onPresenceDeletedAll(() => invalidations(queryNamesForPresences));
+            onPresenceDeleted(() => invalidations(queryNamesForPresences));
+            onPresenceFilled(() => invalidations(queryNamesForPresences));
 
-            onPresenceStatusChanged(() => invalidations(queryNamesForPresenceStatus));
-            onPresenceStatusDeletedAll(() => invalidations(queryNamesForPresenceStatus));
-            onPresenceStatusDeleted(() => invalidations(queryNamesForPresenceStatus));
+            onPresenceStatusChanged(() => invalidations(queryNamesForPresences));
+            onPresenceStatusDeletedAll(() => invalidations(queryNamesForPresences));
+            onPresenceStatusDeleted(() => invalidations(queryNamesForPresences));
 
-            onStudentChanged(() => invalidations(queryNamesForStudent));
-            onDeleteAllStudentByClass(() => invalidations(queryNamesForStudent));
-            onDeleteAllStudents(() => invalidations(queryNamesForStudent));
-            onDeleteStudent(() => invalidations(queryNamesForStudent));
+            onStudentChanged(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteAllStudentByClass(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteAllStudents(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteStudent(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
         }
 
         if (props.role.includes("master")) {
             onClassChanged(() => invalidations([
                 ...queryNamesForClass, 
                 ...queryNamesForStudent, 
-                ...queryNamesForPresenceForm, 
-                ...queryNamesForPresenceStatus]));
+                ...queryNamesForPresences, 
+                ...queryNamesForAuthUser
+            ]));
             onDeletedAllClasses(() => invalidations([
                 ...queryNamesForClass, 
                 ...queryNamesForStudent, 
-                ...queryNamesForPresenceForm, 
-                ...queryNamesForPresenceStatus]));
+                ...queryNamesForPresences, 
+                ...queryNamesForAuthUser
+            ]));
             onDeleteClass(() => invalidations([
                 ...queryNamesForClass, 
                 ...queryNamesForStudent, 
-                ...queryNamesForPresenceForm, 
-                ...queryNamesForPresenceStatus]));
+                ...queryNamesForPresences, 
+                ...queryNamesForAuthUser
+            ]));
+
 
             onMasterChanged(() => invalidations(queryNamesForMaster));
             onDeleteAllMasters(() => invalidations(queryNamesForMaster));
             onDeleteMaster(() => invalidations(queryNamesForMaster));
 
-            onPresenceChanged(() => invalidations(queryNamesForPresenceForm));
-            onPresenceDeletedAll(() => invalidations(queryNamesForPresenceForm));
-            onPresenceDeleted(() => invalidations(queryNamesForPresenceForm));
-            onPresenceFilled(() => invalidations(queryNamesForPresenceForm));
+            onPresenceChanged(() => invalidations(queryNamesForPresences));
+            onPresenceDeletedAll(() => invalidations(queryNamesForPresences));
+            onPresenceDeleted(() => invalidations(queryNamesForPresences));
+            onPresenceFilled(() => invalidations(queryNamesForPresences));
 
-            onPresenceStatusChanged(() => invalidations(queryNamesForPresenceStatus));
-            onPresenceStatusDeletedAll(() => invalidations(queryNamesForPresenceStatus));
-            onPresenceStatusDeleted(() => invalidations(queryNamesForPresenceStatus));
+            onPresenceStatusChanged(() => invalidations(queryNamesForPresences));
+            onPresenceStatusDeletedAll(() => invalidations(queryNamesForPresences));
+            onPresenceStatusDeleted(() => invalidations(queryNamesForPresences));
 
-            onStudentChanged(() => invalidations(queryNamesForStudent));
-            onDeleteAllStudentByClass(() => invalidations(queryNamesForStudent));
-            onDeleteAllStudents(() => invalidations(queryNamesForStudent));
-            onDeleteStudent(() => invalidations(queryNamesForStudent));
+            onStudentChanged(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteAllStudentByClass(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteAllStudents(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteStudent(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
         }
 
         if (props.role.includes("student")) {
             onClassChanged(() => invalidations([
                 ...queryNamesForClass, 
                 ...queryNamesForStudent, 
-                ...queryNamesForPresenceForm, 
-                ...queryNamesForPresenceStatus]));
+                ...queryNamesForPresences, 
+                ...queryNamesForAuthUser
+            ]));
             onDeletedAllClasses(() => invalidations([
                 ...queryNamesForClass, 
                 ...queryNamesForStudent, 
-                ...queryNamesForPresenceForm, 
-                ...queryNamesForPresenceStatus]));
+                ...queryNamesForPresences, 
+                ...queryNamesForAuthUser
+            ]));
             onDeleteClass(() => invalidations([
                 ...queryNamesForClass, 
                 ...queryNamesForStudent, 
-                ...queryNamesForPresenceForm, 
-                ...queryNamesForPresenceStatus]));
+                ...queryNamesForPresences, 
+                ...queryNamesForAuthUser
+            ]));
 
-            onPresenceCreated(() => invalidations(queryNamesForPresenceForm));
-            onPresenceChanged(() => invalidations(queryNamesForPresenceForm));
+            onPresenceCreated(() => invalidations(queryNamesForPresences));
+            onPresenceChanged(() => invalidations(queryNamesForPresences));
 
-            onPresenceDeletedAll(() => invalidations(queryNamesForPresenceForm));
-            onPresenceDeleted(() => invalidations(queryNamesForPresenceForm));
+            onPresenceDeletedAll(() => invalidations(queryNamesForPresences));
+            onPresenceDeleted(() => invalidations(queryNamesForPresences));
 
-            onPresenceStatusChanged(() => invalidations(queryNamesForPresenceStatus));
-            onPresenceStatusDeletedAll(() => invalidations(queryNamesForPresenceStatus));
-            onPresenceStatusDeleted(() => invalidations(queryNamesForPresenceStatus));
+            onPresenceStatusChanged(() => invalidations(queryNamesForPresences));
+            onPresenceStatusDeletedAll(() => invalidations(queryNamesForPresences));
+            onPresenceStatusDeleted(() => invalidations(queryNamesForPresences));
             
-            onStudentChanged(() => invalidations(queryNamesForStudent));
-            onDeleteAllStudentByClass(() => invalidations(queryNamesForStudent));
-            onDeleteAllStudents(() => invalidations(queryNamesForStudent));
-            onDeleteStudent(() => invalidations(queryNamesForStudent));
+            onStudentChanged(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteAllStudentByClass(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteAllStudents(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteStudent(() => invalidations([
+                ...queryNamesForStudent, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
         }
 
         return () => removeAllListeners();
