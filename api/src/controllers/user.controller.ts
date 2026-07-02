@@ -256,7 +256,7 @@ export async function deleteMaster(req: Request, res: Response) {
         await Promise.all([
             StudentPresence.deleteMany({ presence_slot_id: { $in: presenceSlotsIds } }),
             PresenceSlot.deleteMany({ master_id: req.params.id }),
-            User.deleteOne({ _id: req.params.id })
+            User.deleteOne({ _id: req.params.id, role: "master" })
         ]);
 
         presenceSlotsClassNames.forEach(presenceSlotsClassName => {

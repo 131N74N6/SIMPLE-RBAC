@@ -36,10 +36,6 @@ export default function SocketServices() {
         socket?.emit("join:master", master_id);
     }
 
-    function joinStudent(student_id: string) {
-        socket?.emit("join:student", student_id);
-    }
-
     function newUserAdded(callback: (data: any) => void) {
         socket?.emit("user:added", callback);
     }
@@ -139,7 +135,6 @@ export default function SocketServices() {
         joinAdmin, 
         joinClass, 
         joinMaster,
-        joinStudent, 
         newUserAdded,
         onClassChanged,
         onClassCreated,

@@ -54,9 +54,7 @@ export async function signIn(req: Request, res: Response) {
         if (!isPasswordMatch) return res.status(400).json({ message: "Invalid password" });
 
         const userToken = jwt.sign({ 
-            classname: findUser.classname, 
             role: findUser.role, 
-            username: findUser.username, 
             user_id: findUser._id,
         }, process.env.JWT_SECRET || 'your_jwt_key', { expiresIn: '1d' });
 

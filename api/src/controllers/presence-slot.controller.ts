@@ -196,7 +196,10 @@ export async function getPresenceDetailForMaster(req: Request, res: Response) {
         if (presenceTotal === 0) return res.status(404).json({ message: "Student not found" });
 
         if (searched === undefined || searched === "") {
-            studentList = await StudentPresence.find({ presence_slot_id: req.params.presence_slot_id }).limit(limit).skip(skip);
+            studentList = await StudentPresence
+            .find({ presence_slot_id: req.params.presence_slot_id })
+            .limit(limit)
+            .skip(skip);
         } else {
             studentList = await StudentPresence
             .find({ 
