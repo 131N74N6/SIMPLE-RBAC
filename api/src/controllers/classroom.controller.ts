@@ -77,7 +77,10 @@ export async function deleteAllClasses(_: Request, res: Response) {
 
         presenceSlotMasterIds.forEach(presenceSlotMasterId => {
             io.to(`master:${presenceSlotMasterId}`)
-            .emit("classroom:deleted-all", { presence_creator_id: presenceSlotMasterId });
+            .emit("classroom:deleted-all", { 
+                master_id: presenceSlotMasterId,
+                presence_creator_id: presenceSlotMasterId 
+            });
         });
 
         classnames.forEach(classname => {
@@ -110,7 +113,10 @@ export async function deleteOneClass(req: Request, res: Response) {
 
         presenceSlotMasterIds.forEach(presenceSlotMasterId => {
             io.to(`master:${presenceSlotMasterId}`)
-            .emit("classroom:deleted", { presence_creator_id: presenceSlotMasterId });
+            .emit("classroom:deleted", { 
+                master_id: presenceSlotMasterId,
+                presence_creator_id: presenceSlotMasterId 
+            });
         });
 
         io.to(`class:${getClassName}`)
@@ -176,7 +182,11 @@ export async function makeClass(req: Request, res: Response) {
         await newClass.save();
 
         io.to("admin")
-        .emit("classroom:created", { created_at, classname });
+        .emit("classroom:created", { 
+            _id: newClass._id,
+            created_at: newClass.created_at, 
+            classname: newClass.classname
+        });
 
         res.status(200).json({ message: 'new classroom created' });
     } catch (error) {

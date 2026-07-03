@@ -45,7 +45,10 @@ export async function deleteAllStatuses(req: Request, res: Response) {
 
         presenceCreatorIds.forEach(presenceCreatorId => {
             io.to(`master:${presenceCreatorId}`)
-            .emit("presence-status:all-deleted", { presence_creator_id: presenceCreatorId });
+            .emit("presence-status:all-deleted", { 
+                master_id: presenceCreatorId,
+                presence_creator_id: presenceCreatorId 
+            });
         });
 
         presenceStatusClasses.forEach(presenceStatus => {
@@ -134,17 +137,20 @@ export async function getAvailablePresencesForStudent(req: AuthRequest, res: Res
 
         const currentUser = await User.findOne({ _id: req.user?.user_id, role: "student" });
 
-        const totalAvailableSlots = await PresenceSlot.find(
-            { classname: currentUser?.classname }
-        ).sort({ created_at: -1 }).countDocuments();
+        const totalAvailableSlots = await PresenceSlot
+        .find({ classname: currentUser?.classname })
+        .sort({ created_at: -1 })
+        .countDocuments();
         
         if (totalAvailableSlots === 0) {
             return res.status(404).json({ message: "No presence forms available for your class" });
         }
 
-        const availableSlots = await PresenceSlot.find(
-            { classname: currentUser?.classname }
-        ).sort({ created_at: -1 }).limit(dataLimit).skip(skip);
+        const availableSlots = await PresenceSlot
+        .find({ classname: currentUser?.classname })
+        .sort({ created_at: -1 })
+        .limit(dataLimit)
+        .skip(skip);
 
         res.status(200).json(availableSlots);
     } catch (error) {
