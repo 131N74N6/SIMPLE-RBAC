@@ -4,12 +4,10 @@ import Loading from '../components/Loading';
 import useError from '../hooks/useError';
 import PresenceSlotList from '../components/PresenceSlotList';
 import useSocketIo from '../hooks/useSocketIo';
-import useSearch from '../hooks/useSearch';
 import { Trash2 } from 'lucide-react';
 
 export default function PresenceByMaster() {
     const { error, setError } = useError();
-    const { search, setSearch } = useSearch();
 
     const { 
         allPresenceSlots, 
@@ -20,8 +18,10 @@ export default function PresenceByMaster() {
         editPresenceFormMt,
         handleSelectedFormId,
         isProcessing,
+        search,
         selectedFormId,
         setEditPresenceForm,
+        setSearch
     } = PresenceServices({ setMessage: setError });
 
     useSocketIo({
@@ -40,7 +40,7 @@ export default function PresenceByMaster() {
                         value={search}
                         name='search_user'
                         onChange={(event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => setSearch(event.target.value)}
-                        placeholder='find date / classname here...'
+                        placeholder='find classname here...'
                         className='shadow-[6px_6px_0px_0px] shadow-violet-300 w-[90%] font-medium p-1.5 text-base border border-violet-300 outline-0 font-mono text-violet-300'
                     />
                     <button 
