@@ -134,7 +134,8 @@ export async function deleteAllMasters(_: Request, res: Response) {
             presenceSlots.map(presenceSlot => {
                 return {
                     classname: presenceSlot.classname,
-                    master_id: presenceSlot.master_id
+                    master_id: presenceSlot.master_id,
+                    master_name: presenceSlot.master_name
                 }
             })
         ));
@@ -151,7 +152,8 @@ export async function deleteAllMasters(_: Request, res: Response) {
             .to("admin")
             .emit("user:all-master-deleted", { 
                 _id: payload.master_id,
-                classname: payload.classname, 
+                classname: payload.classname,
+                master_name: payload.master_name, 
                 master_id: payload.master_id 
             });
         });
@@ -166,8 +168,14 @@ export async function deleteMaster(req: Request, res: Response) {
     try {
         const presenceSlots = await PresenceSlot.find({ master_id: req.params.id });
         const presenceSlotsIds = presenceSlots.map((presenceSlot) => presenceSlot._id);
-        const presenceSlotsClassNames = Array.from(
-            new Set(presenceSlots.map(presenceSlot => presenceSlot.classname)
+        const payloads = Array.from(
+            new Set(presenceSlots.map(presenceSlot => {
+                return {
+                    classname: presenceSlot.classname,
+                    master_id: presenceSlot.master_id,
+                    master_name: presenceSlot.master_name
+                }
+            })
         ));
         
         await Promise.all([
@@ -177,12 +185,21 @@ export async function deleteMaster(req: Request, res: Response) {
         ]);
 
         io.to(`master:${req.params.id}`)
-        .emit("user:master-deleted", { presence_creator_id: req.params.id });
+        .to("admin")
+        .emit("user:master-deleted", {
+            _id: req.params.id,
+            master_id: req.params.id,
+            presence_creator_id: req.params.id
+        });
 
-        presenceSlotsClassNames.forEach(presenceSlotsClassName => {
-            io.to(`class:${presenceSlotsClassName}`)
-            .to("admin")
-            .emit("user:master-deleted", { classname: presenceSlotsClassName });
+        payloads.forEach(payload => {
+            io.to(`class:${payload.classname}`)
+            .emit("user:master-deleted", { 
+                classname: payload.classname,
+                master_id: payload.master_id,
+                master_name: payload.master_name,
+                presence_creator_id: payload.master_id
+            });
         });
 
         res.status(200).json({ message: "User deleted successfully" });
@@ -198,12 +215,15 @@ export async function deleteAllStudents(_: Request, res: Response) {
 
         if (getStudents.length === 0) return res.status(404).json({ message: "Student not found" });
 
-        const getStudentClasses = Array.from(new Set(
-            getStudents.map(student => student.classname)
-        ));
-
-        const getMasterIds = Array.from(new Set(
-            getPresences.map(getPresences => getPresences.presence_creator_id)
+        const payloads = Array.from(new Set(
+            getPresences.map(getPresences => {
+                return {
+                    classname: getPresences.classname,
+                    presence_creator_id: getPresences.presence_creator_id,
+                    student_id: getPresences.student_id,
+                    student_name: getPresences.student_name,
+                }
+            })
         ));
 
         await Promise.all([
@@ -211,15 +231,16 @@ export async function deleteAllStudents(_: Request, res: Response) {
             User.deleteMany({ role: "student" })
         ]);
 
-        getMasterIds.forEach(getMasterId => {
-            io.to(`master:${getMasterId}`)
-            .emit("user:all-student-deleted", { presence_creator_id: getMasterId });
-        });
-
-        getStudentClasses.forEach(getStudentClass => {
-            io.to(`class:${getStudentClass}`)
+        payloads.forEach(payload => {
+            io.to(`master:${payload.presence_creator_id}`)
+            .to(`class:${payload.classname}`)
             .to("admin")
-            .emit("user:all-student-deleted", { classname: getStudentClass });
+            .emit("user:all-student-deleted", { 
+                classname: payload.classname,
+                student_id: payload.student_id,
+                student_name: payload.student_name,
+                username: payload.student_name 
+            });
         });
 
         res.status(200).json({ message: "All users deleted successfully" });
@@ -235,8 +256,15 @@ export async function deleteAllStudentByClass(req: Request, res: Response) {
 
         const getStudentNames = getStudents.map(getStudent => getStudent.username);
         const getPresences = await StudentPresence.find({ student_name: { $in: getStudentNames } });
-        const getMasterIds = Array.from(new Set(
-            getPresences.map(getPresence => getPresence.presence_creator_id)
+        const payloads = Array.from(new Set(
+            getPresences.map(getPresence => {
+                return {
+                    classname: getPresence.classname,
+                    presence_creator_id: getPresence.presence_creator_id,
+                    student_id: getPresence.student_id,
+                    student_name: getPresence.student_name
+                }
+            })
         ));
 
         await Promise.all([
@@ -244,14 +272,17 @@ export async function deleteAllStudentByClass(req: Request, res: Response) {
             User.deleteMany({ classname: getStudents[0].classname, role: "student" })
         ]);
 
-        getMasterIds.forEach(getMasterId => {
-            io.to(`master:${getMasterId}`)
-            .emit("user:all-student-in-class-deleted", { presence_creator_id: getMasterId });
+        payloads.forEach(payload => {
+            io.to(`class:${payload.classname}`)
+            .to(`master:${payload.presence_creator_id}`)
+            .to("admin")
+            .emit("user:all-student-in-class-deleted", { 
+                _id: payload.student_id,
+                classname: payload.classname,
+                student_id: payload.student_id,
+                student_name: payload.student_name
+            });
         });
-
-        io.to(`class:${req.params.classname}`)
-        .to("admin")
-        .emit("user:all-student-in-class-deleted", { classname: req.params.classname });
 
         res.status(200).json({ message: "All users deleted successfully" });
     } catch (error: any) {
