@@ -160,10 +160,15 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
                 ...queryNamesForAuthUser
             ]));
 
-
-            onMasterChanged(() => invalidations(queryNamesForMaster));
-            onDeleteAllMasters(() => invalidations(queryNamesForMaster));
-            onDeleteMaster(() => invalidations(queryNamesForMaster));
+            onMasterChanged(() => invalidations([
+                ...queryNamesForMaster, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteAllMasters(() => invalidations([
+                ...queryNamesForMaster, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteMaster(() => invalidations([
+                ...queryNamesForMaster, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
 
             onPresenceChanged(() => invalidations(queryNamesForPresences));
             onPresenceDeletedAll(() => invalidations(queryNamesForPresences));
@@ -208,9 +213,18 @@ export default function useSocketIo(props: UsePresenceSocketProps) {
                 ...queryNamesForAuthUser
             ]));
 
+            onMasterChanged(() => invalidations([
+                ...queryNamesForMaster, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteAllMasters(() => invalidations([
+                ...queryNamesForMaster, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+            onDeleteMaster(() => invalidations([
+                ...queryNamesForMaster, ...queryNamesForPresences, ...queryNamesForAuthUser
+            ]));
+
             onPresenceCreated(() => invalidations(queryNamesForPresences));
             onPresenceChanged(() => invalidations(queryNamesForPresences));
-
             onPresenceDeletedAll(() => invalidations(queryNamesForPresences));
             onPresenceDeleted(() => invalidations(queryNamesForPresences));
 

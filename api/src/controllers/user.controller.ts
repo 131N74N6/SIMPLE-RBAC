@@ -8,17 +8,17 @@ import { io } from "../services/socket-io.service";
 export async function changeMasterData(req: Request, res: Response) {
     try {
         if (!!req.body.email && !req.body.role && !req.body.username) {
-            return res.status(400).json({ message: "Please provide role and username" });
+            return res.status(400).json({ message: "Please fill all required fields" });
         }
-        if (!req.body.email) return res.status(400).json({ message: "Please provide username" });
+        if (!req.body.email) return res.status(400).json({ message: "Please provide email" });
         if (!req.body.role) return res.status(400).json({ message: "Please provide role" });
         if (!req.body.username) return res.status(400).json({ message: "Please provide username" });
 
         const presenceSlots = await PresenceSlot.find({ master_id: req.params.user_id });
         const presenceSlotIds = presenceSlots.map(presenceSlot => presenceSlot._id);
 
-        const presenceSlotClasses = Array.from(new Set(
-            presenceSlots.map(presenceSlot => presenceSlot.classname)
+        const classnames = Array.from(new Set(
+            presenceSlots.map(presenceSlot =>  presenceSlot.classname)
         ));
 
         await Promise.all([
@@ -38,14 +38,13 @@ export async function changeMasterData(req: Request, res: Response) {
             })
         ]);
 
-        presenceSlotClasses.forEach(presenceSlotClass => {
-            io.to(`class:${presenceSlotClass}`)
+        classnames.forEach(classname => {
+            io.to(`class:${classname}`)
             .emit("user:master-changed", {
-                _id: req.params.user_id,
-                created_at: req.body.created_at,
                 email: req.body.email,
-                role: req.body.role,
-                username: req.body.username
+                master_id: req.params.user_id,
+                master_name: req.body.username,
+                role: req.body.role
             });
         });
 
@@ -55,6 +54,8 @@ export async function changeMasterData(req: Request, res: Response) {
             _id: req.params.user_id,
             created_at: req.body.created_at,
             email: req.body.email,
+            master_id: req.params.user_id,
+            master_name: req.body.username,
             role: req.body.role,
             username: req.body.username
         });
@@ -70,18 +71,19 @@ export async function changeStudentData(req: Request, res: Response) {
         const currentUser = await User.findOne({ _id: req.params.user_id });
         const presenceSlots = await PresenceSlot.find({ classname: currentUser?.classname });
 
-        const classes = Array.from(new Set(
-            presenceSlots.map(presenceSlot => presenceSlot.classname)
-        ));
-
-        const masterIds = Array.from(new Set(
-            presenceSlots.map(presenceSlot => presenceSlot.master_id)
+        const payloads = Array.from(new Set(
+            presenceSlots.map(presenceSlot => {
+                return {
+                    classname: presenceSlot.classname,
+                    master_id: presenceSlot.master_id
+                }
+            })
         ));
 
         if (!!req.body.email && !req.body.role && !req.body.username) {
             return res.status(400).json({ message: "Please provide role and username" });
         }
-        if (!req.body.email) return res.status(400).json({ message: "Please provide username" });
+        if (!req.body.email) return res.status(400).json({ message: "Please provide email" });
         if (!req.body.role) return res.status(400).json({ message: "Please provide role" });
         if (!req.body.username) return res.status(400).json({ message: "Please provide username" });
 
@@ -100,19 +102,11 @@ export async function changeStudentData(req: Request, res: Response) {
             })
         ]);
 
-        classes.forEach(target => {
-            io.to(`class:${target}`).to("admin").emit("user:student-changed", {
-                _id: req.params.user_id,
-                classname: req.body.classname,
-                created_at: req.body.created_at,
-                email: req.body.email,
-                role: req.body.role,
-                username: req.body.username
-            });
-        });
-
-        masterIds.forEach(masterId => {
-            io.to(`master:${masterId}`).emit("user:student-changed", {
+        payloads.forEach(payload => {
+            io.to(`class:${payload.classname}`)
+            .to(`master:${payload.master_id}`)
+            .to("admin")
+            .emit("user:student-changed", {
                 _id: req.params.user_id,
                 classname: req.body.classname,
                 created_at: req.body.created_at,
@@ -123,6 +117,75 @@ export async function changeStudentData(req: Request, res: Response) {
         });
         
         res.status(200).json({ message: "User data updated successfully" });
+    } catch (error: any) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export async function deleteAllMasters(_: Request, res: Response) {
+    try {
+        const allUsers = await User.find({ role: 'master' });
+        const masterIds = allUsers.map(user => user._id);
+        const presenceSlots = await PresenceSlot.find({ master_id: { $in: masterIds } });
+
+        if (allUsers.length === 0) return res.status(404).json({ message: "Master not found" });
+
+        const payloads = Array.from(new Set(
+            presenceSlots.map(presenceSlot => {
+                return {
+                    classname: presenceSlot.classname,
+                    master_id: presenceSlot.master_id
+                }
+            })
+        ));
+
+        await Promise.all([
+            StudentPresence.deleteMany(),
+            PresenceSlot.deleteMany(),
+            User.deleteMany({ role: "master" })
+        ]);
+
+        payloads.forEach(payload => {
+            io.to(`class:${payload.classname}`)
+            .to(`master:${payload.master_id}`)
+            .to("admin")
+            .emit("user:all-master-deleted", { 
+                _id: payload.master_id,
+                classname: payload.classname, 
+                master_id: payload.master_id 
+            });
+        });
+
+        res.status(200).json({ message: "User deleted successfully" });
+    } catch (error: any) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export async function deleteMaster(req: Request, res: Response) {
+    try {
+        const presenceSlots = await PresenceSlot.find({ master_id: req.params.id });
+        const presenceSlotsIds = presenceSlots.map((presenceSlot) => presenceSlot._id);
+        const presenceSlotsClassNames = Array.from(
+            new Set(presenceSlots.map(presenceSlot => presenceSlot.classname)
+        ));
+        
+        await Promise.all([
+            StudentPresence.deleteMany({ presence_slot_id: { $in: presenceSlotsIds } }),
+            PresenceSlot.deleteMany({ master_id: req.params.id }),
+            User.deleteOne({ _id: req.params.id, role: "master" })
+        ]);
+
+        io.to(`master:${req.params.id}`)
+        .emit("user:master-deleted", { presence_creator_id: req.params.id });
+
+        presenceSlotsClassNames.forEach(presenceSlotsClassName => {
+            io.to(`class:${presenceSlotsClassName}`)
+            .to("admin")
+            .emit("user:master-deleted", { classname: presenceSlotsClassName });
+        });
+
+        res.status(200).json({ message: "User deleted successfully" });
     } catch (error: any) {
         res.status(500).json({ message: "Something went wrong" });
     }
@@ -212,69 +275,6 @@ export async function deleteStudent(req: Request, res: Response) {
         .emit("user:student-deleted", { classname: getStudents[0].classname });
 
         res.status(200).json({ message: "All users deleted successfully" });
-    } catch (error: any) {
-        res.status(500).json({ message: "Something went wrong" });
-    }
-}
-
-export async function deleteAllMasters(_: Request, res: Response) {
-    try {
-        const getMasters = await User.find({ role: 'master' });
-        const presenceSlots = await PresenceSlot.find({ master_id: getMasters[0]._id });
-        if (getMasters.length === 0) return res.status(404).json({ message: "Master not found" });
-
-        const masterIds = getMasters.map(master => master._id);
-        const presenceSlotsClassNames = Array.from(new Set(
-            presenceSlots.map(presenceSlot => presenceSlot.classname)
-        ));
-
-        await Promise.all([
-            StudentPresence.deleteMany(),
-            PresenceSlot.deleteMany(),
-            User.deleteMany({ role: "master" })
-        ]);
-
-        masterIds.forEach(masterId => {
-            io.to(`master${masterId}`)
-            .emit("user:all-master-deleted", { presence_creator_id: masterId });
-        });
-
-        presenceSlotsClassNames.forEach(presenceSlotsClassName => {
-            io.to(`class:${presenceSlotsClassName}`)
-            .to("admin")
-            .emit("user:all-master-deleted", { classname: presenceSlotsClassName });
-        });
-
-        res.status(200).json({ message: "User deleted successfully" });
-    } catch (error: any) {
-        res.status(500).json({ message: "Something went wrong" });
-    }
-}
-
-export async function deleteMaster(req: Request, res: Response) {
-    try {
-        const presenceSlots = await PresenceSlot.find({ master_id: req.params.id });
-        const presenceSlotsIds = presenceSlots.map((presenceSlot) => presenceSlot._id);
-        const presenceSlotsClassNames = Array.from(
-            new Set(presenceSlots.map(presenceSlot => presenceSlot.classname)
-        ));
-        
-        await Promise.all([
-            StudentPresence.deleteMany({ presence_slot_id: { $in: presenceSlotsIds } }),
-            PresenceSlot.deleteMany({ master_id: req.params.id }),
-            User.deleteOne({ _id: req.params.id, role: "master" })
-        ]);
-
-        io.to(`master:${req.params.id}`)
-        .emit("user:master-deleted", { presence_creator_id: req.params.id });
-
-        presenceSlotsClassNames.forEach(presenceSlotsClassName => {
-            io.to(`class:${presenceSlotsClassName}`)
-            .to("admin")
-            .emit("user:master-deleted", { classname: presenceSlotsClassName });
-        });
-
-        res.status(200).json({ message: "User deleted successfully" });
     } catch (error: any) {
         res.status(500).json({ message: "Something went wrong" });
     }

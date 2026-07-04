@@ -62,10 +62,16 @@ export async function deleteAllClasses(_: Request, res: Response) {
         if (classes.length === 0) return res.status(404).json({ message: 'no class found' });
 
         const classnames = classes.map(target => target.classname);
-        const presenceSlotClasses = await PresenceSlot.find({ classname: { $in: classnames } });
+        const presenceSlots = await PresenceSlot.find({ classname: { $in: classnames } });
 
-        const presenceSlotMasterIds = Array.from(new Set(
-            presenceSlotClasses.map(presenceSlotClass => presenceSlotClass.master_id)
+        const payloads = Array.from(new Set(
+            presenceSlots.map(presenceSlot => {
+                return { 
+                    _id: presenceSlot._id,
+                    classname: presenceSlot.classname,
+                    master_id: presenceSlot.master_id
+                }
+            })
         ));
 
         await Promise.all([
@@ -75,18 +81,15 @@ export async function deleteAllClasses(_: Request, res: Response) {
             User.updateMany({ role: "student" }, { $set: { classname: "-" } })
         ]);
 
-        presenceSlotMasterIds.forEach(presenceSlotMasterId => {
-            io.to(`master:${presenceSlotMasterId}`)
+        payloads.forEach(payload => {
+            io.to("admin")
+            .to(`master:${payload.master_id}`)
+            .to(`class:${payload.classname}`)
             .emit("classroom:deleted-all", { 
-                master_id: presenceSlotMasterId,
-                presence_creator_id: presenceSlotMasterId 
+                _id: payload._id, 
+                classname: payload.classname,
+                presence_slot_id: payload._id 
             });
-        });
-
-        classnames.forEach(classname => {
-            io.to(`class:${classname}`)
-            .to("admin")
-            .emit("classroom:deleted-all", { classname: classname });
         });
 
         return res.status(200).json({ message: 'class deleted' });
@@ -97,31 +100,35 @@ export async function deleteAllClasses(_: Request, res: Response) {
 
 export async function deleteOneClass(req: Request, res: Response) {
     try {
-        const getClassName = req.params.classname;
-        const presenceSlotClasses = await PresenceSlot.find({ classname: getClassName });
+        const name = req.params.classname;
+        const getClass = await ClassRoom.findOne({ classname: name });
+        const presenceSlots = await PresenceSlot.find({ classname: getClass?.classname });
 
-        const presenceSlotMasterIds = Array.from(new Set(
-            presenceSlotClasses.map(presenceSlotClass => presenceSlotClass.master_id)
+        const payloads = Array.from(new Set(
+            presenceSlots.map(presenceSlot => {
+                return {
+                    _id: presenceSlot._id,
+                    classname: presenceSlot.classname,  
+                    master_id: presenceSlot.master_id
+                }
+            })
         ));
 
         await Promise.all([
-            StudentPresence.deleteMany({ classname: getClassName }),
-            PresenceSlot.deleteMany({ classname: getClassName }),
-            ClassRoom.deleteOne({ classname: getClassName }),
-            User.updateMany({ role: "student", classname: getClassName }, { $set: { classname: "-" } })
+            StudentPresence.deleteMany({ classname: getClass?.classname }),
+            PresenceSlot.deleteMany({ classname: getClass?.classname }),
+            ClassRoom.deleteOne({ classname: getClass?.classname }),
+            User.updateMany({ role: "student", classname: getClass?.classname }, { $set: { classname: "-" } })
         ]);
 
-        presenceSlotMasterIds.forEach(presenceSlotMasterId => {
-            io.to(`master:${presenceSlotMasterId}`)
-            .emit("classroom:deleted", { 
-                master_id: presenceSlotMasterId,
-                presence_creator_id: presenceSlotMasterId 
-            });
+        payloads.forEach(payload => {
+            io.to(`master:${payload.master_id}`)
+            .emit("classroom:deleted", { _id: payload._id, classname: payload.classname });
         });
 
-        io.to(`class:${getClassName}`)
+        io.to(`class:${getClass?.classname}`)
         .to("admin")
-        .emit("classroom:deleted", { classname: getClassName });
+        .emit("classroom:deleted", { _id: getClass?._id, classname: getClass?.classname });
 
         return res.status(200).json({ message: 'class deleted' });
     } catch (error) {
@@ -181,8 +188,7 @@ export async function makeClass(req: Request, res: Response) {
         const newClass = new ClassRoom({ created_at, classname });
         await newClass.save();
 
-        io.to("admin")
-        .emit("classroom:created", { 
+        io.to("admin").emit("classroom:created", { 
             _id: newClass._id,
             created_at: newClass.created_at, 
             classname: newClass.classname

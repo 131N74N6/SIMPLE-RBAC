@@ -36,12 +36,14 @@ export async function deleteAllPresencesForAdmin(req: AuthRequest, res: Response
         const presenceSlots = await PresenceSlot.find();
         if (presenceSlots.length === 0) return res.status(404).json({ message: "Presence not found" });
 
-        const presenceSlotClasses = Array.from(new Set(
-            presenceSlots.map(presenceSlot => presenceSlot.classname)
-        ));
-
-        const presenceSlotMasterIds = Array.from(new Set(
-            presenceSlots.map(presenceSlot => presenceSlot.master_id)
+        const payloads = Array.from(new Set(
+            presenceSlots.map(presenceSlot => {
+                return {
+                    _id: presenceSlot._id,
+                    classname: presenceSlot.classname,
+                    master_id: presenceSlot.master_id
+                }
+            })
         ));
 
         await Promise.all([
@@ -49,18 +51,15 @@ export async function deleteAllPresencesForAdmin(req: AuthRequest, res: Response
             PresenceSlot.deleteMany()
         ]);
 
-        presenceSlotMasterIds.forEach(presenceSlotMasterId => {
-            io.to(`master:${presenceSlotMasterId}`)
-            .emit("presence:all-deleted", { 
-                master_id: presenceSlotMasterId,
-                presence_creator_id: presenceSlotMasterId 
-            });
-        });
-
-        presenceSlotClasses.forEach(presenceSlotClass => {
-            io.to(`class:${presenceSlotClass}`)
+        payloads.forEach(payload => {
+            io.to(`class:${payload.classname}`)
+            .to(`master:${payload.master_id}`)
             .to("admin")
-            .emit("presence:all-deleted", { classname: presenceSlotClass });
+            .emit("presence:all-deleted", { 
+                _id: payload._id, 
+                presence_slot_id: payload._id, 
+                classname: payload.classname 
+            });
         });
 
         res.status(200).json({ message: "All presences deleted" });
@@ -71,27 +70,35 @@ export async function deleteAllPresencesForAdmin(req: AuthRequest, res: Response
 
 export async function deleteAllPresencesForMaster(req: AuthRequest, res: Response) {
     try {
-        const presenceSlot = await PresenceSlot.find({ master_id: req.user?.user_id });
-        if (presenceSlot.length === 0) return res.status(404).json({ message: "Presence not found" });
+        const presenceSlots = await PresenceSlot.find({ master_id: req.user?.user_id });
+        if (presenceSlots.length === 0) return res.status(404).json({ message: "Presence not found" });
 
-        const presenceSlotIds = presenceSlot.map((slot) => slot._id);
-        const presenceSlotClasses = Array.from(new Set(presenceSlot.map((slot) => slot.classname)));
+        const presenceSlotIds = presenceSlots.map((slot) => slot._id);
+
+        const payloads = Array.from(new Set(
+            presenceSlots.map(presenceSlot => {
+                return {
+                    _id: presenceSlot._id,
+                    classname: presenceSlot.classname,
+                    master_id: presenceSlot.master_id
+                }
+            })
+        ));
 
         await Promise.all([
             StudentPresence.deleteMany({ presence_slot_id: { $in: presenceSlotIds } }),
             PresenceSlot.deleteMany({ master_id: req.user?.user_id })
         ]);
 
-        io.to(`master:${presenceSlot[0].master_id}`)
-        .emit("presence:all-deleted", { 
-            master_id: req.user?.user_id,
-            presence_creator_id: req.user?.user_id 
-        });
-
-        presenceSlotClasses.forEach(presenceSlotClass => {
-            io.to(`class:${presenceSlotClass}`)
+        payloads.forEach(payload => {
+            io.to(`class:${payload.classname}`)
+            .to(`master:${payload.master_id}`)
             .to("admin")
-            .emit("presence:all-deleted", { classname: presenceSlotClass });
+            .emit("presence:all-deleted", { 
+                _id: payload._id, 
+                presence_slot_id: payload._id, 
+                classname: payload.classname 
+            });
         });
 
         res.status(200).json({ message: "All presences deleted" });
@@ -112,45 +119,13 @@ export async function deleteOnePresence(req: Request, res: Response) {
         io.to(`class:${presenceSlot[0].classname}`)
         .to(`master:${presenceSlot[0].master_id}`)
         .to("admin")
-        .emit("presence:deleted", { _id: presenceSlot[0].id });
+        .emit("presence:deleted", { 
+            _id: presenceSlot[0]._id, 
+            presence_slot_id: presenceSlot[0]._id,
+            classname: presenceSlot[0].classname
+        });
 
         res.status(200).json({ message: "Presence deleted" });
-    } catch (error) {
-        res.status(500).json({ message: "Something went wrong" });
-    }
-}
-
-export async function getAllPresencesForMaster(req: AuthRequest, res: Response) {
-    try {
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 12;
-        const skip = (page - 1) * limit;
-        const searched = req.query.search as string | undefined;
-
-        const presenceTotal = await PresenceSlot
-        .find({ master_id: req.user?.user_id })
-        .countDocuments();
-
-        if (presenceTotal === 0) return res.status(404).json({ message: "Presence not found" });
-
-        if (searched === undefined) {
-            const presenceData = await PresenceSlot
-            .find({ master_id: req.user?.user_id })
-            .limit(limit)
-            .skip(skip);
-            
-            res.status(200).json(presenceData);
-        } else {
-            const presenceData = await PresenceSlot
-            .find({
-                classname: { $regex: new RegExp(searched, 'i') },
-                master_id: req.user?.user_id
-            })
-            .limit(limit)
-            .skip(skip);
-
-            res.status(200).json(presenceData);
-        }
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
     }
@@ -176,12 +151,51 @@ export async function getAllPresencesForAdmin(req: Request, res: Response) {
                 ] 
             })
             .limit(limit)
-            .skip(skip);
+            .skip(skip)
+            .sort({ created_at: -1 });
         } else {
-            presenceData = await PresenceSlot.find().limit(limit).skip(skip);
+            presenceData = await PresenceSlot.find().limit(limit).skip(skip).sort({ created_at: -1 });
         }
 
         res.status(200).json(presenceData);
+    } catch (error) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export async function getAllPresencesForMaster(req: AuthRequest, res: Response) {
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 12;
+        const skip = (page - 1) * limit;
+        const searched = req.query.search as string | undefined;
+
+        const presenceTotal = await PresenceSlot
+        .find({ master_id: req.user?.user_id })
+        .countDocuments();
+
+        if (presenceTotal === 0) return res.status(404).json({ message: "Presence not found" });
+
+        if (searched === undefined) {
+            const presenceData = await PresenceSlot
+            .find({ master_id: req.user?.user_id })
+            .limit(limit)
+            .skip(skip)
+            .sort({ created_at: -1 });
+            
+            res.status(200).json(presenceData);
+        } else {
+            const presenceData = await PresenceSlot
+            .find({
+                classname: { $regex: new RegExp(searched, 'i') },
+                master_id: req.user?.user_id
+            })
+            .limit(limit)
+            .skip(skip)
+            .sort({ created_at: -1 });
+
+            res.status(200).json(presenceData);
+        }
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
     }
@@ -205,7 +219,8 @@ export async function getPresenceDetailForMaster(req: Request, res: Response) {
             studentList = await StudentPresence
             .find({ presence_slot_id: req.params.presence_slot_id })
             .limit(limit)
-            .skip(skip);
+            .skip(skip)
+            .sort({ created_at: -1 });
         } else {
             studentList = await StudentPresence
             .find({ 
@@ -213,7 +228,8 @@ export async function getPresenceDetailForMaster(req: Request, res: Response) {
                 presence_slot_id: req.params.presence_slot_id 
             })
             .limit(limit)
-            .skip(skip);
+            .skip(skip)
+            .sort({ created_at: -1 });
         }
         res.status(200).json(studentList);
     } catch (error) {
